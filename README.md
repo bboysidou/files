@@ -67,3 +67,6 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 ## Licence
 
 GPL-3.0-or-later. See [LICENSE](LICENSE).
+
+The bundled [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) font is licensed under the
+SIL Open Font License 1.1, see [assets/fonts/OFL.txt](assets/fonts/OFL.txt).

@@ -5,6 +5,7 @@ mod global_components;
 use gpui::{App, AppContext, Bounds, Focusable, KeyBinding, WindowBounds, WindowOptions, px, size};
 
 use crate::core::assets::embedded_assets::EmbeddedAssets;
+use crate::core::assets::embedded_fonts::embedded_fonts;
 use crate::core::constants::app::{APP_ID, WINDOW_HEIGHT, WINDOW_WIDTH};
 use crate::core::constants::keymap::TOGGLE_RAIL_KEYS;
 use crate::core::dependency_injection::places::places_repository;
@@ -21,6 +22,7 @@ fn main() {
     gpui_platform::application()
         .with_assets(EmbeddedAssets)
         .run(|cx: &mut App| {
+            let _ = cx.text_system().add_fonts(embedded_fonts());
             cx.bind_keys([KeyBinding::new(TOGGLE_RAIL_KEYS, ToggleRail, None)]);
             cx.bind_keys(browser_key_bindings());
             cx.bind_keys(text_field_key_bindings());
