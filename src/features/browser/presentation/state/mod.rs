@@ -1,3 +1,4 @@
+pub mod archive_job;
 pub mod band_state;
 pub mod browser_setup;
 pub mod browser_snapshot;

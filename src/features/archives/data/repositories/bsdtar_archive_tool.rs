@@ -1,80 +1,91 @@
 use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::Stdio;
 
-use crate::core::constants::preview::ARCHIVE_CREATE_ARGUMENTS;
 use crate::core::constants::preview::{
-    ARCHIVE_COMMAND, ARCHIVE_DESTINATION_FLAG, ARCHIVE_EXTRACT_ARGUMENTS, ARCHIVE_STAGING_NAME,
+    ARCHIVE_COMMAND, ARCHIVE_CREATE_ARGUMENTS, ARCHIVE_DESTINATION_FLAG, ARCHIVE_EXTRACT_ARGUMENTS,
+    ARCHIVE_STAGING_NAME,
 };
 use crate::core::helpers::process::sandbox_access::SandboxAccess;
 use crate::core::helpers::process::sandboxed_command::sandboxed_command;
+use crate::features::archives::data::datasources::bsdtar_runner::{
+    listed_total, run_verbose, tree_size,
+};
+use crate::features::archives::domain::entities::archive_error::ArchiveError;
 use crate::features::archives::domain::repositories::archive_tool::ArchiveTool;
+use crate::features::operations::domain::repositories::progress_sink::ProgressSink;
 use crate::features::operations::domain::usecases::unique_target::unique_target;
 
 pub struct BsdtarArchiveTool;
 
 impl ArchiveTool for BsdtarArchiveTool {
-    fn compress(&self, sources: &[PathBuf], archive: &Path) -> Result<(), String> {
-        let parent = archive.parent().ok_or_else(String::new)?;
+    fn compress(
+        &self,
+        sources: &[PathBuf],
+        archive: &Path,
+        sink: &dyn ProgressSink,
+    ) -> Result<(), ArchiveError> {
+        let parent = archive
+            .parent()
+            .ok_or_else(|| ArchiveError::Failed(String::new()))?;
         let names: Vec<&OsStr> = sources
             .iter()
             .filter(|source| source.parent() == Some(parent))
             .filter_map(|source| source.file_name())
             .collect();
         if names.is_empty() || names.len() != sources.len() {
-            return Err(String::new());
+            return Err(ArchiveError::Failed(String::new()));
         }
+        sink.begin(sources.iter().map(|source| tree_size(source)).sum());
         let access = SandboxAccess {
             read: Vec::new(),
             write: vec![parent.to_path_buf()],
         };
-        let output = sandboxed_command(ARCHIVE_COMMAND, &access)
+        let mut command = sandboxed_command(ARCHIVE_COMMAND, &access);
+        command
             .args(ARCHIVE_CREATE_ARGUMENTS)
             .arg(archive)
             .arg(ARCHIVE_DESTINATION_FLAG)
             .arg(parent)
-            .args(names)
-            .stdin(Stdio::null())
-            .stdout(Stdio::null())
-            .stderr(Stdio::piped())
-            .output()
-            .map_err(|error| error.to_string())?;
-        if output.status.success() {
-            return Ok(());
+            .args(names);
+        let outcome = run_verbose(command, parent, sink);
+        if outcome.is_err() {
+            let _ = fs::remove_file(archive);
         }
-        let _ = fs::remove_file(archive);
-        Err(String::from_utf8_lossy(&output.stderr).trim().to_owned())
+        outcome
     }
 
-    fn extract(&self, archive: &Path, destination: &Path) -> Result<(), String> {
-        fs::create_dir(destination).map_err(|error| error.to_string())?;
+    fn extract(
+        &self,
+        archive: &Path,
+        destination: &Path,
+        sink: &dyn ProgressSink,
+    ) -> Result<(), ArchiveError> {
+        sink.begin(listed_total(archive));
+        fs::create_dir(destination).map_err(|error| ArchiveError::Failed(error.to_string()))?;
         let access = SandboxAccess {
             read: vec![archive.to_path_buf()],
             write: vec![destination.to_path_buf()],
         };
-        let output = sandboxed_command(ARCHIVE_COMMAND, &access)
+        let mut command = sandboxed_command(ARCHIVE_COMMAND, &access);
+        command
             .args(ARCHIVE_EXTRACT_ARGUMENTS)
             .arg(archive)
             .arg(ARCHIVE_DESTINATION_FLAG)
-            .arg(destination)
-            .stdin(Stdio::null())
-            .stdout(Stdio::null())
-            .stderr(Stdio::piped())
-            .output()
-            .map_err(|error| error.to_string());
-        let failure = match output {
-            Ok(output) if output.status.success() => return flatten_single_folder(destination),
-            Ok(output) => String::from_utf8_lossy(&output.stderr).trim().to_owned(),
-            Err(reason) => reason,
-        };
-        let _ = fs::remove_dir_all(destination);
-        Err(failure)
+            .arg(destination);
+        match run_verbose(command, destination, sink) {
+            Ok(()) => flatten_single_folder(destination)
+                .map_err(|error| ArchiveError::Failed(error.to_string())),
+            Err(error) => {
+                let _ = fs::remove_dir_all(destination);
+                Err(error)
+            }
+        }
     }
 }
 
-fn flatten_single_folder(destination: &Path) -> Result<(), String> {
-    let mut children = fs::read_dir(destination).map_err(|error| error.to_string())?;
+fn flatten_single_folder(destination: &Path) -> std::io::Result<()> {
+    let mut children = fs::read_dir(destination)?;
     let (Some(Ok(only)), None) = (children.next(), children.next()) else {
         return Ok(());
     };
@@ -85,7 +96,7 @@ fn flatten_single_folder(destination: &Path) -> Result<(), String> {
         return Ok(());
     };
     let staging = unique_target(parent, ARCHIVE_STAGING_NAME, &|path| path.exists());
-    fs::rename(destination, &staging).map_err(|error| error.to_string())?;
-    fs::rename(staging.join(only.file_name()), destination).map_err(|error| error.to_string())?;
-    fs::remove_dir(&staging).map_err(|error| error.to_string())
+    fs::rename(destination, &staging)?;
+    fs::rename(staging.join(only.file_name()), destination)?;
+    fs::remove_dir(&staging)
 }

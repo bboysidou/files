@@ -17,7 +17,7 @@ use crate::features::operations::domain::usecases::run_operation::run_operation;
 
 impl BrowserView {
     pub(super) fn job_running(&self) -> bool {
-        self.operation_task.is_some()
+        self.operation_task.is_some() || self.archive_task.is_some()
     }
 
     fn title_key(operation: &FileOperation) -> &'static str {
@@ -53,10 +53,10 @@ impl BrowserView {
                 .await;
             let _ = this.update(cx, |this, cx| this.finish(intent, result, cx));
         }));
-        self.start_ticker(cx);
+        self.start_job_ticker(cx);
     }
 
-    fn start_ticker(&mut self, cx: &mut Context<Self>) {
+    pub(super) fn start_job_ticker(&mut self, cx: &mut Context<Self>) {
         self.job_ticker = Some(cx.spawn(async move |this, cx| {
             loop {
                 cx.background_executor()

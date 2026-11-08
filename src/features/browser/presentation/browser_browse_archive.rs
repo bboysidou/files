@@ -8,7 +8,9 @@ use crate::core::constants::preview::ARCHIVE_BROWSE_DIR;
 use crate::core::helpers::files::archive_stem::archive_stem;
 use crate::core::helpers::files::cache_name::cache_name;
 use crate::core::helpers::files::is_archive::is_archive;
+use crate::features::archives::domain::entities::archive_error::ArchiveError;
 use crate::features::browser::presentation::browser_view::BrowserView;
+use crate::features::browser::presentation::state::archive_job::ArchiveJob;
 use crate::features::places::domain::entities::place::PlaceTarget;
 
 impl BrowserView {
@@ -33,29 +35,19 @@ impl BrowserView {
             return self.show_archive_copy((folder, entry.name), window, cx);
         }
         let (tool, archive, label) = (self.setup.archives.clone(), entry.path, entry.name);
-        self.show_toast(
-            t!("archive.extracting", name = label).to_string(),
-            false,
-            cx,
-        );
-        cx.spawn_in(window, async move |this, cx| {
-            let destination = folder.clone();
-            let outcome = cx
-                .background_executor()
-                .spawn(async move {
-                    fs::create_dir_all(&root).map_err(|error| error.to_string())?;
-                    tool.extract(&archive, &destination)
-                })
-                .await;
-            let _ = this.update_in(cx, |this, window, cx| match outcome {
-                Ok(()) => this.show_archive_copy((folder, label), window, cx),
-                Err(reason) => {
-                    let message = t!("archive.failed", reason = reason).to_string();
-                    this.show_toast(message, false, cx);
-                }
-            });
-        })
-        .detach();
+        let destination = folder.clone();
+        let job = ArchiveJob {
+            title_key: "job.extracting",
+            work: Box::new(move |counter| {
+                fs::create_dir_all(&root)
+                    .map_err(|error| ArchiveError::Failed(error.to_string()))?;
+                tool.extract(&archive, &destination, counter)
+            }),
+            done: Box::new(move |this, window, cx| {
+                this.show_archive_copy((folder, label), window, cx)
+            }),
+        };
+        self.run_archive_job(job, window, cx);
     }
 
     fn show_archive_copy(

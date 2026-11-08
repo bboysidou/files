@@ -45,7 +45,9 @@ impl BrowserView {
             )
             .on_action(cx.listener(|this, _: &OpenWith, window, cx| this.open_with(window, cx)))
             .on_action(cx.listener(|this, _: &OpenTerminal, _, cx| this.open_terminal(cx)))
-            .on_action(cx.listener(|this, _: &ExtractHere, _, cx| this.extract_here(cx)))
+            .on_action(
+                cx.listener(|this, _: &ExtractHere, window, cx| this.extract_here(window, cx)),
+            )
             .on_action(cx.listener(|this, _: &EmptyTrash, window, cx| {
                 this.ask(ConfirmState::EmptyTrash, window, cx)
             }))
@@ -76,14 +78,12 @@ impl BrowserView {
             .on_action(
                 cx.listener(|this, _: &BrowseArchive, window, cx| this.browse_archive(window, cx)),
             )
-            .on_action(
-                cx.listener(|this, _: &CompressZip, _, cx| this.compress(ArchiveFormat::Zip, cx)),
-            )
-            .on_action(
-                cx.listener(|this, _: &CompressTarGz, _, cx| {
-                    this.compress(ArchiveFormat::TarGz, cx)
-                }),
-            )
+            .on_action(cx.listener(|this, _: &CompressZip, window, cx| {
+                this.compress(ArchiveFormat::Zip, window, cx)
+            }))
+            .on_action(cx.listener(|this, _: &CompressTarGz, window, cx| {
+                this.compress(ArchiveFormat::TarGz, window, cx)
+            }))
             .on_action(
                 cx.listener(|this, _: &BulkNextField, window, cx| {
                     this.switch_bulk_field(window, cx)

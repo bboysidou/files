@@ -1,6 +1,7 @@
 pub mod actions;
 pub mod browser_actions;
 pub mod browser_apps;
+pub mod browser_archive_job;
 pub mod browser_browse_archive;
 pub mod browser_bulk_rename;
 pub mod browser_chrome;
