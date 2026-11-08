@@ -1,5 +1,6 @@
 pub mod archive_job;
 pub mod band_state;
+pub mod browser_parts;
 pub mod browser_setup;
 pub mod browser_snapshot;
 pub mod bulk_rename_state;
@@ -20,6 +21,7 @@ pub mod operation_intent;
 pub mod overview_state;
 pub mod pane_event;
 pub mod pane_inputs;
+pub mod pane_parts;
 pub mod pane_start;
 pub mod preview_state;
 pub mod preview_surface;

@@ -51,7 +51,7 @@ impl PaneView {
         if focus.is_some() {
             self.pending_focus = focus.clone();
         }
-        self.pending_rename = focus.filter(|_| rename);
+        self.renames.pending = focus.filter(|_| rename);
         self.load(cx);
     }
 

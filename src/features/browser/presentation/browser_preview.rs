@@ -32,16 +32,16 @@ impl BrowserView {
         };
         let generation = match surface {
             PreviewSurface::QuickLook => {
-                self.quick_look = Some(state);
-                self.preview_scroll = UniformListScrollHandle::new();
-                self.quick_look_generation += 1;
-                self.quick_look_generation
+                self.quick_look.state = Some(state);
+                self.quick_look.scroll = UniformListScrollHandle::new();
+                self.quick_look.generation += 1;
+                self.quick_look.generation
             }
             PreviewSurface::Column => {
-                self.column_preview = Some(state);
-                self.column_scroll = UniformListScrollHandle::new();
-                self.column_generation += 1;
-                self.column_generation
+                self.column.state = Some(state);
+                self.column.scroll = UniformListScrollHandle::new();
+                self.column.generation += 1;
+                self.column.generation
             }
         };
         let source = self.setup.preview.clone();
@@ -62,8 +62,8 @@ impl BrowserView {
             });
         });
         match surface {
-            PreviewSurface::QuickLook => self.quick_look_task = Some(task),
-            PreviewSurface::Column => self.column_task = Some(task),
+            PreviewSurface::QuickLook => self.quick_look.task = Some(task),
+            PreviewSurface::Column => self.column.task = Some(task),
         }
         cx.notify();
     }
@@ -76,8 +76,8 @@ impl BrowserView {
     ) {
         let generation = ticket.generation;
         let (current, slot) = match ticket.surface {
-            PreviewSurface::QuickLook => (self.quick_look_generation, &mut self.quick_look),
-            PreviewSurface::Column => (self.column_generation, &mut self.column_preview),
+            PreviewSurface::QuickLook => (self.quick_look.generation, &mut self.quick_look.state),
+            PreviewSurface::Column => (self.column.generation, &mut self.column.state),
         };
         if current != generation {
             return;
@@ -89,17 +89,18 @@ impl BrowserView {
     }
 
     pub(super) fn sync_preview_column(&mut self, cx: &mut Context<Self>) {
-        if !self.column_open {
+        if !self.column.open {
             return;
         }
         match self.active_pane().read(cx).current_entry() {
             None => {
-                self.column_preview = None;
-                self.column_task = None;
+                self.column.state = None;
+                self.column.task = None;
             }
             Some(entry)
                 if self
-                    .column_preview
+                    .column
+                    .state
                     .as_ref()
                     .is_some_and(|state| state.entry == entry) => {}
             Some(entry) => self.begin_preview(entry, PreviewSurface::Column, cx),
@@ -107,22 +108,22 @@ impl BrowserView {
     }
 
     pub(super) fn toggle_preview_column(&mut self, cx: &mut Context<Self>) {
-        self.column_open = !self.column_open;
+        self.column.open = !self.column.open;
         self.sync_compact(cx);
-        if self.column_open {
+        if self.column.open {
             self.sync_preview_column(cx);
         } else {
-            self.column_preview = None;
-            self.column_task = None;
+            self.column.state = None;
+            self.column.task = None;
         }
         cx.notify();
     }
 
     pub(super) fn preview_column(&self, cx: &mut Context<Self>) -> Option<AnyElement> {
-        if !self.column_open {
+        if !self.column.open {
             return None;
         }
-        let Some(state) = self.column_preview.clone() else {
+        let Some(state) = self.column.state.clone() else {
             let body = EmptyState {
                 icon: Icon::Panel,
                 title: t!("preview.nothing.title").to_string().into(),
@@ -162,7 +163,7 @@ impl BrowserView {
     }
 
     pub(super) fn sync_compact(&mut self, cx: &mut Context<Self>) {
-        let compact = self.column_open;
+        let compact = self.column.open;
         for tab in &self.tabs {
             tab.pane
                 .update(cx, |pane, cx| pane.set_compact(compact, cx));

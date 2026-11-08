@@ -30,7 +30,7 @@ const DOUBLE: f32 = 2.0;
 
 impl BrowserView {
     fn turn_pdf_page(&mut self, delta: isize, cx: &mut Context<Self>) -> bool {
-        let Some(state) = self.quick_look.as_ref() else {
+        let Some(state) = self.quick_look.state.as_ref() else {
             return false;
         };
         let Some(PreviewContent::Pdf { index, pages, .. }) = &state.content else {
@@ -43,7 +43,7 @@ impl BrowserView {
         }
         let (source, path) = (self.setup.preview.clone(), state.entry.path.clone());
         let shown = path.clone();
-        self.quick_look_task = Some(cx.spawn(async move |this, cx| {
+        self.quick_look.task = Some(cx.spawn(async move |this, cx| {
             let content = cx
                 .background_executor()
                 .spawn(async move { source.pdf_page(&path, target) })
@@ -51,6 +51,7 @@ impl BrowserView {
             let _ = this.update(cx, |this, cx| {
                 if let Some(state) = this
                     .quick_look
+                    .state
                     .as_mut()
                     .filter(|state| state.entry.path == shown)
                 {
@@ -66,7 +67,7 @@ impl BrowserView {
         if self.turn_pdf_page(direction.signum() as isize, cx) {
             return;
         }
-        let handle = self.preview_scroll.0.borrow().base_handle.clone();
+        let handle = self.quick_look.scroll.0.borrow().base_handle.clone();
         let (offset, max) = (handle.offset(), handle.max_offset());
         let target = offset.y - px(QUICK_LOOK_SCROLL_STEP * direction);
         handle.set_offset(point(offset.x, target.clamp(-max.y, px(0.0))));
@@ -78,12 +79,12 @@ impl BrowserView {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Option<AnyElement> {
-        let state = self.quick_look.clone()?;
+        let state = self.quick_look.state.clone()?;
         let viewport = window.viewport_size();
         let panel = self.quick_look_panel(&state, viewport, cx);
         let scrim = div()
             .id("quick-look")
-            .track_focus(&self.quick_look_focus)
+            .track_focus(&self.quick_look.focus)
             .key_context(QUICK_LOOK_CONTEXT)
             .occlude()
             .w(viewport.width)

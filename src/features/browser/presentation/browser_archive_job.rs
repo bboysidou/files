@@ -26,19 +26,19 @@ impl BrowserView {
             done,
         } = job;
         let counter = Arc::new(JobCounter::default());
-        self.job = Some(JobState {
+        self.jobs.job = Some(JobState {
             counter: counter.clone(),
             title_key,
             started: Instant::now(),
         });
-        self.archive_task = Some(cx.spawn_in(window, async move |this, cx| {
+        self.jobs.archive_task = Some(cx.spawn_in(window, async move |this, cx| {
             let outcome = cx
                 .background_executor()
                 .spawn(async move { work(counter.as_ref()) })
                 .await;
             let _ = this.update_in(cx, |this, window, cx| {
-                this.archive_task = None;
-                this.job = None;
+                this.jobs.archive_task = None;
+                this.jobs.job = None;
                 match outcome {
                     Ok(()) => done(this, window, cx),
                     Err(ArchiveError::Cancelled) => {
@@ -51,7 +51,7 @@ impl BrowserView {
                     ),
                 }
                 this.reload_everything(cx);
-                if let Some((operation, intent)) = this.queue.pop_front() {
+                if let Some((operation, intent)) = this.jobs.queue.pop_front() {
                     this.execute(operation, intent, cx);
                 }
             });

@@ -50,7 +50,7 @@ impl BrowserView {
                 .collect(),
             active: self.active,
             options: self.options,
-            preview_open: self.column_open,
+            preview_open: self.column.open,
             restore_tabs: self.settings.restore_tabs,
             folder_views: self.settings.folder_views.clone(),
         }

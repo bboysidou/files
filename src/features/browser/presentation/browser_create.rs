@@ -35,7 +35,7 @@ impl BrowserView {
 
     pub(super) fn paste_links(&mut self, cx: &mut Context<Self>) {
         let system = self.setup.system_clipboard.clone();
-        self.paste_task = Some(cx.spawn(async move |this, cx| {
+        self.jobs.paste_task = Some(cx.spawn(async move |this, cx| {
             let external = cx
                 .background_executor()
                 .spawn(async move { system.read() })

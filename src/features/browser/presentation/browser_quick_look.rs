@@ -10,13 +10,13 @@ impl BrowserView {
         let Some(entry) = self.active_pane().read(cx).current_entry() else {
             return;
         };
-        window.focus(&self.quick_look_focus, cx);
+        window.focus(&self.quick_look.focus, cx);
         self.show_preview(entry, cx);
     }
 
     pub(super) fn close_quick_look(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.quick_look = None;
-        self.quick_look_task = None;
+        self.quick_look.state = None;
+        self.quick_look.task = None;
         window.focus(&self.active_pane().focus_handle(cx), cx);
         cx.notify();
     }
@@ -29,6 +29,7 @@ impl BrowserView {
         };
         let unchanged = self
             .quick_look
+            .state
             .as_ref()
             .is_some_and(|state| state.entry.path == entry.path);
         if !unchanged {
@@ -37,7 +38,7 @@ impl BrowserView {
     }
 
     pub(super) fn zoom_quick_look(&mut self, factor: f32, cx: &mut Context<Self>) {
-        if let Some(state) = self.quick_look.as_mut() {
+        if let Some(state) = self.quick_look.state.as_mut() {
             state.zoom = (state.zoom * factor).clamp(ZOOM_MIN, ZOOM_MAX);
             cx.notify();
         }

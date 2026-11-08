@@ -30,8 +30,8 @@ impl PaneView {
         };
         self.rename_field
             .update(cx, |field, cx| field.set_text(&name, 0..stem_end, cx));
-        self.renaming = Some(path);
-        self.focus_rename = true;
+        self.renames.path = Some(path);
+        self.renames.focus = true;
         cx.notify();
     }
 
@@ -49,7 +49,7 @@ impl PaneView {
     }
 
     fn commit_rename(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(from) = self.renaming.clone() else {
+        let Some(from) = self.renames.path.clone() else {
             return;
         };
         let name = self.rename_field.read(cx).text().trim().to_string();
@@ -67,7 +67,7 @@ impl PaneView {
     }
 
     fn stop_rename(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.renaming = None;
+        self.renames.path = None;
         window.focus(&self.focus_handle, cx);
         cx.notify();
     }

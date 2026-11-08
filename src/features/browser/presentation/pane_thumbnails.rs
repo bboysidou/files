@@ -27,7 +27,7 @@ impl PaneView {
         let Some(modified) = entry.modified.filter(|_| !direct) else {
             return Some(entry.path.clone());
         };
-        match self.thumbs.get(&entry.path) {
+        match self.thumbnails.entries.get(&entry.path) {
             Some(known) if known.modified == modified => match &known.state {
                 ThumbState::Ready(path) => Some(path.clone()),
                 ThumbState::Pending | ThumbState::Failed => None,
@@ -37,8 +37,8 @@ impl PaneView {
                     modified,
                     state: ThumbState::Pending,
                 };
-                self.thumbs.insert(entry.path.clone(), pending);
-                self.thumb_queue.push_back(ThumbRequest {
+                self.thumbnails.entries.insert(entry.path.clone(), pending);
+                self.thumbnails.queue.push_back(ThumbRequest {
                     path: entry.path.clone(),
                     modified,
                 });
@@ -49,23 +49,23 @@ impl PaneView {
     }
 
     pub(super) fn reset_thumbnails(&mut self) {
-        self.thumbs.clear();
-        self.thumb_queue.clear();
-        self.thumb_worker = None;
+        self.thumbnails.entries.clear();
+        self.thumbnails.queue.clear();
+        self.thumbnails.worker = None;
     }
 
     fn ensure_thumb_worker(&mut self, cx: &mut Context<Self>) {
-        if self.thumb_worker.is_some() {
+        if self.thumbnails.worker.is_some() {
             return;
         }
         let store = self.setup.thumbnails.clone();
-        self.thumb_worker = Some(cx.spawn(async move |this, cx| {
+        self.thumbnails.worker = Some(cx.spawn(async move |this, cx| {
             loop {
                 let next = this
                     .update(cx, |this, _| {
-                        let next = this.thumb_queue.pop_front();
+                        let next = this.thumbnails.queue.pop_front();
                         if next.is_none() {
-                            this.thumb_worker = None;
+                            this.thumbnails.worker = None;
                         }
                         next
                     })
@@ -93,7 +93,8 @@ impl PaneView {
     ) {
         let (path, modified) = (request.path, request.modified);
         let Some(known) = self
-            .thumbs
+            .thumbnails
+            .entries
             .get_mut(&path)
             .filter(|known| known.modified == modified)
         else {

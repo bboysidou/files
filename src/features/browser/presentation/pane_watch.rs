@@ -9,11 +9,11 @@ use crate::features::browser::presentation::pane_view::PaneView;
 
 impl PaneView {
     pub(super) fn watch(&mut self, directory: Option<PathBuf>, cx: &mut Context<Self>) {
-        if directory == self.watched {
+        if directory == self.watching.dir {
             return;
         }
-        self.watched = directory.clone();
-        self.watch_task = None;
+        self.watching.dir = directory.clone();
+        self.watching.task = None;
         let Some(subscription) =
             directory.and_then(|directory| self.setup.watcher.watch(&directory))
         else {
@@ -21,7 +21,7 @@ impl PaneView {
         };
         let mut changes = subscription.changes;
         let guard = subscription.guard;
-        self.watch_task = Some(cx.spawn(async move |this, cx| {
+        self.watching.task = Some(cx.spawn(async move |this, cx| {
             let _guard = guard;
             while changes.next().await.is_some() {
                 cx.background_executor()

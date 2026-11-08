@@ -46,7 +46,7 @@ impl BrowserView {
 
     pub(super) fn paste(&mut self, cx: &mut Context<Self>) {
         let system = self.setup.system_clipboard.clone();
-        self.paste_task = Some(cx.spawn(async move |this, cx| {
+        self.jobs.paste_task = Some(cx.spawn(async move |this, cx| {
             let external = cx
                 .background_executor()
                 .spawn(async move { system.read() })
@@ -225,19 +225,19 @@ impl BrowserView {
     }
 
     pub(super) fn show_toast(&mut self, message: String, can_undo: bool, cx: &mut Context<Self>) {
-        self.toast_generation += 1;
-        let generation = self.toast_generation;
-        self.toast = Some(ToastModel {
+        self.toasts.generation += 1;
+        let generation = self.toasts.generation;
+        self.toasts.current = Some(ToastModel {
             message: SharedString::from(message),
             can_undo,
         });
-        self.toast_task = Some(cx.spawn(async move |this, cx| {
+        self.toasts.task = Some(cx.spawn(async move |this, cx| {
             cx.background_executor()
                 .timer(Duration::from_millis(TOAST_DURATION_MS))
                 .await;
             let _ = this.update(cx, |this, cx| {
-                if this.toast_generation == generation {
-                    this.toast = None;
+                if this.toasts.generation == generation {
+                    this.toasts.current = None;
                     cx.notify();
                 }
             });

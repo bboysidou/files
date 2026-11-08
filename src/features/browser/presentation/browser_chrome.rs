@@ -46,7 +46,7 @@ impl BrowserView {
     }
 
     pub(super) fn toast_element(&self, cx: &mut Context<Self>) -> Option<AnyElement> {
-        let toast = self.toast.clone()?;
+        let toast = self.toasts.current.clone()?;
         let view = cx.entity().downgrade();
         let undo: ClickHandler = Rc::new(move |_, cx| {
             let _ = view.update(cx, |this, cx| this.undo(cx));

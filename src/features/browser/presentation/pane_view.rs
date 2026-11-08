@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::HashSet;
 use std::path::PathBuf;
 use std::rc::Rc;
 
@@ -26,10 +26,10 @@ use crate::features::browser::presentation::state::column_state::ColumnState;
 use crate::features::browser::presentation::state::folder_sizes::FolderSizes;
 use crate::features::browser::presentation::state::load_state::LoadState;
 use crate::features::browser::presentation::state::overview_state::OverviewState;
+use crate::features::browser::presentation::state::pane_parts::{RenameSlot, ThumbSlot, WatchSlot};
 use crate::features::browser::presentation::state::pane_start::PaneStart;
 use crate::features::browser::presentation::state::search_state::SearchState;
 use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
-use crate::features::browser::presentation::state::thumb_state::{ThumbEntry, ThumbRequest};
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
 use crate::features::browser::presentation::state::tree_state::TreeState;
 use crate::features::places::domain::entities::crumb_trail::CrumbTrail;
@@ -55,12 +55,10 @@ pub struct PaneView {
     pub(super) filter: String,
     pub(super) filter_open: bool,
     pub(super) cut: HashSet<PathBuf>,
-    pub(super) renaming: Option<PathBuf>,
+    pub(super) renames: RenameSlot,
+    pub(super) watching: WatchSlot,
+    pub(super) thumbnails: ThumbSlot,
     pub(super) rename_field: Entity<TextField>,
-    pub(super) focus_rename: bool,
-    pub(super) pending_rename: Option<PathBuf>,
-    pub(super) watched: Option<PathBuf>,
-    pub(super) watch_task: Option<Task<()>>,
     pub(super) compact: bool,
     pub(super) view: ViewMode,
     pub(super) list_columns: ListColumns,
@@ -72,9 +70,6 @@ pub struct PaneView {
     pub(super) sizes: FolderSizes,
     pub(super) tree: TreeState,
     pub(super) picker: bool,
-    pub(super) thumbs: HashMap<PathBuf, ThumbEntry>,
-    pub(super) thumb_queue: VecDeque<ThumbRequest>,
-    pub(super) thumb_worker: Option<Task<()>>,
     pub(super) search: Option<SearchState>,
     pub(super) search_field: Entity<TextField>,
     pub(super) search_task: Option<Task<()>>,
@@ -110,12 +105,10 @@ impl PaneView {
             filter: String::new(),
             filter_open: false,
             cut: HashSet::new(),
-            renaming: None,
+            renames: RenameSlot::default(),
+            watching: WatchSlot::default(),
+            thumbnails: ThumbSlot::default(),
             rename_field: inputs.rename,
-            focus_rename: false,
-            pending_rename: None,
-            watched: None,
-            watch_task: None,
             compact: false,
             view: start.options.view,
             list_columns: start.options.columns,
@@ -127,9 +120,6 @@ impl PaneView {
             sizes: FolderSizes::default(),
             tree: TreeState::default(),
             picker: false,
-            thumbs: HashMap::new(),
-            thumb_queue: VecDeque::new(),
-            thumb_worker: None,
             search: None,
             search_field: inputs.search,
             search_task: None,
@@ -263,8 +253,8 @@ impl PaneView {
 
 impl Render for PaneView {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        if self.focus_rename {
-            self.focus_rename = false;
+        if self.renames.focus {
+            self.renames.focus = false;
             window.focus(&self.rename_field.focus_handle(cx), cx);
         } else if !self.filter_open && self.filter_field.focus_handle(cx).is_focused(window) {
             window.focus(&self.focus_handle, cx);

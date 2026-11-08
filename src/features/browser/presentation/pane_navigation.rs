@@ -35,7 +35,7 @@ impl PaneView {
     ) {
         self.location = target;
         self.pending_focus = focus;
-        self.renaming = None;
+        self.renames.path = None;
         self.search = None;
         self.search_task = None;
         self.index_task = None;
@@ -125,7 +125,7 @@ impl PaneView {
             .and_then(|focus| self.entries.iter().position(|entry| entry.path == focus))
             .unwrap_or_else(|| previous_cursor.min(self.entries.len().saturating_sub(1)));
         self.selection = Selection::at(cursor);
-        if let Some(path) = self.pending_rename.take() {
+        if let Some(path) = self.renames.pending.take() {
             self.begin_rename_of(path, cx);
         }
         if explicit || cursor != previous_cursor {

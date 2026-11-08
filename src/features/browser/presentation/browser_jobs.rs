@@ -17,7 +17,7 @@ use crate::features::operations::domain::usecases::run_operation::run_operation;
 
 impl BrowserView {
     pub(super) fn job_running(&self) -> bool {
-        self.operation_task.is_some() || self.archive_task.is_some()
+        self.jobs.operation_task.is_some() || self.jobs.archive_task.is_some()
     }
 
     fn title_key(operation: &FileOperation) -> &'static str {
@@ -36,17 +36,17 @@ impl BrowserView {
         cx: &mut Context<Self>,
     ) {
         if self.job_running() {
-            self.queue.push_back((operation, intent));
+            self.jobs.queue.push_back((operation, intent));
             return self.show_toast(t!("job.queued").to_string(), false, cx);
         }
         let counter = Arc::new(JobCounter::default());
-        self.job = Some(JobState {
+        self.jobs.job = Some(JobState {
             counter: counter.clone(),
             title_key: Self::title_key(&operation),
             started: Instant::now(),
         });
         let files = self.setup.operations.clone();
-        self.operation_task = Some(cx.spawn(async move |this, cx| {
+        self.jobs.operation_task = Some(cx.spawn(async move |this, cx| {
             let result = cx
                 .background_executor()
                 .spawn(async move { run_operation(operation, files.as_ref(), counter.as_ref()) })
@@ -57,14 +57,14 @@ impl BrowserView {
     }
 
     pub(super) fn start_job_ticker(&mut self, cx: &mut Context<Self>) {
-        self.job_ticker = Some(cx.spawn(async move |this, cx| {
+        self.jobs.job_ticker = Some(cx.spawn(async move |this, cx| {
             loop {
                 cx.background_executor()
                     .timer(Duration::from_millis(JOB_TICK_MS))
                     .await;
                 let running = this.update(cx, |this, cx| {
                     cx.notify();
-                    this.job.is_some()
+                    this.jobs.job.is_some()
                 });
                 if !matches!(running, Ok(true)) {
                     break;
@@ -79,8 +79,8 @@ impl BrowserView {
         result: Result<FileOperation, OperationError>,
         cx: &mut Context<Self>,
     ) {
-        self.operation_task = None;
-        self.job = None;
+        self.jobs.operation_task = None;
+        self.jobs.job = None;
         match result {
             Ok(done) => self.record(intent, done, cx),
             Err(error) => {
@@ -95,7 +95,7 @@ impl BrowserView {
                 self.reload_everything(cx);
             }
         }
-        if let Some((operation, intent)) = self.queue.pop_front() {
+        if let Some((operation, intent)) = self.jobs.queue.pop_front() {
             self.execute(operation, intent, cx);
         }
     }
@@ -131,13 +131,14 @@ impl BrowserView {
     }
 
     pub fn cancel_job(&mut self) {
-        if let Some(job) = &self.job {
+        if let Some(job) = &self.jobs.job {
             job.counter.cancel();
         }
     }
 
     pub fn job_card(&self) -> Option<JobCardModel> {
         let job = self
+            .jobs
             .job
             .as_ref()
             .filter(|job| job.started.elapsed().as_millis() > JOB_CARD_DELAY_MS)?;

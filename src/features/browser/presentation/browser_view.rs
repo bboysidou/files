@@ -1,9 +1,8 @@
-use std::collections::VecDeque;
 use std::rc::Rc;
 
 use gpui::{
-    App, Context, Entity, FocusHandle, Focusable, IntoElement, Render, Subscription, Task,
-    UniformListScrollHandle, Window, div, prelude::*,
+    App, Context, Entity, FocusHandle, Focusable, IntoElement, Render, Subscription, Task, Window,
+    div, prelude::*,
 };
 
 use crate::core::enums::tags::tag_color::TagColor;
@@ -12,24 +11,22 @@ use crate::features::browser::domain::entities::view_options::ViewOptions;
 use crate::features::browser::presentation::components::sheet::Sheet;
 use crate::features::browser::presentation::key_bindings::BROWSER_CONTEXT;
 use crate::features::browser::presentation::pane_view::PaneView;
+use crate::features::browser::presentation::state::browser_parts::{
+    ColumnSlot, Jobs, QuickLookSlot, Toasts,
+};
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
 use crate::features::browser::presentation::state::bulk_rename_state::BulkRenameState;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
 use crate::features::browser::presentation::state::dual_pane::DualPane;
-use crate::features::browser::presentation::state::job_state::JobState;
 use crate::features::browser::presentation::state::menu_state::MenuState;
-use crate::features::browser::presentation::state::operation_intent::OperationIntent;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::pane_start::PaneStart;
-use crate::features::browser::presentation::state::preview_state::PreviewState;
 use crate::features::browser::presentation::state::properties_state::PropertiesState;
 use crate::features::browser::presentation::state::settings_sheet::SettingsSheet;
 use crate::features::browser::presentation::state::tab::Tab;
 use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
-use crate::features::browser::presentation::state::toast_model::ToastModel;
 use crate::features::operations::domain::entities::clipboard::Clipboard;
-use crate::features::operations::domain::entities::file_operation::FileOperation;
 use crate::features::operations::domain::entities::operation_history::OperationHistory;
 use crate::global_components::text_field::text_field_view::TextField;
 
@@ -40,27 +37,15 @@ pub struct BrowserView {
     pub(super) options: ViewOptions,
     pub(super) clipboard: Option<Clipboard>,
     pub(super) history: OperationHistory,
-    pub(super) toast: Option<ToastModel>,
-    pub(super) toast_generation: usize,
-    pub(super) toast_task: Option<Task<()>>,
-    pub(super) operation_task: Option<Task<()>>,
-    pub(super) paste_task: Option<Task<()>>,
-    pub(super) quick_look: Option<PreviewState>,
-    pub(super) quick_look_focus: FocusHandle,
-    pub(super) quick_look_task: Option<Task<()>>,
-    pub(super) quick_look_generation: usize,
-    pub(super) preview_scroll: UniformListScrollHandle,
-    pub(super) column_open: bool,
-    pub(super) column_preview: Option<PreviewState>,
-    pub(super) column_task: Option<Task<()>>,
-    pub(super) column_generation: usize,
-    pub(super) column_scroll: UniformListScrollHandle,
+    pub(super) toasts: Toasts,
+    pub(super) jobs: Jobs,
+    pub(super) quick_look: QuickLookSlot,
+    pub(super) column: ColumnSlot,
     pub(super) menu: Option<MenuState>,
     pub(super) menu_focus: FocusHandle,
     pub(super) open_with_task: Option<Task<()>>,
     pub(super) settings: SettingsSheet,
     pub(super) bulk: Option<BulkRenameState>,
-    pub(super) archive_task: Option<Task<()>>,
     pub(super) properties: Option<PropertiesState>,
     pub(super) keymap_open: bool,
     pub(super) keymap_focus: FocusHandle,
@@ -70,9 +55,6 @@ pub struct BrowserView {
     pub(super) confirm_focus: FocusHandle,
     pub(super) trash_task: Option<Task<()>>,
     pub(super) focus_confirm: bool,
-    pub(super) job: Option<JobState>,
-    pub(super) job_ticker: Option<Task<()>>,
-    pub(super) queue: VecDeque<(FileOperation, OperationIntent)>,
     pub(super) dual: DualPane,
 }
 
@@ -92,26 +74,14 @@ impl BrowserView {
             options: restore.options,
             clipboard: None,
             history: OperationHistory::default(),
-            toast: None,
-            toast_generation: 0,
-            toast_task: None,
-            operation_task: None,
-            paste_task: None,
-            quick_look: None,
-            quick_look_focus: cx.focus_handle(),
-            quick_look_task: None,
-            quick_look_generation: 0,
-            preview_scroll: UniformListScrollHandle::new(),
-            column_open: restore.preview_open,
-            column_preview: None,
-            column_task: None,
-            column_generation: 0,
-            column_scroll: UniformListScrollHandle::new(),
+            toasts: Toasts::default(),
+            jobs: Jobs::default(),
+            quick_look: QuickLookSlot::new(cx.focus_handle()),
+            column: ColumnSlot::new(restore.preview_open),
             menu: None,
             menu_focus: cx.focus_handle(),
             open_with_task: None,
             bulk: None,
-            archive_task: None,
             properties: None,
             settings: SettingsSheet::closed(cx.focus_handle(), &restore),
             keymap_open: false,
@@ -122,9 +92,6 @@ impl BrowserView {
             confirm_focus: cx.focus_handle(),
             trash_task: None,
             focus_confirm: false,
-            job: None,
-            job_ticker: None,
-            queue: VecDeque::new(),
         };
         view.restore_tabs((restore.tabs, restore.active), window, cx);
         view.sync_preview_column(cx);
@@ -263,7 +230,7 @@ impl Render for BrowserView {
                 toolbar,
                 body,
                 side,
-                preview_open: self.column_open,
+                preview_open: self.column.open,
                 on_preview,
                 view: self.options.view,
                 on_view,

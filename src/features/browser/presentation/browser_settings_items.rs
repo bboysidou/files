@@ -91,7 +91,7 @@ impl BrowserView {
                 id: "set-preview",
                 label: "settings.preview",
                 control: SettingControl::Toggle {
-                    on: self.column_open,
+                    on: self.column.open,
                     change: SettingChange::PreviewColumn,
                 },
             },

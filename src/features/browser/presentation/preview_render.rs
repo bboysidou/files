@@ -120,15 +120,15 @@ impl BrowserView {
 
     fn preview_scroll_for(&self, surface: PreviewSurface) -> &UniformListScrollHandle {
         match surface {
-            PreviewSurface::QuickLook => &self.preview_scroll,
-            PreviewSurface::Column => &self.column_scroll,
+            PreviewSurface::QuickLook => &self.quick_look.scroll,
+            PreviewSurface::Column => &self.column.scroll,
         }
     }
 
     fn preview_lines(&mut self, surface: PreviewSurface, range: Range<usize>) -> Vec<PreviewLine> {
         let state = match surface {
-            PreviewSurface::QuickLook => self.quick_look.as_ref(),
-            PreviewSurface::Column => self.column_preview.as_ref(),
+            PreviewSurface::QuickLook => self.quick_look.state.as_ref(),
+            PreviewSurface::Column => self.column.state.as_ref(),
         };
         let Some(Some(PreviewContent::Text { lines, .. })) = state.map(|state| &state.content)
         else {
