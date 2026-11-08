@@ -30,6 +30,7 @@ impl ShellView {
                     key: settings.sort_key,
                     ascending: settings.sort_ascending,
                     hidden_last: settings.hidden_last,
+                    seed: 0,
                 },
                 view: settings.view_mode,
                 columns: settings.columns,

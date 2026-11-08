@@ -32,7 +32,7 @@ Early development. Working today:
 - USB drives in the sidebar: click to mount and open, eject button to unmount and power off (udisks2)
 - Trash view: Enter restores, Delete deletes permanently after a confirmation, Empty Trash in the menu
 - Settings panel (sliders button, `,` or `Ctrl+,`): hidden files and whether they sort last, sort
-  key and direction, view, preview column, and whether to reopen the last session or start in Home
+  key (name, size, kind, modified, extension, created or random) and direction, view, preview column, and whether to reopen the last session or start in Home
 - Optional per-folder view memory (settings): a folder opens in the view last chosen there
 - Remembers hidden files, sort order, the sidebar, the preview column, the view mode and your open tabs
 - Rename several items at once (`r` with a selection): find and replace, or a new name with `{n}`

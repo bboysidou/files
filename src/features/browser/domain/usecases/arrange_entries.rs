@@ -3,6 +3,7 @@ use std::cmp::Ordering;
 use rust_i18n::t;
 
 use crate::core::enums::browser::sort_key::SortKey;
+use crate::core::helpers::text::fnv1a_seeded::fnv1a_seeded;
 use crate::core::helpers::text::natural_compare::natural_compare;
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::domain::entities::sort_order::SortOrder;
@@ -27,7 +28,7 @@ pub fn arrange_entries(
             .cmp(&left.is_dir)
             .then_with(|| hidden_rank(left).cmp(&hidden_rank(right)))
             .then_with(|| {
-                let order_by_key = compare_by(left, right, order.key);
+                let order_by_key = compare_by(left, right, order);
                 if order.ascending {
                     order_by_key
                 } else {
@@ -38,9 +39,12 @@ pub fn arrange_entries(
     visible
 }
 
-fn compare_by(left: &FileEntry, right: &FileEntry, key: SortKey) -> Ordering {
+fn compare_by(left: &FileEntry, right: &FileEntry, order: SortOrder) -> Ordering {
     let by_name = || natural_compare(&left.name, &right.name);
-    match key {
+    match order.key {
+        SortKey::Random => fnv1a_seeded(order.seed, &left.name)
+            .cmp(&fnv1a_seeded(order.seed, &right.name))
+            .then_with(by_name),
         SortKey::Name => by_name(),
         SortKey::Size => magnitude(left).cmp(&magnitude(right)).then_with(by_name),
         SortKey::Modified => left.modified.cmp(&right.modified).then_with(by_name),

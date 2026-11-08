@@ -42,7 +42,7 @@ impl BrowserView {
         match change {
             SettingChange::ShowHidden(on) => options.show_hidden = on,
             SettingChange::HiddenLast(on) => options.sort.hidden_last = on,
-            SettingChange::SortBy(key) => options.sort.key = key,
+            SettingChange::SortBy(key) => options.sort = options.sort.picked(key),
             SettingChange::Ascending(on) => options.sort.ascending = on,
             SettingChange::View(view) => options.view = view,
             SettingChange::Column(key, on) => {
