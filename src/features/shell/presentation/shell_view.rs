@@ -24,7 +24,6 @@ use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::drop_request::DropRequest;
 use crate::features::devices::domain::entities::device::Device;
 use crate::features::devices::domain::repositories::device_repository::DeviceRepository;
-use crate::features::integration::domain::entities::launch_request::LaunchRequest;
 use crate::features::places::domain::entities::place::{Place, PlaceTarget};
 use crate::features::places::domain::repositories::places_repository::PlacesRepository;
 use crate::features::settings::domain::entities::settings::Settings;
@@ -35,6 +34,7 @@ use crate::features::shell::presentation::state::network_rail::NetworkRail;
 use crate::features::shell::presentation::state::rail_keys::RailKeys;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
 use crate::features::shell::presentation::state::rail_stop::RailStop;
+use crate::features::shell::presentation::state::shell_start::{ShellStart, WindowRole};
 use crate::global_components::handlers::{ClickHandler, IndexHandler, IndexPathsHandler};
 
 pub struct ShellView {
@@ -54,6 +54,7 @@ pub struct ShellView {
     pub(super) network: NetworkRail,
     pub(super) bus: Option<Box<dyn Any>>,
     pub(super) launch_task: Option<Task<()>>,
+    pub(super) role: WindowRole,
     _browser_changes: Subscription,
     _quit: Subscription,
 }
@@ -61,7 +62,7 @@ pub struct ShellView {
 impl ShellView {
     pub fn new(
         repository: &dyn PlacesRepository,
-        launch: LaunchRequest,
+        start: ShellStart,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
@@ -70,7 +71,7 @@ impl ShellView {
         let home_target = Self::start_target(&places, home.as_ref());
         let settings_repository = settings_repository();
         let saved = settings_repository.load();
-        let restore = Self::restored_snapshot(&saved);
+        let restore = Self::starting_snapshot(&saved, start.role);
         let setup = browser_setup(places.clone(), home, home_target.clone());
         let browser = cx.new(|cx| BrowserView::new(setup, restore, window, cx));
         let browser_changes = cx.observe(&browser, |this, _, cx| {
@@ -108,10 +109,11 @@ impl ShellView {
             },
             bus: None,
             launch_task: None,
+            role: start.role,
             _browser_changes: browser_changes,
             _quit: quit,
         };
-        shell.start(launch, window, cx);
+        shell.start(start.launch, window, cx);
         shell
     }
 
@@ -212,7 +214,7 @@ impl Render for ShellView {
             .focus
             .is_focused(window)
             .then_some(self.rail_keys.cursor);
-        Self::with_rail_actions(div(), cx)
+        Self::with_window_actions(Self::with_rail_actions(div(), cx), cx)
             .on_action(cx.listener(|this, _: &ToggleRail, _, cx| this.toggle_rail(cx)))
             .size_full()
             .flex()

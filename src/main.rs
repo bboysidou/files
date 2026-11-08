@@ -4,14 +4,12 @@ mod core;
 mod features;
 mod global_components;
 
-use gpui::{App, AppContext, Bounds, Focusable, WindowBounds, WindowOptions, px, size};
+use gpui::App;
 
 use crate::core::assets::embedded_assets::EmbeddedAssets;
 use crate::core::assets::embedded_fonts::embedded_fonts;
-use crate::core::constants::app::{APP_ID, WINDOW_HEIGHT, WINDOW_WIDTH};
 use crate::core::dependency_injection::integration::{default_handler, instance_bridge};
 use crate::core::dependency_injection::picker::portal_registration;
-use crate::core::dependency_injection::places::places_repository;
 use crate::core::dependency_injection::settings::settings_repository;
 use crate::core::helpers::i18n::supported_locale::supported_locale;
 use crate::core::helpers::i18n::system_locale::system_locale;
@@ -19,7 +17,8 @@ use crate::features::integration::domain::entities::launch_request::LaunchReques
 use crate::features::integration::domain::usecases::parse_launch::parse_launch;
 use crate::features::picker::presentation::portal_host::serve_portal;
 use crate::features::shell::presentation::app_key_bindings::bind_app_keys;
-use crate::features::shell::presentation::shell_view::ShellView;
+use crate::features::shell::presentation::shell_windows::open_shell_window;
+use crate::features::shell::presentation::state::shell_start::{ShellStart, WindowRole};
 
 rust_i18n::i18n!("locales", fallback = "en");
 
@@ -47,22 +46,6 @@ fn bind_keys(cx: &mut App) {
     bind_app_keys(settings_repository().load().key_preset, cx);
 }
 
-fn open_main_window(launch: LaunchRequest, cx: &mut App) {
-    let bounds = Bounds::centered(None, size(px(WINDOW_WIDTH), px(WINDOW_HEIGHT)), cx);
-    let options = WindowOptions {
-        window_bounds: Some(WindowBounds::Windowed(bounds)),
-        app_id: Some(APP_ID.into()),
-        ..Default::default()
-    };
-    cx.open_window(options, |window, cx| {
-        let view = cx.new(|cx| ShellView::new(places_repository().as_ref(), launch, window, cx));
-        window.focus(&view.focus_handle(cx), cx);
-        view
-    })
-    .expect("failed to open main window");
-    cx.activate(true);
-}
-
 fn main() {
     let locales = rust_i18n::available_locales!();
     let available: Vec<&str> = locales.iter().map(|locale| locale.as_ref()).collect();
@@ -84,7 +67,13 @@ fn main() {
             if launch == LaunchRequest::Portal {
                 serve_portal(cx);
             } else {
-                open_main_window(launch, cx);
+                open_shell_window(
+                    ShellStart {
+                        launch,
+                        role: WindowRole::Primary,
+                    },
+                    cx,
+                );
             }
         });
 }

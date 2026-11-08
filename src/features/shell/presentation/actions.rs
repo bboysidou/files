@@ -8,6 +8,8 @@ actions!(
         RailNext,
         RailPrevious,
         RailOpen,
-        RailLeave
+        RailLeave,
+        NewWindow,
+        DetachTab
     ]
 );

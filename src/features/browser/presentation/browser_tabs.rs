@@ -72,7 +72,7 @@ impl BrowserView {
     }
 
     pub fn drop_start_placeholder(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if self.settings.restore_tabs || self.tabs.len() != 2 {
+        if self.tabs.len() != 2 {
             return;
         }
         let first = self.tabs[0].pane.read(cx);
@@ -81,7 +81,11 @@ impl BrowserView {
         }
     }
 
-    pub(super) fn close_active(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+    pub fn tab_count(&self) -> usize {
+        self.tabs.len()
+    }
+
+    pub fn close_active(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.close_tab(self.active, window, cx);
     }
 

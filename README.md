@@ -63,6 +63,9 @@ Early development. Working today:
   folder under the cursor on the right; click a side column to move there
 - Overview page (sidebar): disk usage per device, your home folder by file type, and recent files
   from `recently-used.xbel` (click one to open its folder with the file selected)
+- More windows (`Ctrl+N`, or `Ctrl+Alt+N` to move the current tab out). The first window owns the
+  saved session and the single-instance service; extra windows start on the folder they were
+  opened from and their tabs and setting changes are not saved
 - Dual pane (`Ctrl+4`): two folders side by side, `Tab` moves between them, `F6` copies the
   selection to the other side and `Shift+F6` moves it; drag the gap between them to resize
   (20–80 %, double-click resets, remembered across launches)
@@ -163,6 +166,7 @@ the active preset.
 | `Ctrl+Shift+N` | New folder |
 | `z` / `Ctrl+Shift+Z` | Undo / redo |
 | `Space` | Quick Look: `h` `l` / `←` `→` previous / next file, `j` `k` / `↓` `↑` scroll or turn PDF pages, `+` `−` zoom |
+| `Ctrl+N` / `Ctrl+Alt+N` | New window on the current folder / move the current tab to a new window |
 | `F3` | Show or hide the preview column |
 | `Shift+J` `Shift+K` | Next / previous page of a PDF in the preview column |
 | `Ctrl+1` `Ctrl+2` `Ctrl+3` `Ctrl+4` | List, columns, grid, dual pane |

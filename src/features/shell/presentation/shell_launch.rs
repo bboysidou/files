@@ -13,6 +13,7 @@ use crate::core::helpers::files::prune_cache::prune_cache;
 use crate::features::integration::domain::entities::launch_request::LaunchRequest;
 use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::features::shell::presentation::shell_view::ShellView;
+use crate::features::shell::presentation::state::shell_start::WindowRole;
 
 impl ShellView {
     pub(super) fn start(
@@ -23,13 +24,17 @@ impl ShellView {
     ) {
         self.refresh_devices(cx);
         self.watch_devices(cx);
-        cx.background_executor()
-            .spawn(async { prune_caches() })
-            .detach();
-        self.serve_launches(window, cx);
+        if self.role == WindowRole::Primary {
+            cx.background_executor()
+                .spawn(async { prune_caches() })
+                .detach();
+            self.serve_launches(window, cx);
+        }
         self.handle_launch(launch, window, cx);
-        self.browser
-            .update(cx, |browser, cx| browser.drop_start_placeholder(window, cx));
+        if self.role == WindowRole::Extra || !self.saved.restore_tabs {
+            self.browser
+                .update(cx, |browser, cx| browser.drop_start_placeholder(window, cx));
+        }
     }
 
     fn serve_launches(&mut self, window: &mut Window, cx: &mut Context<Self>) {

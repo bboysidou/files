@@ -11,8 +11,17 @@ use crate::features::settings::domain::entities::settings::Settings;
 use crate::features::shell::presentation::app_key_bindings::bind_app_keys;
 use crate::features::shell::presentation::shell_view::ShellView;
 use crate::features::shell::presentation::state::saved_tab_mapping::{restored_tab, saved_tab};
+use crate::features::shell::presentation::state::shell_start::WindowRole;
 
 impl ShellView {
+    pub(super) fn starting_snapshot(saved: &Settings, role: WindowRole) -> BrowserSnapshot {
+        let mut restore = Self::restored_snapshot(saved);
+        if role == WindowRole::Extra {
+            restore.tabs.clear();
+        }
+        restore
+    }
+
     pub(super) fn sync_key_preset(&mut self, cx: &mut Context<Self>) {
         let preset = self.browser.read(cx).key_preset();
         if cx.global::<ActiveKeyPreset>().0 != preset {
@@ -70,6 +79,9 @@ impl ShellView {
     }
 
     pub(super) fn persist(&mut self, cx: &mut Context<Self>) {
+        if self.role == WindowRole::Extra {
+            return;
+        }
         let settings = self.current_settings(cx);
         if settings == self.saved {
             return;
@@ -87,6 +99,9 @@ impl ShellView {
     }
 
     pub(super) fn flush(&mut self, cx: &mut Context<Self>) {
+        if self.role == WindowRole::Extra {
+            return;
+        }
         self.save_task = None;
         let settings = self.current_settings(cx);
         self.settings_repository.save(&settings);

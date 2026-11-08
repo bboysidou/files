@@ -8,4 +8,5 @@ pub mod shell_network;
 pub mod shell_rail_keys;
 pub mod shell_settings;
 pub mod shell_view;
+pub mod shell_windows;
 pub mod state;
