@@ -31,6 +31,7 @@ impl BrowserView {
             destination,
             mode,
             policy: CollisionPolicy::KeepBoth,
+            in_place: true,
         };
         self.start_transfer(request, cx);
     }

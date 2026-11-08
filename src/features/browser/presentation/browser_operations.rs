@@ -67,6 +67,7 @@ impl BrowserView {
             destination,
             mode: clipboard.mode,
             policy: CollisionPolicy::KeepBoth,
+            in_place: false,
         };
         self.start_transfer(request, cx);
     }
@@ -95,7 +96,12 @@ impl BrowserView {
                         .spawn(async move { system.clear() })
                         .detach();
                 }
-                self.execute(operation, OperationIntent::Fresh, cx);
+                let intent = if request.in_place {
+                    OperationIntent::FreshInPlace
+                } else {
+                    OperationIntent::Fresh
+                };
+                self.execute(operation, intent, cx);
             }
             Err(error) => self.show_error(error, cx),
         }

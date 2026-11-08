@@ -9,4 +9,5 @@ pub struct TransferRequest {
     pub destination: PathBuf,
     pub mode: ClipboardMode,
     pub policy: CollisionPolicy,
+    pub in_place: bool,
 }

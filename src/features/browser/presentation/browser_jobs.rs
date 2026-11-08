@@ -87,7 +87,9 @@ impl BrowserView {
                 match intent {
                     OperationIntent::Undo(operation) => self.history.push_undo(operation),
                     OperationIntent::Redo(operation) => self.history.push_redo(operation),
-                    OperationIntent::Fresh | OperationIntent::FreshThenRename => {}
+                    OperationIntent::Fresh
+                    | OperationIntent::FreshThenRename
+                    | OperationIntent::FreshInPlace => {}
                 }
                 self.show_error(error, cx);
                 self.reload_everything(cx);
@@ -104,6 +106,10 @@ impl BrowserView {
             OperationIntent::Fresh | OperationIntent::FreshThenRename => {
                 self.history.record(done.clone());
                 (Self::describe(&done), true, done.landing_path())
+            }
+            OperationIntent::FreshInPlace => {
+                self.history.record(done.clone());
+                (Self::describe(&done), true, None)
             }
             OperationIntent::Undo(original) => {
                 let message = t!("op.undid", what = Self::describe(&original)).to_string();

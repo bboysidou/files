@@ -107,6 +107,7 @@ impl BrowserView {
                 destination,
                 mode,
                 policy: CollisionPolicy::KeepBoth,
+                in_place: false,
             },
             cx,
         );

@@ -4,6 +4,7 @@ use crate::features::operations::domain::entities::file_operation::FileOperation
 pub enum OperationIntent {
     Fresh,
     FreshThenRename,
+    FreshInPlace,
     Undo(FileOperation),
     Redo(FileOperation),
 }
