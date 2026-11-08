@@ -1,10 +1,15 @@
 use std::path::Path;
+use std::time::Duration;
 
 use futures::StreamExt;
 use futures::channel::mpsc;
 use gpui::{Context, Window};
 
+use crate::core::constants::preview::{
+    ARCHIVE_BROWSE_DIR, CACHE_MAX_AGE_SECS, CACHE_MAX_BYTES, PREVIEW_PDF_DIR,
+};
 use crate::core::dependency_injection::integration::{default_handler, instance_bridge};
+use crate::core::helpers::files::prune_cache::prune_cache;
 use crate::features::integration::domain::entities::launch_request::LaunchRequest;
 use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::features::shell::presentation::shell_view::ShellView;
@@ -18,6 +23,9 @@ impl ShellView {
     ) {
         self.refresh_devices(cx);
         self.watch_devices(cx);
+        cx.background_executor()
+            .spawn(async { prune_caches() })
+            .detach();
         self.serve_launches(window, cx);
         self.handle_launch(launch, window, cx);
         self.browser
@@ -60,5 +68,15 @@ impl ShellView {
         self.browser.update(cx, |browser, cx| {
             browser.open_tab((PlaceTarget::Directory(folder), focus), window, cx)
         });
+    }
+}
+
+fn prune_caches() {
+    let Some(cache) = dirs::cache_dir() else {
+        return;
+    };
+    let max_age = Duration::from_secs(CACHE_MAX_AGE_SECS);
+    for dir in [ARCHIVE_BROWSE_DIR, PREVIEW_PDF_DIR] {
+        prune_cache(&cache.join(dir), max_age, CACHE_MAX_BYTES);
     }
 }

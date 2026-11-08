@@ -6,11 +6,10 @@ use crate::core::constants::preview::{
     ARCHIVE_COMMAND, ARCHIVE_CREATE_ARGUMENTS, ARCHIVE_DESTINATION_FLAG, ARCHIVE_EXTRACT_ARGUMENTS,
     ARCHIVE_STAGING_NAME,
 };
+use crate::core::helpers::files::tree_size::tree_size;
 use crate::core::helpers::process::sandbox_access::SandboxAccess;
 use crate::core::helpers::process::sandboxed_command::sandboxed_command;
-use crate::features::archives::data::datasources::bsdtar_runner::{
-    listed_total, run_verbose, tree_size,
-};
+use crate::features::archives::data::datasources::bsdtar_runner::{listed_total, run_verbose};
 use crate::features::archives::domain::entities::archive_error::ArchiveError;
 use crate::features::archives::domain::repositories::archive_tool::ArchiveTool;
 use crate::features::operations::domain::repositories::progress_sink::ProgressSink;

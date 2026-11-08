@@ -38,3 +38,5 @@ pub const MARKDOWN_TASK_DONE: &str = "[x]";
 pub const MARKDOWN_TASK_OPEN: &str = "[ ]";
 pub const MARKDOWN_CELL_SEPARATOR: &str = "  │  ";
 pub const ARCHIVE_BROWSE_DIR: &str = "files/archives";
+pub const CACHE_MAX_AGE_SECS: u64 = 30 * 24 * 60 * 60;
+pub const CACHE_MAX_BYTES: u64 = 2 * 1024 * 1024 * 1024;

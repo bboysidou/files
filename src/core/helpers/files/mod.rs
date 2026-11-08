@@ -6,6 +6,8 @@ pub mod file_uri;
 pub mod is_archive;
 pub mod is_image;
 pub mod path_from_uri;
+pub mod prune_cache;
 pub mod same_device;
+pub mod tree_size;
 pub mod write_xdg_tags;
 pub mod xdg_tags;
