@@ -26,6 +26,7 @@ pub enum PreviewContent {
         page: PathBuf,
         dimensions: Option<(usize, usize)>,
         pages: Option<usize>,
+        index: usize,
     },
     Archive {
         members: Vec<ArchiveMember>,

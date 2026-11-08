@@ -27,6 +27,7 @@ use crate::features::preview::domain::entities::text_line::TextLine;
 use crate::features::preview::domain::repositories::preview_source::PreviewSource;
 
 const NUL: u8 = 0;
+const FIRST_PAGE: usize = 1;
 const NO_FILTER: &str = "";
 
 pub struct LocalPreviewSource {
@@ -121,17 +122,7 @@ impl LocalPreviewSource {
     }
 
     fn pdf(&self, path: &Path) -> PreviewContent {
-        let Some(page) = self.pdf.first_page(path) else {
-            return PreviewContent::Unsupported;
-        };
-        let dimensions = imagesize::size(&page)
-            .ok()
-            .map(|size| (size.width, size.height));
-        PreviewContent::Pdf {
-            page,
-            dimensions,
-            pages: self.pdf.page_count(path),
-        }
+        self.pdf_page(path, FIRST_PAGE)
     }
 }
 
@@ -148,6 +139,21 @@ fn is_pdf(extension: Option<&str>) -> bool {
 }
 
 impl PreviewSource for LocalPreviewSource {
+    fn pdf_page(&self, path: &Path, number: usize) -> PreviewContent {
+        let Some(page) = self.pdf.page(path, number) else {
+            return PreviewContent::Unsupported;
+        };
+        let dimensions = imagesize::size(&page)
+            .ok()
+            .map(|size| (size.width, size.height));
+        PreviewContent::Pdf {
+            page,
+            dimensions,
+            pages: self.pdf.page_count(path),
+            index: number,
+        }
+    }
+
     fn load(&self, entry: &FileEntry) -> PreviewContent {
         if entry.is_dir {
             self.folder(&entry.path)

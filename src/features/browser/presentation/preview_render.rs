@@ -184,8 +184,13 @@ impl BrowserView {
                 format!("{width} × {height}"),
             )),
             PreviewContent::Pdf {
-                pages: Some(pages), ..
-            } => Some((t!("ql.fact.pages").to_string(), pages.to_string())),
+                pages: Some(pages),
+                index,
+                ..
+            } => Some((
+                t!("ql.fact.pages").to_string(),
+                format!("{index} / {pages}"),
+            )),
             PreviewContent::Text {
                 lines,
                 truncated: true,

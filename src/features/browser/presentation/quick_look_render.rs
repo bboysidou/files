@@ -22,13 +22,50 @@ use crate::features::browser::presentation::components::quick_look_panel::QuickL
 use crate::features::browser::presentation::key_bindings::QUICK_LOOK_CONTEXT;
 use crate::features::browser::presentation::state::preview_state::PreviewState;
 use crate::features::browser::presentation::state::preview_surface::PreviewSurface;
+use crate::features::preview::domain::entities::preview_content::PreviewContent;
 use crate::global_components::handlers::ClickHandler;
 
 const OVERLAY_PRIORITY: usize = 1;
 const DOUBLE: f32 = 2.0;
 
 impl BrowserView {
+    fn turn_pdf_page(&mut self, delta: isize, cx: &mut Context<Self>) -> bool {
+        let Some(state) = self.quick_look.as_ref() else {
+            return false;
+        };
+        let Some(PreviewContent::Pdf { index, pages, .. }) = &state.content else {
+            return false;
+        };
+        let last = pages.unwrap_or(*index) as isize;
+        let target = (*index as isize + delta).clamp(1, last.max(1)) as usize;
+        if target == *index {
+            return true;
+        }
+        let (source, path) = (self.setup.preview.clone(), state.entry.path.clone());
+        let shown = path.clone();
+        self.quick_look_task = Some(cx.spawn(async move |this, cx| {
+            let content = cx
+                .background_executor()
+                .spawn(async move { source.pdf_page(&path, target) })
+                .await;
+            let _ = this.update(cx, |this, cx| {
+                if let Some(state) = this
+                    .quick_look
+                    .as_mut()
+                    .filter(|state| state.entry.path == shown)
+                {
+                    state.content = Some(content);
+                    cx.notify();
+                }
+            });
+        }));
+        true
+    }
+
     fn scroll_quick_look(&mut self, direction: f32, cx: &mut Context<Self>) {
+        if self.turn_pdf_page(direction.signum() as isize, cx) {
+            return;
+        }
         let handle = self.preview_scroll.0.borrow().base_handle.clone();
         let (offset, max) = (handle.offset(), handle.max_offset());
         let target = offset.y - px(QUICK_LOOK_SCROLL_STEP * direction);

@@ -42,7 +42,7 @@ Early development. Working today:
   Trash), also by key (`Enter`, `m`, `s`, `r`); a move across disks checks the copied size before
   deleting the source
 - Quick Look for images, folders, source code with syntax colour, rendered Markdown and the first
-  page of a PDF (`pdftoppm`, from poppler) (`Space`)
+  pages of a PDF (`pdftoppm`, from poppler; `j` `k` turn pages) (`Space`)
 - Archives (zip, tar.gz/xz/zst/bz2, 7z, rar, iso, cpio, jar): Quick Look and the preview column
   list what is inside, `e` extracts next to the archive into a folder named after it (one top-level
   folder is not nested twice); `c` compresses the selection to `.zip` (`.tar.gz` from the menu),
@@ -149,7 +149,7 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 | `dd` `Delete` | Move to Trash |
 | `Ctrl+Shift+N` | New folder |
 | `z` / `Ctrl+Shift+Z` | Undo / redo |
-| `Space` | Quick Look (`←` `→` next file, `+` `−` zoom) |
+| `Space` | Quick Look: `h` `l` / `←` `→` previous / next file, `j` `k` / `↓` `↑` scroll or turn PDF pages, `+` `−` zoom |
 | `F3` | Show or hide the preview column |
 | `Ctrl+1` `Ctrl+2` `Ctrl+3` `Ctrl+4` | List, columns, grid, dual pane |
 | `Tab` / `F6` / `Shift+F6` | Dual pane: other side / copy there / move there |
