@@ -60,6 +60,7 @@ icons! {
     Sidebar => "side",
     Sliders => "sliders",
     Star => "star",
+    Terminal => "terminal",
     Trash => "trash",
     Up => "up",
     Usb => "usb",

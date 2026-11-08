@@ -2,6 +2,8 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::Arc;
 
+use crate::features::applications::domain::repositories::app_catalog::AppCatalog;
+use crate::features::applications::domain::repositories::app_launcher::AppLauncher;
 use crate::features::browser::domain::repositories::directory_repository::DirectoryRepository;
 use crate::features::browser::domain::repositories::directory_watcher::DirectoryWatcher;
 use crate::features::browser::domain::repositories::file_launcher::FileLauncher;
@@ -16,6 +18,8 @@ use crate::features::thumbnails::domain::repositories::thumbnail_store::Thumbnai
 pub struct BrowserSetup {
     pub repository: Arc<dyn DirectoryRepository>,
     pub launcher: Rc<dyn FileLauncher>,
+    pub apps: Arc<dyn AppCatalog>,
+    pub app_launcher: Rc<dyn AppLauncher>,
     pub watcher: Arc<dyn DirectoryWatcher>,
     pub operations: Arc<dyn FileOperations>,
     pub system_clipboard: Arc<dyn SystemClipboard>,

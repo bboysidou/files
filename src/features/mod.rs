@@ -1,3 +1,4 @@
+pub mod applications;
 pub mod browser;
 pub mod devices;
 pub mod integration;

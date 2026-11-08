@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use crate::core::dependency_injection::applications::{app_catalog, app_launcher};
 use crate::core::dependency_injection::browser::{
     directory_repository, directory_watcher, file_launcher,
 };
@@ -22,6 +23,8 @@ pub fn browser_setup(
         indexer: search_indexer(),
         repository,
         launcher: file_launcher(),
+        apps: app_catalog(),
+        app_launcher: app_launcher(),
         watcher: directory_watcher(),
         operations: file_operations(),
         system_clipboard: system_clipboard(),

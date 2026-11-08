@@ -1,3 +1,4 @@
+pub mod applications;
 pub mod browser;
 pub mod browser_setup;
 pub mod devices;

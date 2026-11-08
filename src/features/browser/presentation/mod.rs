@@ -1,5 +1,6 @@
 pub mod actions;
 pub mod browser_actions;
+pub mod browser_apps;
 pub mod browser_chrome;
 pub mod browser_dual;
 pub mod browser_jobs;

@@ -77,5 +77,7 @@ actions!(
         TagPurple,
         TagGrey,
         ClearTags,
+        OpenWith,
+        OpenTerminal,
     ]
 );

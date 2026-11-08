@@ -40,7 +40,11 @@ Early development. Working today:
 - Grid view with image thumbnails (`Ctrl+3`, back to the list with `Ctrl+1`), cached in the shared
   freedesktop thumbnail cache (`~/.cache/thumbnails`) that other file managers also use
 - Extension badges coloured from a hash of the extension, so every type gets a stable colour
-- Opening files with your default applications (`xdg-open`)
+- Opening files with your default applications (`xdg-open`), or with any other app that lists the
+  file type (`o`, default app first; terminal apps open in your terminal)
+- A terminal in the current folder (`S`): `$TERMINAL` when set, otherwise the first of
+  `xdg-terminal-exec`, kitty, foot, Alacritty, Ghostty, WezTerm, GNOME Terminal, Konsole, Xfce
+  Terminal, Console or xterm found on your `PATH`
 
 ## Build
 
@@ -86,6 +90,8 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 | `j` `k` / `↓` `↑` | Move the cursor |
 | `gg` / `G` | First / last row |
 | `Enter` `l` `→` | Open |
+| `o` | Open with another app |
+| `S` | Terminal in this folder |
 | `h` `←` `Backspace` | Parent folder |
 | `Alt+←` / `Alt+→` | Back / forward |
 | `t` / `w` | New / close tab |

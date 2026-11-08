@@ -11,8 +11,8 @@ use crate::core::theme::metrics::{
     MENU_EDGE_MARGIN, MENU_ITEM_HEIGHT, MENU_MIN_WIDTH, MENU_PAD, MENU_SEPARATOR_MARGIN,
 };
 use crate::features::browser::presentation::actions::{
-    CopyPath, CopySelection, CutSelection, EmptyTrash, NewFolder, OpenEntry, PasteClipboard,
-    QuickLook, RenameEntry, TrashSelection,
+    CopyPath, CopySelection, CutSelection, EmptyTrash, NewFolder, OpenEntry, OpenTerminal,
+    OpenWith, PasteClipboard, QuickLook, RenameEntry, TrashSelection,
 };
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::key_bindings::MENU_CONTEXT;
@@ -37,6 +37,11 @@ fn entry(label: &str, icon: Icon, shortcut: &'static str, action: Box<dyn Action
     }
 }
 
+fn gated(mut item: MenuEntry, enabled: bool) -> MenuEntry {
+    item.enabled = enabled;
+    item
+}
+
 impl BrowserView {
     fn trash_entries(has_entry: bool) -> Vec<MenuEntry> {
         let mut restore = entry("trash.restore", Icon::Up, "Enter", Box::new(OpenEntry));
@@ -57,50 +62,50 @@ impl BrowserView {
         let pane = self.active_pane().read(cx);
         let (has_entry, has_directory) =
             (pane.current_entry().is_some(), pane.directory().is_some());
-        let needs_entry = |mut item: MenuEntry| {
-            item.enabled = has_entry;
-            item
-        };
-        let mut paste = entry("menu.paste", Icon::Paste, "p", Box::new(PasteClipboard));
-        paste.enabled = has_directory;
-        let mut new_folder = entry(
+        let mut copy = entry("menu.copy", Icon::Copy, "y", Box::new(CopySelection));
+        copy.separated = true;
+        let mut rename = entry("menu.rename", Icon::Edit, "r", Box::new(RenameEntry));
+        rename.separated = true;
+        let mut trash = entry("menu.trash", Icon::Trash, "dd", Box::new(TrashSelection));
+        (trash.danger, trash.separated) = (true, true);
+        let paste = entry("menu.paste", Icon::Paste, "p", Box::new(PasteClipboard));
+        let new_folder = entry(
             "menu.new_folder",
             Icon::NewFolder,
             "Ctrl+Shift+N",
             Box::new(NewFolder),
         );
-        new_folder.enabled = has_directory;
-        let mut copy = needs_entry(entry("menu.copy", Icon::Copy, "y", Box::new(CopySelection)));
-        copy.separated = true;
-        let mut rename = needs_entry(entry("menu.rename", Icon::Edit, "r", Box::new(RenameEntry)));
-        rename.separated = true;
-        let mut trash = needs_entry(entry(
-            "menu.trash",
-            Icon::Trash,
-            "dd",
-            Box::new(TrashSelection),
-        ));
-        (trash.danger, trash.separated) = (true, true);
+        let terminal = entry("menu.terminal", Icon::Terminal, "S", Box::new(OpenTerminal));
+        let copy_path = entry(
+            "menu.copy_path",
+            Icon::Document,
+            "Ctrl+Shift+C",
+            Box::new(CopyPath),
+        );
         vec![
-            needs_entry(entry("menu.open", Icon::Open, "Enter", Box::new(OpenEntry))),
-            needs_entry(entry(
-                "menu.quick_look",
-                Icon::Eye,
-                "Space",
-                Box::new(QuickLook),
-            )),
-            copy,
-            needs_entry(entry("menu.cut", Icon::Cut, "x", Box::new(CutSelection))),
-            paste,
-            needs_entry(entry(
-                "menu.copy_path",
-                Icon::Document,
-                "Ctrl+Shift+C",
-                Box::new(CopyPath),
-            )),
-            rename,
-            new_folder,
-            trash,
+            gated(
+                entry("menu.open", Icon::Open, "Enter", Box::new(OpenEntry)),
+                has_entry,
+            ),
+            gated(
+                entry("menu.open_with", Icon::Open, "o", Box::new(OpenWith)),
+                has_entry,
+            ),
+            gated(
+                entry("menu.quick_look", Icon::Eye, "Space", Box::new(QuickLook)),
+                has_entry,
+            ),
+            gated(copy, has_entry),
+            gated(
+                entry("menu.cut", Icon::Cut, "x", Box::new(CutSelection)),
+                has_entry,
+            ),
+            gated(paste, has_directory),
+            gated(copy_path, has_entry),
+            gated(rename, has_entry),
+            gated(new_folder, has_directory),
+            gated(terminal, has_directory),
+            gated(trash, has_entry),
         ]
     }
 
@@ -124,6 +129,7 @@ impl BrowserView {
             position,
             entries,
             hot,
+            apps: None,
         });
         window.focus(&self.menu_focus, cx);
         cx.notify();
@@ -162,6 +168,9 @@ impl BrowserView {
             return;
         };
         window.focus(&self.active_pane().focus_handle(cx), cx);
+        if let Some(choice) = menu.apps {
+            return self.launch_choice(choice, index, cx);
+        }
         if let Some(chosen) = menu
             .entries
             .into_iter()
