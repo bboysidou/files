@@ -12,10 +12,12 @@ use crate::core::theme::metrics::{
     MENU_EDGE_MARGIN, MENU_ITEM_HEIGHT, MENU_MIN_WIDTH, MENU_PAD, MENU_SEPARATOR_MARGIN,
 };
 use crate::features::browser::presentation::actions::{
+    CompressTarGz, CompressZip, Duplicate, NewFile,
+};
+use crate::features::browser::presentation::actions::{
     CopyPath, CopySelection, CutSelection, EmptyTrash, ExtractHere, NewFolder, OpenEntry,
     OpenTerminal, OpenWith, PasteClipboard, QuickLook, RenameEntry, TrashSelection,
 };
-use crate::features::browser::presentation::actions::{Duplicate, NewFile};
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::key_bindings::MENU_CONTEXT;
 use crate::features::browser::presentation::state::menu_state::MenuState;
@@ -39,7 +41,7 @@ fn entry(label: &str, icon: Icon, shortcut: &'static str, action: Box<dyn Action
     }
 }
 
-fn folder_entries(has_directory: bool, archive: bool, has_entry: bool) -> [MenuEntry; 6] {
+fn folder_entries(has_directory: bool, archive: bool, has_entry: bool) -> [MenuEntry; 8] {
     let new_folder = entry(
         "menu.new_folder",
         Icon::NewFolder,
@@ -49,6 +51,18 @@ fn folder_entries(has_directory: bool, archive: bool, has_entry: bool) -> [MenuE
     let new_file = entry("menu.new_file", Icon::Document, "N", Box::new(NewFile));
     let duplicate = entry("menu.duplicate", Icon::Copy, "Ctrl+D", Box::new(Duplicate));
     let terminal = entry("menu.terminal", Icon::Terminal, "S", Box::new(OpenTerminal));
+    let zip = entry(
+        "menu.compress_zip",
+        Icon::Download,
+        "c",
+        Box::new(CompressZip),
+    );
+    let tar = entry(
+        "menu.compress_tar",
+        Icon::Download,
+        "",
+        Box::new(CompressTarGz),
+    );
     let extract = entry("menu.extract", Icon::Open, "e", Box::new(ExtractHere));
     let mut trash = entry("menu.trash", Icon::Trash, "dd", Box::new(TrashSelection));
     (trash.danger, trash.separated) = (true, true);
@@ -58,6 +72,8 @@ fn folder_entries(has_directory: bool, archive: bool, has_entry: bool) -> [MenuE
         gated(duplicate, has_entry),
         gated(terminal, has_directory),
         gated(extract, archive),
+        gated(zip, has_entry),
+        gated(tar, has_entry),
         gated(trash, has_entry),
     ]
 }

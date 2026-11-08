@@ -1,18 +1,52 @@
+use std::ffi::OsStr;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Stdio;
 
+use crate::core::constants::preview::ARCHIVE_CREATE_ARGUMENTS;
 use crate::core::constants::preview::{
     ARCHIVE_COMMAND, ARCHIVE_DESTINATION_FLAG, ARCHIVE_EXTRACT_ARGUMENTS, ARCHIVE_STAGING_NAME,
 };
 use crate::core::helpers::process::sandbox_access::SandboxAccess;
 use crate::core::helpers::process::sandboxed_command::sandboxed_command;
-use crate::features::archives::domain::repositories::archive_extractor::ArchiveExtractor;
+use crate::features::archives::domain::repositories::archive_tool::ArchiveTool;
 use crate::features::operations::domain::usecases::unique_target::unique_target;
 
-pub struct BsdtarExtractor;
+pub struct BsdtarArchiveTool;
 
-impl ArchiveExtractor for BsdtarExtractor {
+impl ArchiveTool for BsdtarArchiveTool {
+    fn compress(&self, sources: &[PathBuf], archive: &Path) -> Result<(), String> {
+        let parent = archive.parent().ok_or_else(String::new)?;
+        let names: Vec<&OsStr> = sources
+            .iter()
+            .filter(|source| source.parent() == Some(parent))
+            .filter_map(|source| source.file_name())
+            .collect();
+        if names.is_empty() || names.len() != sources.len() {
+            return Err(String::new());
+        }
+        let access = SandboxAccess {
+            read: Vec::new(),
+            write: vec![parent.to_path_buf()],
+        };
+        let output = sandboxed_command(ARCHIVE_COMMAND, &access)
+            .args(ARCHIVE_CREATE_ARGUMENTS)
+            .arg(archive)
+            .arg(ARCHIVE_DESTINATION_FLAG)
+            .arg(parent)
+            .args(names)
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped())
+            .output()
+            .map_err(|error| error.to_string())?;
+        if output.status.success() {
+            return Ok(());
+        }
+        let _ = fs::remove_file(archive);
+        Err(String::from_utf8_lossy(&output.stderr).trim().to_owned())
+    }
+
     fn extract(&self, archive: &Path, destination: &Path) -> Result<(), String> {
         fs::create_dir(destination).map_err(|error| error.to_string())?;
         let access = SandboxAccess {

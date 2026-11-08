@@ -25,6 +25,7 @@ pub enum FileOperation {
     CreateFolder(PathBuf),
     RemoveFolder(PathBuf),
     Extract(PathBuf),
+    Compress(PathBuf),
     CreateFile(PathBuf),
     Link(Vec<Transfer>),
     Batch(Vec<FileOperation>),
@@ -47,9 +48,9 @@ impl FileOperation {
             FileOperation::Restore(paths) => FileOperation::Trash(paths.clone()),
             FileOperation::CreateFolder(path) => FileOperation::RemoveFolder(path.clone()),
             FileOperation::RemoveFolder(path) => FileOperation::CreateFolder(path.clone()),
-            FileOperation::Extract(path) | FileOperation::CreateFile(path) => {
-                FileOperation::Trash(vec![path.clone()])
-            }
+            FileOperation::Extract(path)
+            | FileOperation::Compress(path)
+            | FileOperation::CreateFile(path) => FileOperation::Trash(vec![path.clone()]),
             FileOperation::Link(transfers) => FileOperation::Trash(
                 transfers
                     .iter()
@@ -72,6 +73,7 @@ impl FileOperation {
             | FileOperation::CreateFolder(_)
             | FileOperation::RemoveFolder(_)
             | FileOperation::Extract(_)
+            | FileOperation::Compress(_)
             | FileOperation::CreateFile(_) => 1,
             FileOperation::Batch(steps) => steps.last().map_or(0, FileOperation::item_count),
         }
@@ -88,6 +90,7 @@ impl FileOperation {
             FileOperation::Restore(paths) => paths.first().cloned(),
             FileOperation::CreateFolder(path)
             | FileOperation::Extract(path)
+            | FileOperation::Compress(path)
             | FileOperation::CreateFile(path) => Some(path.clone()),
             FileOperation::Trash(_) | FileOperation::RemoveFolder(_) => None,
             FileOperation::Batch(steps) => steps.last().and_then(FileOperation::landing_path),

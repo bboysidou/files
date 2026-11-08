@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use crate::features::applications::domain::repositories::app_catalog::AppCatalog;
 use crate::features::applications::domain::repositories::app_launcher::AppLauncher;
-use crate::features::archives::domain::repositories::archive_extractor::ArchiveExtractor;
+use crate::features::archives::domain::repositories::archive_tool::ArchiveTool;
 use crate::features::browser::domain::repositories::directory_repository::DirectoryRepository;
 use crate::features::browser::domain::repositories::directory_watcher::DirectoryWatcher;
 use crate::features::browser::domain::repositories::file_launcher::FileLauncher;
@@ -22,7 +22,7 @@ pub struct BrowserSetup {
     pub launcher: Rc<dyn FileLauncher>,
     pub apps: Arc<dyn AppCatalog>,
     pub app_launcher: Rc<dyn AppLauncher>,
-    pub extractor: Arc<dyn ArchiveExtractor>,
+    pub archives: Arc<dyn ArchiveTool>,
     pub watcher: Arc<dyn DirectoryWatcher>,
     pub operations: Arc<dyn FileOperations>,
     pub system_clipboard: Arc<dyn SystemClipboard>,

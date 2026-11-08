@@ -1,1 +1,1 @@
-pub mod bsdtar_extractor;
+pub mod bsdtar_archive_tool;

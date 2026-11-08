@@ -265,6 +265,7 @@ fn named_step(operation: &FileOperation) -> Option<(&'static str, &PathBuf)> {
         FileOperation::CreateFolder(path) => Some(("op.created_folder", path)),
         FileOperation::RemoveFolder(path) => Some(("op.removed_folder", path)),
         FileOperation::Extract(path) => Some(("archive.extracted", path)),
+        FileOperation::Compress(path) => Some(("archive.compressed", path)),
         FileOperation::CreateFile(path) => Some(("op.created_file", path)),
         _ => None,
     }

@@ -22,6 +22,7 @@ pub const ARCHIVE_COMMAND: &str = "bsdtar";
 pub const ARCHIVE_LIST_ARGUMENTS: [&str; 2] = ["-t", "-f"];
 pub const ARCHIVE_EXTRACT_ARGUMENTS: [&str; 2] = ["-x", "-f"];
 pub const ARCHIVE_DESTINATION_FLAG: &str = "-C";
+pub const ARCHIVE_CREATE_ARGUMENTS: [&str; 3] = ["-a", "-c", "-f"];
 pub const ARCHIVE_SHOWN_MEMBERS: usize = 400;
 pub const ARCHIVE_COUNT_LIMIT: usize = 100_000;
 pub const ARCHIVE_DIR_SUFFIX: char = '/';

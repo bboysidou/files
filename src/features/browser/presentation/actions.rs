@@ -85,6 +85,8 @@ actions!(
         Duplicate,
         PasteLink,
         BulkNextField,
+        CompressZip,
+        CompressTarGz,
         CloseSettings,
     ]
 );

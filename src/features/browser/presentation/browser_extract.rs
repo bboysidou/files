@@ -21,7 +21,7 @@ impl BrowserView {
             return;
         };
         let destination = unique_target(parent, archive_stem(&entry.name), &|path| path.exists());
-        let extractor = self.setup.extractor.clone();
+        let extractor = self.setup.archives.clone();
         let (archive, done) = (entry.path.clone(), destination.clone());
         let name = destination
             .file_name()

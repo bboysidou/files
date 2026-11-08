@@ -40,7 +40,8 @@ Early development. Working today:
   page of a PDF (`pdftoppm`, from poppler) (`Space`)
 - Archives (zip, tar.gz/xz/zst/bz2, 7z, rar, iso, cpio, jar): Quick Look and the preview column
   list what is inside, `e` extracts next to the archive into a folder named after it (one top-level
-  folder is not nested twice). Uses `bsdtar` from libarchive, which refuses `..` and absolute paths
+  folder is not nested twice); `c` compresses the selection to `.zip` (`.tar.gz` from the menu),
+  undoable. Uses `bsdtar` from libarchive, which refuses `..` and absolute paths
 - Helpers that read untrusted files (`pdftoppm`, `pdfinfo`, `bsdtar`) run inside bubblewrap when
   `bwrap` is installed: no network, empty environment, read-only `/usr`, read access to the one
   input file and write access only to their output folder. Without `bwrap` they run directly

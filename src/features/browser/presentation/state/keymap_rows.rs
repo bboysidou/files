@@ -1,10 +1,11 @@
-pub const KEYMAP_ROWS: [(&str, &str); 33] = [
+pub const KEYMAP_ROWS: [(&str, &str); 34] = [
     ("keys.move", "j k · ↓ ↑"),
     ("keys.parent_open", "h l · ← →"),
     ("keys.open", "Enter"),
     ("keys.open_with", "o"),
     ("keys.terminal", "S"),
     ("keys.extract", "e"),
+    ("keys.compress", "c"),
     ("keys.quick_look", "Space"),
     ("keys.first_last", "gg / G"),
     ("keys.select", "v / Shift+↓ ↑"),

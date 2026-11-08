@@ -1,5 +1,6 @@
 use gpui::{Context, Div, prelude::*};
 
+use crate::core::enums::archives::archive_format::ArchiveFormat;
 use crate::core::enums::operations::clipboard_mode::ClipboardMode;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::presentation::actions::{
@@ -13,6 +14,7 @@ use crate::features::browser::presentation::actions::{
 use crate::features::browser::presentation::actions::{
     BulkNextField, Duplicate, NewFile, PasteLink,
 };
+use crate::features::browser::presentation::actions::{CompressTarGz, CompressZip};
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
 
@@ -71,6 +73,14 @@ impl BrowserView {
             )
             .on_action(cx.listener(|this, _: &NewFolder, _, cx| this.new_folder(cx)))
             .on_action(cx.listener(|this, _: &NewFile, _, cx| this.new_file(cx)))
+            .on_action(
+                cx.listener(|this, _: &CompressZip, _, cx| this.compress(ArchiveFormat::Zip, cx)),
+            )
+            .on_action(
+                cx.listener(|this, _: &CompressTarGz, _, cx| {
+                    this.compress(ArchiveFormat::TarGz, cx)
+                }),
+            )
             .on_action(
                 cx.listener(|this, _: &BulkNextField, window, cx| {
                     this.switch_bulk_field(window, cx)
