@@ -1,17 +1,16 @@
-use gpui::{
-    AnyElement, App, IntoElement, RenderOnce, SharedString, Window, div, prelude::*, px, rgb,
-};
+use gpui::{AnyElement, App, IntoElement, RenderOnce, Window, div, prelude::*, px, rgb};
 
 use crate::core::theme::colors::SHEET;
 use crate::core::theme::metrics::{BODY_PAD_BOTTOM, BODY_PAD_X, SHEET_RADIUS};
 use crate::features::browser::presentation::components::status_bar::StatusBar;
 use crate::features::browser::presentation::components::tab_strip::TabStrip;
 use crate::features::browser::presentation::components::toolbar::Toolbar;
+use crate::features::browser::presentation::state::tab_strip_model::TabStripModel;
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
 
 #[derive(IntoElement)]
 pub struct Sheet {
-    pub title: SharedString,
+    pub tabs: TabStripModel,
     pub toolbar: ToolbarModel,
     pub body: AnyElement,
     pub item_count: usize,
@@ -30,7 +29,7 @@ impl RenderOnce for Sheet {
             .overflow_hidden()
             .rounded(px(SHEET_RADIUS))
             .bg(rgb(SHEET))
-            .child(TabStrip { title: self.title })
+            .child(TabStrip { model: self.tabs })
             .child(Toolbar {
                 model: self.toolbar,
             })

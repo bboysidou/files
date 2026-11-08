@@ -8,11 +8,11 @@ use crate::features::browser::domain::entities::list_error::ListError;
 use crate::features::browser::domain::entities::navigation_history::HistoryStop;
 use crate::features::browser::domain::entities::selection::Selection;
 use crate::features::browser::domain::usecases::arrange_entries::arrange_entries;
-use crate::features::browser::presentation::browser_view::BrowserView;
+use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::load_state::LoadState;
 use crate::features::places::domain::entities::place::PlaceTarget;
 
-impl BrowserView {
+impl PaneView {
     pub fn navigate(&mut self, target: PlaceTarget, cx: &mut Context<Self>) {
         if target == self.location {
             return;

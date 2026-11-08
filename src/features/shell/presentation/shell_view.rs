@@ -12,7 +12,8 @@ use crate::core::dependency_injection::browser::{directory_repository, file_laun
 use crate::core::enums::places::place_kind::PlaceKind;
 use crate::core::theme::colors::{FG, FRAME};
 use crate::core::theme::metrics::{FRAME_GAP, TEXT_BASE};
-use crate::features::browser::presentation::browser_view::{BrowserSetup, BrowserView};
+use crate::features::browser::presentation::browser_view::BrowserView;
+use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::places::domain::entities::place::{Place, PlaceTarget};
 use crate::features::places::domain::repositories::places_repository::PlacesRepository;
 use crate::features::shell::presentation::actions::ToggleRail;
@@ -90,7 +91,7 @@ impl ShellView {
 impl Render for ShellView {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let (on_toggle, on_select) = Self::handlers(cx);
-        let location = self.browser.read(cx).location().clone();
+        let location = self.browser.read(cx).location(cx);
         let active = self
             .places
             .iter()

@@ -13,5 +13,18 @@ actions!(
         GoForward,
         ToggleHidden,
         Reload,
+        NewTab,
+        CloseTab,
+        NextTab,
+        PreviousTab,
+        ActivateTab1,
+        ActivateTab2,
+        ActivateTab3,
+        ActivateTab4,
+        ActivateTab5,
+        ActivateTab6,
+        ActivateTab7,
+        ActivateTab8,
+        ActivateTab9,
     ]
 );

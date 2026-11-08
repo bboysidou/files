@@ -1,7 +1,9 @@
 pub mod actions;
-pub mod browser_navigation;
-pub mod browser_selection;
+pub mod browser_tabs;
 pub mod browser_view;
 pub mod components;
 pub mod key_bindings;
+pub mod pane_navigation;
+pub mod pane_selection;
+pub mod pane_view;
 pub mod state;

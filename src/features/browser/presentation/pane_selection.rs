@@ -2,12 +2,12 @@ use std::path::PathBuf;
 
 use gpui::{Context, ScrollStrategy, Window};
 
-use crate::features::browser::presentation::browser_view::BrowserView;
+use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::row_click::RowClick;
 
 const DOUBLE_CLICK: usize = 2;
 
-impl BrowserView {
+impl PaneView {
     pub(super) fn move_cursor(&mut self, delta: isize, cx: &mut Context<Self>) {
         let Some(last) = self.entries.len().checked_sub(1) else {
             return;

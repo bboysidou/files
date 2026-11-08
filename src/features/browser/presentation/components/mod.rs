@@ -8,6 +8,7 @@ pub mod name_cell;
 pub mod sheet;
 pub mod sheet_tab;
 pub mod status_bar;
+pub mod tab_close_button;
 pub mod tab_strip;
 pub mod toolbar;
 pub mod view_switcher;
