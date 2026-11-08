@@ -1,8 +1,9 @@
-use gpui::{App, FontWeight, IntoElement, RenderOnce, Window, div, prelude::*, px, rgb, rgba};
+use gpui::{App, FontWeight, IntoElement, RenderOnce, Window, div, prelude::*, px, rgb};
 use rust_i18n::t;
 
 use crate::core::enums::places::place_kind::PlaceKind;
-use crate::core::theme::colors::{ACCENT, CARD, FG_BRIGHT, FG_NAV, ON_ACCENT, TRANSPARENT};
+use crate::core::helpers::theme::focus_ring::focus_ring;
+use crate::core::theme::colors::{ACCENT, CARD, FG_BRIGHT, FG_NAV, ON_ACCENT};
 use crate::core::theme::metrics::{
     CONTROL_RADIUS, NAV_GAP, NAV_HEIGHT, NAV_PAD_X, RAIL_ITEM_COLLAPSED,
 };
@@ -39,7 +40,7 @@ impl RenderOnce for RailNavItem {
             .px(px(NAV_PAD_X))
             .rounded(px(CONTROL_RADIUS))
             .border_1()
-            .border_color(ring(self.cursor))
+            .border_color(focus_ring(self.cursor))
             .cursor_pointer()
             .on_click(move |_, window, cx| on_select(index, window, cx));
         let item = match self.on_drop {
@@ -75,13 +76,5 @@ impl RenderOnce for RailNavItem {
             t!(self.kind.label_key()).to_string(),
             self.motion,
         ))
-    }
-}
-
-fn ring(cursor: bool) -> gpui::Rgba {
-    if cursor {
-        rgb(ACCENT)
-    } else {
-        rgba(TRANSPARENT)
     }
 }

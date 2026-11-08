@@ -79,7 +79,7 @@ impl ShellView {
         .to_string()
     }
 
-    fn open_device(&mut self, index: usize, cx: &mut Context<Self>) {
+    pub(super) fn open_device(&mut self, index: usize, cx: &mut Context<Self>) {
         let Some(device) = self.devices.get(index).cloned() else {
             return;
         };

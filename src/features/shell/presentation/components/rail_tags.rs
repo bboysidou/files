@@ -1,18 +1,20 @@
 use gpui::{App, IntoElement, RenderOnce, Window, div, prelude::*, px, rgb};
 
 use crate::core::enums::tags::tag_color::TagColor;
+use crate::core::theme::colors::FG_BRIGHT;
 use crate::core::theme::metrics::{NAV_PAD_X, RAIL_ITEM_COLLAPSED, TAG_DOT, TAG_GAP, TAG_PAD_Y};
 use crate::global_components::handlers::IndexHandler;
 
 #[derive(IntoElement)]
 pub struct RailTags {
     pub open: bool,
+    pub cursor: Option<usize>,
     pub on_select: IndexHandler,
 }
 
 impl RenderOnce for RailTags {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
-        let on_select = self.on_select;
+        let (on_select, cursor) = (self.on_select, self.cursor);
         let dots = TagColor::ALL.iter().enumerate().map(|(index, tag)| {
             let on_select = on_select.clone();
             div()
@@ -21,6 +23,9 @@ impl RenderOnce for RailTags {
                 .flex_shrink_0()
                 .rounded_full()
                 .bg(rgb(tag.hex()))
+                .when(cursor == Some(index), |dot| {
+                    dot.border_2().border_color(rgb(FG_BRIGHT))
+                })
                 .cursor_pointer()
                 .on_click(move |_, window, cx| on_select(index, window, cx))
         });

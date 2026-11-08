@@ -3,6 +3,7 @@ use gpui::{
 };
 
 use crate::core::enums::assets::icon::Icon;
+use crate::core::helpers::theme::focus_ring::focus_ring;
 use crate::core::theme::colors::{ACCENT, CARD, FG_BRIGHT, FG_NAV, ON_ACCENT};
 use crate::core::theme::metrics::{
     CONTROL_RADIUS, NAV_GAP, NAV_HEIGHT, NAV_PAD_X, RAIL_ITEM_COLLAPSED,
@@ -21,6 +22,7 @@ pub struct RailDeviceItem {
     pub label: SharedString,
     pub mounted: bool,
     pub active: bool,
+    pub cursor: bool,
     pub motion: RailMotion,
     pub on_select: IndexHandler,
     pub on_eject: ClickHandler,
@@ -39,6 +41,8 @@ impl RenderOnce for RailDeviceItem {
             .gap(px(NAV_GAP))
             .px(px(NAV_PAD_X))
             .rounded(px(CONTROL_RADIUS))
+            .border_1()
+            .border_color(focus_ring(self.cursor))
             .cursor_pointer()
             .text_color(rgb(color))
             .on_click(move |_, window, cx| on_select(index, window, cx));

@@ -154,7 +154,7 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 | `Ctrl+1` `Ctrl+2` `Ctrl+3` `Ctrl+4` | List, columns, grid, dual pane |
 | `Tab` / `F6` / `Shift+F6` | Dual pane: other side / copy there / move there |
 | `m` / right click | Context menu |
-| `Ctrl+0` | Move between the sidebar and the file list; in the sidebar `j` `k` move, `Enter` opens, `Esc` goes back |
+| `Ctrl+0` | Move between the sidebar and the file list; in the sidebar `j` `k` move, `Enter` opens a place or drive, or searches a tag, `Esc` goes back |
 | `,` / `Ctrl+,` | Settings |
 | `Ctrl+Shift+C` | Copy path |
 | `?` | Keyboard shortcuts |

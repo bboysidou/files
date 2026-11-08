@@ -32,6 +32,7 @@ use crate::features::shell::presentation::actions::ToggleRail;
 use crate::features::shell::presentation::components::rail::Rail;
 use crate::features::shell::presentation::state::rail_keys::RailKeys;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
+use crate::features::shell::presentation::state::rail_stop::RailStop;
 use crate::global_components::handlers::{ClickHandler, IndexHandler, IndexPathsHandler};
 
 pub struct ShellView {
@@ -83,7 +84,7 @@ impl ShellView {
             rail: RailMotion::starting(saved.sidebar_open),
             rail_keys: RailKeys {
                 focus: cx.focus_handle(),
-                cursor: 0,
+                cursor: RailStop::Place(0),
             },
             settings_repository,
             saved,

@@ -19,6 +19,7 @@ use crate::features::shell::presentation::components::rail_section_label::RailSe
 use crate::features::shell::presentation::components::rail_tags::RailTags;
 use crate::features::shell::presentation::state::device_item::DeviceItem;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
+use crate::features::shell::presentation::state::rail_stop::RailStop;
 use crate::global_components::handlers::{
     ClickHandler, IndexHandler, IndexPathsHandler, PathsHandler,
 };
@@ -42,7 +43,7 @@ pub struct Rail {
     pub on_cancel_job: ClickHandler,
     pub on_tag: IndexHandler,
     pub focus: FocusHandle,
-    pub cursor: Option<usize>,
+    pub cursor: Option<RailStop>,
 }
 
 impl Rail {
@@ -58,7 +59,7 @@ impl Rail {
                     index,
                     kind: place.kind,
                     active: Some(index) == self.active,
-                    cursor: Some(index) == self.cursor,
+                    cursor: self.cursor == Some(RailStop::Place(index)),
                     motion: self.motion,
                     on_select: self.on_select.clone(),
                     on_drop: matches!(place.target, PlaceTarget::Directory(_))
@@ -87,6 +88,7 @@ impl Rail {
                     label: device.label.clone(),
                     mounted: device.mounted,
                     active: device.active,
+                    cursor: self.cursor == Some(RailStop::Device(index)),
                     motion: self.motion,
                     on_select: self.on_device.clone(),
                     on_eject: Rc::new(move |window, cx| on_eject(index, window, cx)),
@@ -98,6 +100,22 @@ impl Rail {
 }
 
 impl Rail {
+    fn tags_section(&self) -> [AnyElement; 2] {
+        let cursor = match self.cursor {
+            Some(RailStop::Tag(index)) => Some(index),
+            _ => None,
+        };
+        [
+            RailSectionLabel::new(TAGS_SECTION_KEY, self.motion).into_any_element(),
+            RailTags {
+                open: self.motion.open,
+                cursor,
+                on_select: self.on_tag.clone(),
+            }
+            .into_any_element(),
+        ]
+    }
+
     fn job_section(&self) -> Option<AnyElement> {
         let model = self.job.clone().filter(|_| self.motion.open)?;
         Some(
@@ -120,6 +138,7 @@ impl RenderOnce for Rail {
         let sections: Vec<AnyElement> = PlaceSection::ALL
             .iter()
             .flat_map(|section| self.section(*section))
+            .chain(self.tags_section())
             .collect();
         let content = div()
             .id("rail-content")
@@ -140,12 +159,7 @@ impl RenderOnce for Rail {
                 motion,
                 on_search: self.on_search,
             })
-            .children(sections)
-            .child(RailSectionLabel::new(TAGS_SECTION_KEY, motion))
-            .child(RailTags {
-                open: motion.open,
-                on_select: self.on_tag,
-            });
+            .children(sections);
         let rail = div()
             .id("rail")
             .track_focus(&self.focus)
