@@ -11,6 +11,7 @@ pub struct TreeState {
     pub children: HashMap<PathBuf, Vec<FileEntry>>,
     pub depths: Vec<usize>,
     pub task: Option<Task<()>>,
+    pub watches: HashMap<PathBuf, Task<()>>,
 }
 
 impl TreeState {

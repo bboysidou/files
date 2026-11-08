@@ -26,6 +26,7 @@ impl PaneView {
         }
         if self.tree.children.contains_key(&entry.path) {
             self.tree.expanded.insert(entry.path);
+            self.sync_tree_watches(cx);
             return self.rearrange(cx);
         }
         let repository = self.setup.repository.clone();
@@ -40,6 +41,7 @@ impl PaneView {
                     this.pending_focus = Some(folder.clone());
                     this.tree.children.insert(folder.clone(), children);
                     this.tree.expanded.insert(folder);
+                    this.sync_tree_watches(cx);
                     this.rearrange(cx);
                 }
             });
@@ -55,6 +57,7 @@ impl PaneView {
                 .expanded
                 .retain(|path| !path.starts_with(&entry.path));
             self.pending_focus = Some(entry.path);
+            self.sync_tree_watches(cx);
             return self.rearrange(cx);
         }
         let Some(parent) = entry
@@ -67,6 +70,7 @@ impl PaneView {
         let parent = parent.to_path_buf();
         self.tree.expanded.retain(|path| !path.starts_with(&parent));
         self.pending_focus = Some(parent);
+        self.sync_tree_watches(cx);
         self.rearrange(cx);
     }
 
