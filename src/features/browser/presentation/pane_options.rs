@@ -10,6 +10,7 @@ impl PaneView {
         ViewOptions {
             show_hidden: self.show_hidden,
             sort: self.sort,
+            view: self.view,
         }
     }
 
@@ -19,6 +20,7 @@ impl PaneView {
         }
         self.show_hidden = options.show_hidden;
         self.sort = options.sort;
+        self.view = options.view;
         self.rearrange(cx);
     }
 

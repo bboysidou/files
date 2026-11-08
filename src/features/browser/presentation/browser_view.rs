@@ -8,17 +8,19 @@ use gpui::{
 use crate::features::browser::presentation::actions::{
     ActivateTab1, ActivateTab2, ActivateTab3, ActivateTab4, ActivateTab5, ActivateTab6,
     ActivateTab7, ActivateTab8, ActivateTab9, CloseTab, CopySelection, CutSelection, NewFolder,
-    NewTab, NextTab, PasteClipboard, PreviousTab, QuickLook, Redo, TogglePreview, TrashSelection,
-    Undo,
+    NewTab, NextTab, PasteClipboard, PreviousTab, QuickLook, Redo, ShowGrid, ShowList,
+    TogglePreview, TrashSelection, Undo,
 };
 
 use crate::core::enums::operations::clipboard_mode::ClipboardMode;
+use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::view_options::ViewOptions;
 use crate::features::browser::presentation::components::sheet::Sheet;
 use crate::features::browser::presentation::key_bindings::BROWSER_CONTEXT;
 use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
+use crate::features::browser::presentation::state::handlers::ViewHandler;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::pane_start::PaneStart;
 use crate::features::browser::presentation::state::preview_state::PreviewState;
@@ -109,6 +111,18 @@ impl BrowserView {
         }
     }
 
+    fn set_view(&mut self, view: ViewMode, cx: &mut Context<Self>) {
+        if view.is_available() && view != self.options.view {
+            self.apply_view_options(
+                ViewOptions {
+                    view,
+                    ..self.options
+                },
+                cx,
+            );
+        }
+    }
+
     fn apply_view_options(&mut self, options: ViewOptions, cx: &mut Context<Self>) {
         self.options = options;
         for tab in &self.tabs {
@@ -171,6 +185,8 @@ impl BrowserView {
             .on_action(cx.listener(|this, _: &TrashSelection, _, cx| this.trash_selection(cx)))
             .on_action(cx.listener(|this, _: &NewFolder, _, cx| this.new_folder(cx)))
             .on_action(cx.listener(|this, _: &Undo, _, cx| this.undo(cx)))
+            .on_action(cx.listener(|this, _: &ShowList, _, cx| this.set_view(ViewMode::List, cx)))
+            .on_action(cx.listener(|this, _: &ShowGrid, _, cx| this.set_view(ViewMode::Grid, cx)))
             .on_action(cx.listener(|this, _: &TogglePreview, _, cx| this.toggle_preview_column(cx)))
             .on_action(
                 cx.listener(|this, _: &QuickLook, window, cx| this.open_quick_look(window, cx)),
@@ -232,6 +248,10 @@ impl Render for BrowserView {
         let on_preview: ClickHandler = Rc::new(move |_, cx| {
             let _ = view.update(cx, |this, cx| this.toggle_preview_column(cx));
         });
+        let view_handle = cx.entity().downgrade();
+        let on_view: ViewHandler = Rc::new(move |view, _, cx| {
+            let _ = view_handle.update(cx, |this, cx| this.set_view(view, cx));
+        });
         Self::with_actions(root, cx)
             .child(Sheet {
                 tabs: self.tab_strip_model(cx),
@@ -240,6 +260,8 @@ impl Render for BrowserView {
                 side,
                 preview_open: self.column_open,
                 on_preview,
+                view: self.options.view,
+                on_view,
                 item_count,
                 selected_count,
             })

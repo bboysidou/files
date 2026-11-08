@@ -1,10 +1,12 @@
 use gpui::{AnyElement, App, IntoElement, RenderOnce, Window, div, prelude::*, px, rgb};
 
+use crate::core::enums::view::view_mode::ViewMode;
 use crate::core::theme::colors::SHEET;
 use crate::core::theme::metrics::{BODY_GAP, BODY_PAD_BOTTOM, BODY_PAD_X, SHEET_RADIUS};
 use crate::features::browser::presentation::components::status_bar::StatusBar;
 use crate::features::browser::presentation::components::tab_strip::TabStrip;
 use crate::features::browser::presentation::components::toolbar::Toolbar;
+use crate::features::browser::presentation::state::handlers::ViewHandler;
 use crate::features::browser::presentation::state::tab_strip_model::TabStripModel;
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
 use crate::global_components::handlers::ClickHandler;
@@ -19,6 +21,8 @@ pub struct Sheet {
     pub side: Option<AnyElement>,
     pub preview_open: bool,
     pub on_preview: ClickHandler,
+    pub view: ViewMode,
+    pub on_view: ViewHandler,
 }
 
 impl RenderOnce for Sheet {
@@ -38,6 +42,8 @@ impl RenderOnce for Sheet {
                 model: self.toolbar,
                 preview_open: self.preview_open,
                 on_preview: self.on_preview,
+                view: self.view,
+                on_view: self.on_view,
             })
             .child(
                 div()

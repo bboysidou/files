@@ -7,6 +7,7 @@ use rust_i18n::t;
 
 use crate::core::enums::assets::icon::Icon;
 use crate::core::enums::browser::sort_key::SortKey;
+use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::list_error::ListError;
 use crate::features::browser::presentation::components::file_row::FileRow;
 use crate::features::browser::presentation::components::list_header::ListHeader;
@@ -55,6 +56,9 @@ impl PaneView {
             }
             LoadState::Ready(_) if self.entries.is_empty() => {
                 Self::empty_state(Icon::Folder, "empty.folder")
+            }
+            LoadState::Loading | LoadState::Ready(_) if self.view == ViewMode::Grid => {
+                self.grid(cx)
             }
             LoadState::Loading | LoadState::Ready(_) => self.file_list(cx),
         }

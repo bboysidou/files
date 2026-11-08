@@ -8,16 +8,17 @@ use gpui::{
 };
 use rust_i18n::t;
 
+use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::domain::entities::navigation_history::NavigationHistory;
 use crate::features::browser::domain::entities::selection::Selection;
 use crate::features::browser::domain::entities::sort_order::SortOrder;
 use crate::features::browser::presentation::actions::{
-    Dismiss, ExtendDown, ExtendUp, GoBack, GoForward, GoParent, MoveDown, MoveUp, OpenEntry,
-    OpenFilter, Reload, RenameEntry, SelectAllEntries, SelectFirst, SelectLast, ToggleHidden,
-    ToggleMark,
+    Dismiss, ExtendDown, ExtendUp, GoBack, GoForward, GoParent, MoveDown, MoveLeft, MoveRight,
+    MoveUp, OpenEntry, OpenFilter, Reload, RenameEntry, SelectAllEntries, SelectFirst, SelectLast,
+    ToggleHidden, ToggleMark,
 };
-use crate::features::browser::presentation::key_bindings::PANE_CONTEXT;
+use crate::features::browser::presentation::key_bindings::{PANE_CONTEXT, PANE_GRID_CONTEXT};
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::load_state::LoadState;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
@@ -55,6 +56,8 @@ pub struct PaneView {
     pub(super) watched: Option<PathBuf>,
     pub(super) watch_task: Option<Task<()>>,
     pub(super) compact: bool,
+    pub(super) view: ViewMode,
+    pub(super) grid_width: f32,
 }
 
 impl PaneView {
@@ -99,6 +102,8 @@ impl PaneView {
             watched: None,
             watch_task: None,
             compact: false,
+            view: start.options.view,
+            grid_width: 0.0,
         };
         view.load(cx);
         view
@@ -172,8 +177,12 @@ impl PaneView {
 
     fn with_actions(element: Div, cx: &mut Context<Self>) -> Div {
         element
-            .on_action(cx.listener(|this, _: &MoveDown, _, cx| this.move_cursor(1, cx)))
-            .on_action(cx.listener(|this, _: &MoveUp, _, cx| this.move_cursor(-1, cx)))
+            .on_action(
+                cx.listener(|this, _: &MoveDown, _, cx| this.move_cursor(this.row_step(), cx)),
+            )
+            .on_action(
+                cx.listener(|this, _: &MoveUp, _, cx| this.move_cursor(-this.row_step(), cx)),
+            )
             .on_action(cx.listener(|this, _: &SelectFirst, _, cx| this.select_edge(false, cx)))
             .on_action(cx.listener(|this, _: &SelectLast, _, cx| this.select_edge(true, cx)))
             .on_action(cx.listener(|this, _: &OpenEntry, _, cx| this.open_cursor(cx)))
@@ -183,6 +192,8 @@ impl PaneView {
             .on_action(cx.listener(|this, _: &ToggleHidden, _, cx| this.toggle_hidden(cx)))
             .on_action(cx.listener(|this, _: &Reload, _, cx| this.load(cx)))
             .on_action(cx.listener(|this, _: &OpenFilter, window, cx| this.open_filter(window, cx)))
+            .on_action(cx.listener(|this, _: &MoveLeft, _, cx| this.move_cursor(-1, cx)))
+            .on_action(cx.listener(|this, _: &MoveRight, _, cx| this.move_cursor(1, cx)))
             .on_action(cx.listener(|this, _: &Dismiss, window, cx| this.dismiss(window, cx)))
             .on_action(cx.listener(|this, _: &ToggleMark, _, cx| this.toggle_mark(cx)))
             .on_action(cx.listener(|this, _: &SelectAllEntries, _, cx| this.select_all(cx)))
@@ -202,7 +213,11 @@ impl Render for PaneView {
         }
         let root = div()
             .track_focus(&self.focus_handle)
-            .key_context(PANE_CONTEXT)
+            .key_context(if self.view == ViewMode::Grid {
+                PANE_GRID_CONTEXT
+            } else {
+                PANE_CONTEXT
+            })
             .flex()
             .flex_col()
             .flex_1()

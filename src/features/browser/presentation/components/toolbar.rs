@@ -6,6 +6,7 @@ use crate::core::theme::metrics::{TOOLBAR_GAP, TOOLBAR_PAD_X, TOOLBAR_PAD_Y};
 use crate::features::browser::presentation::components::breadcrumbs::Breadcrumbs;
 use crate::features::browser::presentation::components::filter_field::FilterField;
 use crate::features::browser::presentation::components::view_switcher::ViewSwitcher;
+use crate::features::browser::presentation::state::handlers::ViewHandler;
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
 use crate::global_components::handlers::ClickHandler;
 use crate::global_components::icon_button::IconButton;
@@ -15,6 +16,8 @@ pub struct Toolbar {
     pub model: ToolbarModel,
     pub preview_open: bool,
     pub on_preview: ClickHandler,
+    pub view: ViewMode,
+    pub on_view: ViewHandler,
 }
 
 impl RenderOnce for Toolbar {
@@ -59,7 +62,8 @@ impl RenderOnce for Toolbar {
             .children(filter)
             .children(filter_buttons)
             .child(ViewSwitcher {
-                active: ViewMode::List,
+                active: self.view,
+                on_select: self.on_view,
             })
             .child(
                 IconButton::new("preview", Icon::Panel)

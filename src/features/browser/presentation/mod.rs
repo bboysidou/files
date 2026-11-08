@@ -9,6 +9,7 @@ pub mod components;
 pub mod key_bindings;
 pub mod pane_body;
 pub mod pane_filter;
+pub mod pane_grid;
 pub mod pane_navigation;
 pub mod pane_operations;
 pub mod pane_options;

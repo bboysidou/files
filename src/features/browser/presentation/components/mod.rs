@@ -3,6 +3,7 @@ pub mod crumb_segment;
 pub mod entry_icon;
 pub mod file_badge;
 pub mod file_row;
+pub mod file_tile;
 pub mod filter_field;
 pub mod header_cell;
 pub mod list_header;

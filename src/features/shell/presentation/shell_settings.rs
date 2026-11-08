@@ -23,6 +23,7 @@ impl ShellView {
                     key: settings.sort_key,
                     ascending: settings.sort_ascending,
                 },
+                view: settings.view_mode,
             },
         }
     }
@@ -33,6 +34,7 @@ impl ShellView {
             show_hidden: snapshot.options.show_hidden,
             sort_key: snapshot.options.sort.key,
             sort_ascending: snapshot.options.sort.ascending,
+            view_mode: snapshot.options.view,
             sidebar_open: self.rail.open,
             preview_open: snapshot.preview_open,
             active_tab: snapshot.active,

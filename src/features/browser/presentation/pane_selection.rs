@@ -53,8 +53,10 @@ impl PaneView {
     }
 
     pub(super) fn reveal(&mut self, cx: &mut Context<Self>) {
-        self.scroll
-            .scroll_to_item(self.selection.cursor(), ScrollStrategy::Nearest);
+        self.scroll.scroll_to_item(
+            self.visual_row(self.selection.cursor()),
+            ScrollStrategy::Nearest,
+        );
         cx.notify();
     }
 

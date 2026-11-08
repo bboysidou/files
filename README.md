@@ -17,10 +17,11 @@ Early development. Working today:
 - Tabs, back/forward/up history, clickable path crumbs
 - Filter the current folder as you type
 - Folders refresh by themselves when files change on disk
-- Remembers hidden files, sort order, the sidebar, the preview column and your open tabs
+- Remembers hidden files, sort order, the sidebar, the preview column, the view mode and your open tabs
 - Copy, cut, paste, rename, new folder and move to Trash, all with undo and redo
 - Quick Look for images, any text file and folders (`Space`)
 - Preview column beside the list that follows the cursor (`F3`)
+- Grid view with image thumbnails (`Ctrl+3`, back to the list with `Ctrl+1`)
 - Extension badges coloured from a hash of the extension, so every type gets a stable colour
 - Opening files with your default applications (`xdg-open`)
 
@@ -57,6 +58,7 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 | `z` / `Ctrl+Shift+Z` | Undo / redo |
 | `Space` | Quick Look (`←` `→` next file, `+` `−` zoom) |
 | `F3` | Show or hide the preview column |
+| `Ctrl+1` / `Ctrl+3` | List / grid view |
 | `Ctrl+H` | Show hidden files |
 | `F5` | Reload (rarely needed, folders update live) |
 | `Ctrl+B` | Collapse the sidebar |

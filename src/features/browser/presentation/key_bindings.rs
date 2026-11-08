@@ -4,11 +4,14 @@ use crate::features::browser::presentation::actions::*;
 
 pub const BROWSER_CONTEXT: &str = "Browser";
 pub const PANE_CONTEXT: &str = "Pane";
+pub const PANE_GRID_CONTEXT: &str = "Pane view=grid";
+const PANE_GRID_KEYS: &str = "Pane && view == grid && !TextField";
 pub const QUICK_LOOK_CONTEXT: &str = "QuickLook";
 const PANE_KEYS: &str = "Pane && !TextField";
 
 pub fn browser_key_bindings() -> Vec<KeyBinding> {
     let mut bindings = navigation_bindings();
+    bindings.extend(grid_bindings());
     bindings.extend(selection_bindings());
     bindings.extend(operation_bindings());
     bindings.extend(tab_bindings());
@@ -97,6 +100,8 @@ fn tab_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("ctrl-tab", NextTab, browser),
         KeyBinding::new("ctrl-shift-tab", PreviousTab, browser),
         KeyBinding::new("f3", TogglePreview, browser),
+        KeyBinding::new("ctrl-1", ShowList, browser),
+        KeyBinding::new("ctrl-3", ShowGrid, browser),
     ]
 }
 
@@ -114,5 +119,13 @@ fn quick_look_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("+", ZoomIn, context),
         KeyBinding::new("=", ZoomIn, context),
         KeyBinding::new("-", ZoomOut, context),
+    ]
+}
+
+fn grid_bindings() -> Vec<KeyBinding> {
+    let context = Some(PANE_GRID_KEYS);
+    vec![
+        KeyBinding::new("left", MoveLeft, context),
+        KeyBinding::new("right", MoveRight, context),
     ]
 }

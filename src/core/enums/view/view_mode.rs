@@ -1,6 +1,9 @@
+use serde::{Deserialize, Serialize};
+
 use crate::core::enums::assets::icon::Icon;
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ViewMode {
     List,
     Columns,
@@ -15,6 +18,10 @@ impl ViewMode {
         ViewMode::Grid,
         ViewMode::Dual,
     ];
+
+    pub fn is_available(self) -> bool {
+        matches!(self, ViewMode::List | ViewMode::Grid)
+    }
 
     pub fn icon(self) -> Icon {
         match self {
