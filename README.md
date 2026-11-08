@@ -15,7 +15,8 @@ Early development. Working today:
 - List view of real folders: folders first, natural sort, sortable columns, sizes, item counts,
   kinds and relative dates
 - Tabs, back/forward/up history, clickable path crumbs
-- Filter the current folder as you type
+- Filter the current folder as you type, or search every name below it (`f`)
+- Type a path to jump there (`:` or `Ctrl+L`, `~` for home)
 - Folders refresh by themselves when files change on disk
 - Remembers hidden files, sort order, the sidebar, the preview column, the view mode and your open tabs
 - Copy, cut, paste, rename, new folder and move to Trash, all with undo and redo; copy and paste work
@@ -52,6 +53,8 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 | `t` / `w` | New / close tab |
 | `1`–`9`, `[` `]` | Go to a tab |
 | `/` / `Esc` | Filter this folder / clear the filter |
+| `f` / `Ctrl+F` | Search names below this folder |
+| `:` / `Ctrl+L` | Type a path |
 | `v` / `Ctrl+A` / `Shift+↓↑` | Select / select all / extend |
 | `y` `x` `p` | Copy / cut / paste |
 | `r` `F2` | Rename |

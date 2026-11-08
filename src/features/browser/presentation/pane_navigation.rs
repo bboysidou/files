@@ -30,6 +30,10 @@ impl PaneView {
         self.location = target;
         self.pending_focus = focus;
         self.renaming = None;
+        self.search = None;
+        self.search_task = None;
+        self.index_task = None;
+        self.path_editing = false;
         self.reset_thumbnails();
         self.reset_filter(cx);
         self.selection = Selection::default();
@@ -91,7 +95,10 @@ impl PaneView {
             .take()
             .or_else(|| self.current_entry_path());
         let previous_cursor = self.selection.cursor();
-        self.entries = arrange_entries(raw, self.sort, self.show_hidden, &self.filter);
+        self.entries = match &self.search {
+            Some(search) => search.results.clone(),
+            None => arrange_entries(raw, self.sort, self.show_hidden, &self.filter),
+        };
         let cursor = focus
             .and_then(|focus| self.entries.iter().position(|entry| entry.path == focus))
             .unwrap_or_else(|| previous_cursor.min(self.entries.len().saturating_sub(1)));

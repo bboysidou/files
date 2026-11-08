@@ -50,8 +50,7 @@ impl PaneView {
     pub(super) fn filter_model(&self) -> Option<FilterModel> {
         self.filter_open.then(|| FilterModel {
             field: self.filter_field.clone(),
-            shown: self.entries.len(),
-            total: self.unfiltered_count(),
+            count: format!("{}/{}", self.entries.len(), self.unfiltered_count()).into(),
         })
     }
 

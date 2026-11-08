@@ -1,18 +1,10 @@
 use std::rc::Rc;
 
 use gpui::{
-    App, Context, Div, Entity, FocusHandle, Focusable, IntoElement, Render, Task,
+    App, Context, Entity, FocusHandle, Focusable, IntoElement, Render, Task,
     UniformListScrollHandle, Window, div, prelude::*,
 };
 
-use crate::features::browser::presentation::actions::{
-    ActivateTab1, ActivateTab2, ActivateTab3, ActivateTab4, ActivateTab5, ActivateTab6,
-    ActivateTab7, ActivateTab8, ActivateTab9, CloseTab, CopySelection, CutSelection, NewFolder,
-    NewTab, NextTab, PasteClipboard, PreviousTab, QuickLook, Redo, ShowGrid, ShowList,
-    TogglePreview, TrashSelection, Undo,
-};
-
-use crate::core::enums::operations::clipboard_mode::ClipboardMode;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::view_options::ViewOptions;
 use crate::features::browser::presentation::components::sheet::Sheet;
@@ -114,7 +106,19 @@ impl BrowserView {
         }
     }
 
-    fn set_view(&mut self, view: ViewMode, cx: &mut Context<Self>) {
+    pub fn start_search(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.active_pane()
+            .clone()
+            .update(cx, |pane, cx| pane.start_search(window, cx));
+    }
+
+    pub(super) fn edit_path(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.active_pane()
+            .clone()
+            .update(cx, |pane, cx| pane.start_path_entry(window, cx));
+    }
+
+    pub(super) fn set_view(&mut self, view: ViewMode, cx: &mut Context<Self>) {
         if view.is_available() && view != self.options.view {
             self.apply_view_options(
                 ViewOptions {
@@ -164,6 +168,7 @@ impl BrowserView {
         let events = cx.subscribe(&pane, |this, _, event: &PaneEvent, cx| match event {
             PaneEvent::RenameRequested(transfer) => this.rename(transfer.clone(), cx),
             PaneEvent::ViewOptionsChanged(options) => this.apply_view_options(*options, cx),
+            PaneEvent::Message(message) => this.show_toast(message.clone(), false, cx),
         });
         Tab {
             pane,
@@ -174,58 +179,6 @@ impl BrowserView {
 
     pub(super) fn active_pane(&self) -> &Entity<PaneView> {
         &self.tabs[self.active].pane
-    }
-
-    fn with_actions(element: Div, cx: &mut Context<Self>) -> Div {
-        element
-            .on_action(cx.listener(|this, _: &CopySelection, _, cx| {
-                this.copy_to_clipboard(ClipboardMode::Copy, cx)
-            }))
-            .on_action(cx.listener(|this, _: &CutSelection, _, cx| {
-                this.copy_to_clipboard(ClipboardMode::Cut, cx)
-            }))
-            .on_action(cx.listener(|this, _: &PasteClipboard, _, cx| this.paste(cx)))
-            .on_action(cx.listener(|this, _: &TrashSelection, _, cx| this.trash_selection(cx)))
-            .on_action(cx.listener(|this, _: &NewFolder, _, cx| this.new_folder(cx)))
-            .on_action(cx.listener(|this, _: &Undo, _, cx| this.undo(cx)))
-            .on_action(cx.listener(|this, _: &ShowList, _, cx| this.set_view(ViewMode::List, cx)))
-            .on_action(cx.listener(|this, _: &ShowGrid, _, cx| this.set_view(ViewMode::Grid, cx)))
-            .on_action(cx.listener(|this, _: &TogglePreview, _, cx| this.toggle_preview_column(cx)))
-            .on_action(
-                cx.listener(|this, _: &QuickLook, window, cx| this.open_quick_look(window, cx)),
-            )
-            .on_action(cx.listener(|this, _: &Redo, _, cx| this.redo(cx)))
-            .on_action(cx.listener(|this, _: &NewTab, window, cx| this.new_tab(window, cx)))
-            .on_action(cx.listener(|this, _: &CloseTab, window, cx| this.close_active(window, cx)))
-            .on_action(cx.listener(|this, _: &NextTab, window, cx| this.cycle(1, window, cx)))
-            .on_action(cx.listener(|this, _: &PreviousTab, window, cx| this.cycle(-1, window, cx)))
-            .on_action(
-                cx.listener(|this, _: &ActivateTab1, window, cx| this.activate(0, window, cx)),
-            )
-            .on_action(
-                cx.listener(|this, _: &ActivateTab2, window, cx| this.activate(1, window, cx)),
-            )
-            .on_action(
-                cx.listener(|this, _: &ActivateTab3, window, cx| this.activate(2, window, cx)),
-            )
-            .on_action(
-                cx.listener(|this, _: &ActivateTab4, window, cx| this.activate(3, window, cx)),
-            )
-            .on_action(
-                cx.listener(|this, _: &ActivateTab5, window, cx| this.activate(4, window, cx)),
-            )
-            .on_action(
-                cx.listener(|this, _: &ActivateTab6, window, cx| this.activate(5, window, cx)),
-            )
-            .on_action(
-                cx.listener(|this, _: &ActivateTab7, window, cx| this.activate(6, window, cx)),
-            )
-            .on_action(
-                cx.listener(|this, _: &ActivateTab8, window, cx| this.activate(7, window, cx)),
-            )
-            .on_action(
-                cx.listener(|this, _: &ActivateTab9, window, cx| this.activate(8, window, cx)),
-            )
     }
 }
 

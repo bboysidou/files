@@ -6,5 +6,6 @@ use crate::features::places::domain::entities::place::PlaceTarget;
 
 pub trait DirectoryRepository: Send + Sync {
     fn list(&self, directory: &Path) -> Result<Vec<FileEntry>, ListError>;
+    fn entry(&self, path: &Path) -> Option<FileEntry>;
     fn resolve(&self, target: &PlaceTarget) -> Option<PathBuf>;
 }

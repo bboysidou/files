@@ -14,6 +14,7 @@ use crate::core::dependency_injection::browser::{
 };
 use crate::core::dependency_injection::operations::{file_operations, system_clipboard};
 use crate::core::dependency_injection::preview::preview_source;
+use crate::core::dependency_injection::search::search_indexer;
 use crate::core::dependency_injection::settings::settings_repository;
 use crate::core::dependency_injection::thumbnails::thumbnail_store;
 use crate::core::enums::places::place_kind::PlaceKind;
@@ -57,6 +58,7 @@ impl ShellView {
         let setup = BrowserSetup {
             preview: preview_source(repository.clone()),
             thumbnails: thumbnail_store(),
+            indexer: search_indexer(),
             repository,
             launcher: file_launcher(),
             watcher: directory_watcher(),
@@ -130,6 +132,10 @@ impl ShellView {
 impl Render for ShellView {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let (on_toggle, on_select) = Self::handlers(cx);
+        let browser = self.browser.downgrade();
+        let on_search: ClickHandler = Rc::new(move |window, cx| {
+            let _ = browser.update(cx, |browser, cx| browser.start_search(window, cx));
+        });
         let location = self.browser.read(cx).location(cx);
         let active = self
             .places
@@ -151,6 +157,7 @@ impl Render for ShellView {
                 motion: self.rail,
                 on_toggle,
                 on_select,
+                on_search,
             })
             .child(self.browser.clone())
     }

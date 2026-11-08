@@ -38,6 +38,8 @@ actions!(
         MoveRight,
         ShowList,
         ShowGrid,
+        StartSearch,
+        EditPath,
         NewTab,
         CloseTab,
         NextTab,

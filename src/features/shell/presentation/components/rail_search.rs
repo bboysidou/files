@@ -8,6 +8,7 @@ use crate::core::theme::metrics::{
 };
 use crate::features::shell::presentation::components::rail_label::RailLabel;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
+use crate::global_components::handlers::ClickHandler;
 use crate::global_components::icon_glyph::IconGlyph;
 use crate::global_components::kbd_hint::KbdHint;
 
@@ -16,6 +17,7 @@ const SEARCH_KEY: &str = "f";
 #[derive(IntoElement)]
 pub struct RailSearch {
     pub motion: RailMotion,
+    pub on_search: ClickHandler,
 }
 
 impl RenderOnce for RailSearch {
@@ -32,6 +34,10 @@ impl RenderOnce for RailSearch {
             .border_color(rgb(LINE))
             .text_color(rgb(FG_MUTED))
             .cursor_text()
+            .on_click({
+                let on_search = self.on_search.clone();
+                move |_, window, cx| on_search(window, cx)
+            })
             .child(IconGlyph::new(Icon::Search, FG_MUTED));
         if !self.motion.open {
             return field.size(px(RAIL_ITEM_COLLAPSED));

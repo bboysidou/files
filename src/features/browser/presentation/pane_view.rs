@@ -14,15 +14,16 @@ use crate::features::browser::domain::entities::navigation_history::NavigationHi
 use crate::features::browser::domain::entities::selection::Selection;
 use crate::features::browser::domain::entities::sort_order::SortOrder;
 use crate::features::browser::presentation::actions::{
-    Dismiss, ExtendDown, ExtendUp, GoBack, GoForward, GoParent, MoveDown, MoveLeft, MoveRight,
-    MoveUp, OpenEntry, OpenFilter, Reload, RenameEntry, SelectAllEntries, SelectFirst, SelectLast,
-    ToggleHidden, ToggleMark,
+    Dismiss, EditPath, ExtendDown, ExtendUp, GoBack, GoForward, GoParent, MoveDown, MoveLeft,
+    MoveRight, MoveUp, OpenEntry, OpenFilter, Reload, RenameEntry, SelectAllEntries, SelectFirst,
+    SelectLast, StartSearch, ToggleHidden, ToggleMark,
 };
 use crate::features::browser::presentation::key_bindings::{PANE_CONTEXT, PANE_GRID_CONTEXT};
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::load_state::LoadState;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::pane_start::PaneStart;
+use crate::features::browser::presentation::state::search_state::SearchState;
 use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::browser::presentation::state::thumb_state::{ThumbEntry, ThumbRequest};
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
@@ -48,13 +49,11 @@ pub struct PaneView {
     pub(super) filter_field: Entity<TextField>,
     pub(super) filter: String,
     pub(super) filter_open: bool,
-    pub(super) _filter_events: Subscription,
     pub(super) cut: HashSet<PathBuf>,
     pub(super) renaming: Option<PathBuf>,
     pub(super) rename_field: Entity<TextField>,
     pub(super) focus_rename: bool,
     pub(super) pending_rename: Option<PathBuf>,
-    pub(super) _rename_events: Subscription,
     pub(super) watched: Option<PathBuf>,
     pub(super) watch_task: Option<Task<()>>,
     pub(super) compact: bool,
@@ -63,6 +62,13 @@ pub struct PaneView {
     pub(super) thumbs: HashMap<PathBuf, ThumbEntry>,
     pub(super) thumb_queue: VecDeque<ThumbRequest>,
     pub(super) thumb_worker: Option<Task<()>>,
+    pub(super) search: Option<SearchState>,
+    pub(super) search_field: Entity<TextField>,
+    pub(super) search_task: Option<Task<()>>,
+    pub(super) index_task: Option<Task<()>>,
+    pub(super) path_editing: bool,
+    pub(super) path_field: Entity<TextField>,
+    pub(super) _subscriptions: Vec<Subscription>,
 }
 
 impl PaneView {
@@ -72,14 +78,7 @@ impl PaneView {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
-        let filter_field = cx.new(|cx| TextField::new(t!("filter.placeholder").to_string(), cx));
-        let filter_events = cx.subscribe_in(&filter_field, window, |this, _, event, window, cx| {
-            this.on_filter_event(*event, window, cx)
-        });
-        let rename_field = cx.new(|cx| TextField::new("", cx));
-        let rename_events = cx.subscribe_in(&rename_field, window, |this, _, event, window, cx| {
-            this.on_rename_event(*event, window, cx)
-        });
+        let inputs = Self::create_inputs(window, cx);
         let mut view = Self {
             setup,
             location: start.tab.location,
@@ -94,16 +93,14 @@ impl PaneView {
             scroll: UniformListScrollHandle::new(),
             focus_handle: cx.focus_handle(),
             load_task: None,
-            filter_field,
+            filter_field: inputs.filter,
             filter: String::new(),
             filter_open: false,
-            _filter_events: filter_events,
             cut: HashSet::new(),
             renaming: None,
-            rename_field,
+            rename_field: inputs.rename,
             focus_rename: false,
             pending_rename: None,
-            _rename_events: rename_events,
             watched: None,
             watch_task: None,
             compact: false,
@@ -112,6 +109,13 @@ impl PaneView {
             thumbs: HashMap::new(),
             thumb_queue: VecDeque::new(),
             thumb_worker: None,
+            search: None,
+            search_field: inputs.search,
+            search_task: None,
+            index_task: None,
+            path_editing: false,
+            path_field: inputs.path,
+            _subscriptions: inputs.subscriptions,
         };
         view.load(cx);
         view
@@ -137,6 +141,9 @@ impl PaneView {
     }
 
     pub(super) fn title(&self) -> SharedString {
+        if self.search.is_some() {
+            return t!("search.title").to_string().into();
+        }
         if let Some(place) = self
             .setup
             .places
@@ -155,7 +162,7 @@ impl PaneView {
         .into()
     }
 
-    fn trail(&self) -> CrumbTrail {
+    pub(super) fn trail(&self) -> CrumbTrail {
         CrumbTrail::for_target(&self.location, self.setup.home.as_deref())
     }
 
@@ -182,10 +189,13 @@ impl PaneView {
             can_go_forward: self.history.can_go_forward(),
             can_go_up: self.parent_target().is_some(),
             filter: self.filter_model(),
+            search: self.search_model(),
+            path_field: self.path_editing.then(|| self.path_field.clone()),
             on_back: Self::handler(cx, Self::go_back),
             on_forward: Self::handler(cx, Self::go_forward),
             on_up: Self::handler(cx, Self::go_parent),
             on_filter: Self::open_filter_handler(cx),
+            on_search: Self::start_search_handler(cx),
             on_crumb,
         }
     }
@@ -215,6 +225,12 @@ impl PaneView {
             .on_action(cx.listener(|this, _: &ExtendDown, _, cx| this.extend(1, cx)))
             .on_action(cx.listener(|this, _: &ExtendUp, _, cx| this.extend(-1, cx)))
             .on_action(cx.listener(|this, _: &RenameEntry, _, cx| this.start_rename(cx)))
+            .on_action(
+                cx.listener(|this, _: &StartSearch, window, cx| this.start_search(window, cx)),
+            )
+            .on_action(
+                cx.listener(|this, _: &EditPath, window, cx| this.start_path_entry(window, cx)),
+            )
     }
 }
 

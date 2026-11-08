@@ -51,6 +51,9 @@ impl PaneView {
             }
             LoadState::Failed(ListError::Failed) => Self::empty_state(Icon::Folder, "empty.failed"),
             LoadState::Loading if self.entries.is_empty() => div().into_any_element(),
+            LoadState::Ready(_) if self.entries.is_empty() && self.search.is_some() => {
+                self.search_empty()
+            }
             LoadState::Ready(_) if self.entries.is_empty() && !self.filter.is_empty() => {
                 self.no_matches()
             }
@@ -110,8 +113,18 @@ impl PaneView {
                     now,
                     on_click: on_click.clone(),
                     compact: self.compact,
+                    context: self.search_context(&self.entries.get(index)?.path),
                 })
             })
             .collect()
+    }
+
+    fn search_empty(&self) -> AnyElement {
+        let prefix = match &self.search {
+            Some(search) if search.index.is_none() => "search.indexing",
+            Some(search) if search.query.trim().is_empty() => "search.prompt",
+            _ => "search.none",
+        };
+        Self::empty_state(Icon::Search, prefix)
     }
 }

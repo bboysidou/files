@@ -24,6 +24,7 @@ pub struct Rail {
     pub motion: RailMotion,
     pub on_toggle: ClickHandler,
     pub on_select: IndexHandler,
+    pub on_search: ClickHandler,
 }
 
 impl Rail {
@@ -70,7 +71,10 @@ impl RenderOnce for Rail {
                 motion,
                 on_toggle: self.on_toggle,
             })
-            .child(RailSearch { motion })
+            .child(RailSearch {
+                motion,
+                on_search: self.on_search,
+            })
             .children(sections)
             .child(RailSectionLabel::new(TAGS_SECTION_KEY, motion))
             .child(RailTags { open: motion.open });

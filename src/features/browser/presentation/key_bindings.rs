@@ -43,6 +43,8 @@ fn navigation_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("f5", Reload, context),
         KeyBinding::new("/", OpenFilter, context),
         KeyBinding::new("space", QuickLook, context),
+        KeyBinding::new("f", StartSearch, context),
+        KeyBinding::new(":", EditPath, context),
     ]
 }
 
@@ -102,6 +104,8 @@ fn tab_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("f3", TogglePreview, browser),
         KeyBinding::new("ctrl-1", ShowList, browser),
         KeyBinding::new("ctrl-3", ShowGrid, browser),
+        KeyBinding::new("ctrl-l", EditPath, browser),
+        KeyBinding::new("ctrl-f", StartSearch, browser),
     ]
 }
 

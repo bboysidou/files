@@ -7,6 +7,7 @@ pub mod keymap;
 pub mod operations;
 pub mod paths;
 pub mod preview;
+pub mod search;
 pub mod settings;
 pub mod thumbnails;
 pub mod time;

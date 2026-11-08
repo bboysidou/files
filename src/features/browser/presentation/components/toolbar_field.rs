@@ -10,13 +10,13 @@ use crate::features::browser::presentation::state::filter_model::FilterModel;
 use crate::global_components::icon_glyph::IconGlyph;
 
 #[derive(IntoElement)]
-pub struct FilterField {
+pub struct ToolbarField {
+    pub icon: Icon,
     pub model: FilterModel,
 }
 
-impl RenderOnce for FilterField {
+impl RenderOnce for ToolbarField {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
-        let count = format!("{}/{}", self.model.shown, self.model.total);
         div()
             .flex()
             .flex_shrink_0()
@@ -30,14 +30,14 @@ impl RenderOnce for FilterField {
             .border_1()
             .border_color(rgb(ACCENT))
             .text_color(rgb(FG_BRIGHT))
-            .child(IconGlyph::new(Icon::Filter, ACCENT))
+            .child(IconGlyph::new(self.icon, ACCENT))
             .child(self.model.field)
             .child(
                 div()
                     .flex_shrink_0()
                     .text_size(px(TEXT_TINY))
                     .text_color(rgb(FG_MUTED))
-                    .child(count),
+                    .child(self.model.count),
             )
     }
 }

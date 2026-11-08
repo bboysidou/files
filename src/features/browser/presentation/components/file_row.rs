@@ -29,6 +29,7 @@ pub struct FileRow {
     pub now: SystemTime,
     pub on_click: IndexClickHandler,
     pub compact: bool,
+    pub context: Option<String>,
 }
 
 impl FileRow {
@@ -82,6 +83,7 @@ impl RenderOnce for FileRow {
                 entry: self.entry,
                 cut: self.cut,
                 rename: self.rename,
+                context: self.context,
             })
             .child(Self::cell(LIST_SIZE_WIDTH, size).flex().justify_end())
             .when(!self.compact, |row| {

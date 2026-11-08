@@ -77,7 +77,9 @@ impl PaneView {
     }
 
     pub(super) fn dismiss(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if self.filter_open || !self.filter.is_empty() {
+        if self.search.is_some() {
+            self.end_search(window, cx);
+        } else if self.filter_open || !self.filter.is_empty() {
             self.clear_filter(window, cx);
         } else {
             let cursor = self.selection.cursor();

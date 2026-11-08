@@ -5,4 +5,5 @@ use crate::features::operations::domain::entities::file_operation::Transfer;
 pub enum PaneEvent {
     RenameRequested(Transfer),
     ViewOptionsChanged(ViewOptions),
+    Message(String),
 }
