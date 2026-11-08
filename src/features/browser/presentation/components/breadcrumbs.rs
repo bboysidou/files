@@ -6,8 +6,9 @@ use crate::core::theme::colors::{CARD, CRUMB_SEPARATOR, LINE};
 use crate::core::theme::metrics::{
     CONTROL_RADIUS, CRUMBS_GAP, CRUMBS_HEIGHT, CRUMBS_PAD_LEFT, CRUMBS_PAD_RIGHT,
 };
+use crate::features::browser::presentation::components::crumb_segment::CrumbSegment;
 use crate::features::places::domain::entities::crumb_trail::CrumbTrail;
-use crate::features::shell::presentation::components::crumb_segment::CrumbSegment;
+use crate::global_components::handlers::IndexHandler;
 use crate::global_components::kbd_hint::KbdHint;
 
 const PATH_EDIT_KEY: &str = ":";
@@ -15,6 +16,7 @@ const PATH_EDIT_KEY: &str = ":";
 #[derive(IntoElement)]
 pub struct Breadcrumbs {
     pub trail: CrumbTrail,
+    pub on_crumb: IndexHandler,
 }
 
 impl Breadcrumbs {
@@ -32,6 +34,7 @@ impl Breadcrumbs {
             index: 0,
             text: self.trail.root.text().into_owned().into(),
             last: count == 0,
+            on_click: self.on_crumb.clone(),
         };
         let mut crumbs = vec![root.into_any_element()];
         for (offset, segment) in self.trail.segments.iter().enumerate() {
@@ -43,6 +46,7 @@ impl Breadcrumbs {
                 index: offset + 1,
                 text: segment.clone().into(),
                 last: offset + 1 == count,
+                on_click: self.on_crumb.clone(),
             };
             crumbs.push(crumb.into_any_element());
         }

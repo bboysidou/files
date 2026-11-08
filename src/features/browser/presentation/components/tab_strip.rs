@@ -3,7 +3,7 @@ use gpui::{App, IntoElement, RenderOnce, SharedString, Window, div, prelude::*, 
 use crate::core::enums::assets::icon::Icon;
 use crate::core::theme::colors::DIVIDER;
 use crate::core::theme::metrics::{NEW_TAB_OFFSET, TABS_GAP, TABS_PAD_TOP, TABS_PAD_X};
-use crate::features::shell::presentation::components::sheet_tab::SheetTab;
+use crate::features::browser::presentation::components::sheet_tab::SheetTab;
 use crate::global_components::icon_button::IconButton;
 
 #[derive(IntoElement)]

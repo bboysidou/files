@@ -1,0 +1,9 @@
+pub const BADGE_MAX_CHARS: usize = 4;
+pub const BADGE_FALLBACK: &str = "FILE";
+pub const HIDDEN_PREFIX: char = '.';
+pub const SIZE_STEP: f64 = 1024.0;
+pub const SIZE_UNITS: [&str; 4] = ["KB", "MB", "GB", "TB"];
+pub const SIZE_ONE_DECIMAL_BELOW: f64 = 10.0;
+pub const TRASH_FILES_DIR: &str = "Trash/files";
+pub const OPENER_COMMAND: &str = "xdg-open";
+pub const MISSING_VALUE: &str = "—";

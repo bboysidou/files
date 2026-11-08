@@ -20,7 +20,7 @@ const TAGS_SECTION_KEY: &str = "rail.section.tags";
 #[derive(IntoElement)]
 pub struct Rail {
     pub places: Vec<Place>,
-    pub active: usize,
+    pub active: Option<usize>,
     pub motion: RailMotion,
     pub on_toggle: ClickHandler,
     pub on_select: IndexHandler,
@@ -38,7 +38,7 @@ impl Rail {
                 RailNavItem {
                     index,
                     kind: place.kind,
-                    active: index == self.active,
+                    active: Some(index) == self.active,
                     motion: self.motion,
                     on_select: self.on_select.clone(),
                 }

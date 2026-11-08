@@ -1,4 +1,4 @@
-use std::path::{Component, Path};
+use std::path::{Component, Path, PathBuf};
 
 use super::place::PlaceTarget;
 use crate::core::constants::paths::PATH_SEPARATOR;
@@ -8,13 +8,14 @@ use crate::core::enums::places::crumb_root::CrumbRoot;
 pub struct CrumbTrail {
     pub root: CrumbRoot,
     pub segments: Vec<String>,
+    pub targets: Vec<PlaceTarget>,
 }
 
 impl CrumbTrail {
     pub fn for_target(target: &PlaceTarget, home: Option<&Path>) -> Self {
         match target {
-            PlaceTarget::Overview => Self::bare(CrumbRoot::Overview),
-            PlaceTarget::Trash => Self::bare(CrumbRoot::Trash),
+            PlaceTarget::Overview => Self::bare(CrumbRoot::Overview, target),
+            PlaceTarget::Trash => Self::bare(CrumbRoot::Trash, target),
             PlaceTarget::Directory(path) => Self::for_directory(path, home),
         }
     }
@@ -28,23 +29,31 @@ impl CrumbTrail {
         }
     }
 
-    fn bare(root: CrumbRoot) -> Self {
+    fn bare(root: CrumbRoot, target: &PlaceTarget) -> Self {
         Self {
             root,
             segments: Vec::new(),
+            targets: vec![target.clone()],
         }
     }
 
     fn for_directory(path: &Path, home: Option<&Path>) -> Self {
-        match home.and_then(|home| path.strip_prefix(home).ok()) {
-            Some(rest) => Self {
-                root: CrumbRoot::Home,
-                segments: segments_of(rest),
-            },
-            None => Self {
-                root: CrumbRoot::Filesystem,
-                segments: segments_of(path),
-            },
+        let (root, base, rest) =
+            match home.and_then(|home| Some((home, path.strip_prefix(home).ok()?))) {
+                Some((home, rest)) => (CrumbRoot::Home, home.to_path_buf(), rest),
+                None => (CrumbRoot::Filesystem, PathBuf::from(PATH_SEPARATOR), path),
+            };
+        let segments = segments_of(rest);
+        let mut current = base.clone();
+        let mut targets = vec![PlaceTarget::Directory(base)];
+        for segment in &segments {
+            current.push(segment);
+            targets.push(PlaceTarget::Directory(current.clone()));
+        }
+        Self {
+            root,
+            segments,
+            targets,
         }
     }
 }

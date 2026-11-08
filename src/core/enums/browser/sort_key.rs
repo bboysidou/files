@@ -1,0 +1,18 @@
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum SortKey {
+    Name,
+    Size,
+    Kind,
+    Modified,
+}
+
+impl SortKey {
+    pub fn label_key(self) -> &'static str {
+        match self {
+            SortKey::Name => "list.column.name",
+            SortKey::Size => "list.column.size",
+            SortKey::Kind => "list.column.kind",
+            SortKey::Modified => "list.column.modified",
+        }
+    }
+}

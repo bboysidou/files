@@ -15,3 +15,7 @@ pub const FG_MUTED: u32 = 0x8C8C8C;
 pub const FG_DIM: u32 = 0x5A5A5A;
 pub const ACCENT: u32 = 0x1793D0;
 pub const ON_ACCENT: u32 = 0x000000;
+pub const ROW_HOVER: u32 = 0x171717;
+pub const TRANSPARENT: u32 = 0x00000000;
+pub const SELECTION_ALPHA: u32 = 0x29;
+pub const BADGE_ALPHA: u32 = 0x24;

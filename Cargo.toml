@@ -8,6 +8,7 @@ anyhow = "1.0.104"
 dirs = "7.0.0"
 gpui-pre = "0.3.11"
 gpui-pre-platform = { version = "0.3.11", features = ["font-kit", "wayland", "x11"] }
+jiff = "0.2.40"
 rust-i18n = "4.2.4"
 
 [lints.clippy]
