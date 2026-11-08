@@ -21,6 +21,7 @@ impl RenderOnce for ModalScrim {
         div()
             .track_focus(&self.focus)
             .key_context(self.context)
+            .occlude()
             .w(self.viewport.width)
             .h(self.viewport.height)
             .flex()

@@ -86,6 +86,18 @@ fn folder_entries(has_directory: bool, archive: bool, has_entry: bool) -> [MenuE
     ]
 }
 
+fn cloned_entries(menu: &MenuState) -> Vec<MenuEntry> {
+    menu.entries
+        .iter()
+        .map(|item| MenuEntry {
+            action: item.action.boxed_clone(),
+            label: item.label.clone(),
+            shortcut: item.shortcut.clone(),
+            ..*item
+        })
+        .collect()
+}
+
 fn gated(mut item: MenuEntry, enabled: bool) -> MenuEntry {
     item.enabled = enabled;
     item
@@ -240,16 +252,7 @@ impl BrowserView {
         let menu = self.menu.as_ref()?;
         let viewport = window.viewport_size();
         let origin = Self::menu_origin(menu, viewport);
-        let entries = menu
-            .entries
-            .iter()
-            .map(|item| MenuEntry {
-                action: item.action.boxed_clone(),
-                label: item.label.clone(),
-                shortcut: item.shortcut.clone(),
-                ..*item
-            })
-            .collect();
+        let entries = cloned_entries(menu);
         let view = cx.entity().downgrade();
         let on_select: IndexHandler = Rc::new(move |index, window, cx| {
             let _ = view.update(cx, |this, cx| this.select_menu(index, window, cx));
@@ -257,6 +260,7 @@ impl BrowserView {
         let layer = div()
             .track_focus(&self.menu_focus)
             .key_context(MENU_CONTEXT)
+            .occlude()
             .w(viewport.width)
             .h(viewport.height)
             .on_mouse_down(

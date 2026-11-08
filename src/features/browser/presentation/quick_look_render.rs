@@ -37,6 +37,7 @@ impl BrowserView {
             .id("quick-look")
             .track_focus(&self.quick_look_focus)
             .key_context(QUICK_LOOK_CONTEXT)
+            .occlude()
             .w(viewport.width)
             .h(viewport.height)
             .flex()
