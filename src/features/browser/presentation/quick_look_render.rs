@@ -7,9 +7,12 @@ use gpui::{
 
 use crate::core::constants::preview::ZOOM_STEP;
 use crate::core::theme::colors::SCRIM;
-use crate::core::theme::metrics::{QUICK_LOOK_HEIGHT, QUICK_LOOK_MARGIN, QUICK_LOOK_WIDTH};
+use crate::core::theme::metrics::{
+    QUICK_LOOK_HEIGHT, QUICK_LOOK_MARGIN, QUICK_LOOK_SCROLL_STEP, QUICK_LOOK_WIDTH,
+};
 use crate::features::browser::presentation::actions::{
-    CloseQuickLook, QuickLookNext, QuickLookPrevious, ZoomIn, ZoomOut,
+    CloseQuickLook, QuickLookNext, QuickLookPrevious, QuickLookScrollDown, QuickLookScrollUp,
+    ZoomIn, ZoomOut,
 };
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::components::entry_icon::EntryIcon;
@@ -25,6 +28,14 @@ const OVERLAY_PRIORITY: usize = 1;
 const DOUBLE: f32 = 2.0;
 
 impl BrowserView {
+    fn scroll_quick_look(&mut self, direction: f32, cx: &mut Context<Self>) {
+        let handle = self.preview_scroll.0.borrow().base_handle.clone();
+        let (offset, max) = (handle.offset(), handle.max_offset());
+        let target = offset.y - px(QUICK_LOOK_SCROLL_STEP * direction);
+        handle.set_offset(point(offset.x, target.clamp(-max.y, px(0.0))));
+        cx.notify();
+    }
+
     pub(super) fn quick_look_overlay(
         &self,
         window: &mut Window,
@@ -102,6 +113,12 @@ impl BrowserView {
                 }),
             )
             .on_action(cx.listener(|this, _: &QuickLookNext, _, cx| this.step_quick_look(1, cx)))
+            .on_action(
+                cx.listener(|this, _: &QuickLookScrollDown, _, cx| this.scroll_quick_look(1.0, cx)),
+            )
+            .on_action(
+                cx.listener(|this, _: &QuickLookScrollUp, _, cx| this.scroll_quick_look(-1.0, cx)),
+            )
             .on_action(
                 cx.listener(|this, _: &QuickLookPrevious, _, cx| this.step_quick_look(-1, cx)),
             )

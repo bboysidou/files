@@ -2,6 +2,7 @@ use std::ops::Range;
 use std::path::PathBuf;
 use std::time::SystemTime;
 
+use gpui::ScrollHandle;
 use gpui::{
     AnyElement, Context, SharedString, UniformListScrollHandle, div, prelude::*, px, uniform_list,
 };
@@ -52,6 +53,7 @@ impl BrowserView {
             .track_scroll(self.preview_scroll_for(surface))
             .into_any_element(),
             Some(PreviewContent::Markdown { blocks, .. }) => PreviewMarkdown {
+                scroll: self.content_scroll(surface),
                 id: surface.markdown_id(),
                 blocks: blocks.clone(),
             }
@@ -61,6 +63,7 @@ impl BrowserView {
                 total,
                 capped,
             }) => padded(PreviewArchive {
+                scroll: self.content_scroll(surface),
                 members: members.clone(),
                 total: *total,
                 capped: *capped,
@@ -71,6 +74,7 @@ impl BrowserView {
                 zoom: state.zoom,
             }),
             Some(PreviewContent::Folder { entries, total }) => padded(PreviewFolder {
+                scroll: self.content_scroll(surface),
                 entries: entries.clone(),
                 total: *total,
             }),
@@ -104,6 +108,14 @@ impl BrowserView {
                 t!("ql.failed.body").to_string(),
             ),
         }
+    }
+
+    fn content_scroll(&self, surface: PreviewSurface) -> ScrollHandle {
+        self.preview_scroll_for(surface)
+            .0
+            .borrow()
+            .base_handle
+            .clone()
     }
 
     fn preview_scroll_for(&self, surface: PreviewSurface) -> &UniformListScrollHandle {

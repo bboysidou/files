@@ -1,3 +1,4 @@
+use gpui::ScrollHandle;
 use gpui::{App, IntoElement, RenderOnce, Window, div, prelude::*, px, rgb};
 use rust_i18n::t;
 
@@ -11,6 +12,7 @@ use crate::features::browser::presentation::components::entry_icon::EntryIcon;
 
 #[derive(IntoElement)]
 pub struct PreviewFolder {
+    pub scroll: ScrollHandle,
     pub entries: Vec<FileEntry>,
     pub total: usize,
 }
@@ -55,6 +57,7 @@ impl RenderOnce for PreviewFolder {
         });
         let list = div()
             .id("preview-folder")
+            .track_scroll(&self.scroll)
             .flex()
             .flex_col()
             .size_full()

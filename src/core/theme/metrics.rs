@@ -209,3 +209,4 @@ pub const SETTINGS_PANEL_HEIGHT: f32 = 480.0;
 pub const PERMISSION_LABEL_WIDTH: f32 = 90.0;
 pub const PERMISSION_CELL_WIDTH: f32 = 90.0;
 pub const TREE_INDENT: f32 = 18.0;
+pub const QUICK_LOOK_SCROLL_STEP: f32 = 96.0;

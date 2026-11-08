@@ -1,3 +1,4 @@
+use gpui::ScrollHandle;
 use gpui::{App, IntoElement, RenderOnce, Window, div, prelude::*, px, rgb};
 use rust_i18n::t;
 
@@ -9,6 +10,7 @@ use crate::global_components::icon_glyph::IconGlyph;
 
 #[derive(IntoElement)]
 pub struct PreviewArchive {
+    pub scroll: ScrollHandle,
     pub members: Vec<ArchiveMember>,
     pub total: usize,
     pub capped: bool,
@@ -48,6 +50,7 @@ impl RenderOnce for PreviewArchive {
         };
         div()
             .id("preview-archive")
+            .track_scroll(&self.scroll)
             .flex()
             .flex_col()
             .size_full()

@@ -1,3 +1,4 @@
+use gpui::ScrollHandle;
 use gpui::{App, IntoElement, RenderOnce, Window, div, prelude::*, px, relative, rgb};
 
 use crate::core::theme::colors::FG;
@@ -7,6 +8,7 @@ use crate::features::preview::domain::entities::markdown_block::MarkdownBlock;
 
 #[derive(IntoElement)]
 pub struct PreviewMarkdown {
+    pub scroll: ScrollHandle,
     pub id: &'static str,
     pub blocks: Vec<MarkdownBlock>,
 }
@@ -15,6 +17,7 @@ impl RenderOnce for PreviewMarkdown {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
         div()
             .id(self.id)
+            .track_scroll(&self.scroll)
             .size_full()
             .overflow_y_scroll()
             .p(px(QUICK_LOOK_STAGE_PAD))

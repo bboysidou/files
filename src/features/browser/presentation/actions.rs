@@ -31,6 +31,8 @@ actions!(
         CloseQuickLook,
         QuickLookNext,
         QuickLookPrevious,
+        QuickLookScrollDown,
+        QuickLookScrollUp,
         ZoomIn,
         ZoomOut,
         TogglePreview,
