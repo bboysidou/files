@@ -9,7 +9,7 @@ impl BrowserView {
             PlaceTarget::Overview => self.home_target.clone(),
             target => target,
         };
-        let tab = self.open_pane(target, cx);
+        let tab = self.open_pane(target, window, cx);
         self.tabs.push(tab);
         self.activate(self.tabs.len() - 1, window, cx);
     }
@@ -23,7 +23,7 @@ impl BrowserView {
             return;
         }
         if self.tabs.len() == 1 {
-            let fresh = self.open_pane(self.home_target.clone(), cx);
+            let fresh = self.open_pane(self.home_target.clone(), window, cx);
             self.tabs = vec![fresh];
             self.activate(0, window, cx);
             return;

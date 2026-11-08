@@ -4,8 +4,9 @@ use std::rc::Rc;
 use std::time::SystemTime;
 
 use gpui::{
-    AnyElement, App, Context, Div, FocusHandle, Focusable, IntoElement, Render, SharedString, Task,
-    UniformListScrollHandle, Window, div, prelude::*, uniform_list,
+    AnyElement, App, Context, Div, Entity, FocusHandle, Focusable, IntoElement, Render,
+    SharedString, Subscription, Task, UniformListScrollHandle, Window, div, prelude::*,
+    uniform_list,
 };
 use rust_i18n::t;
 
@@ -17,8 +18,8 @@ use crate::features::browser::domain::entities::navigation_history::NavigationHi
 use crate::features::browser::domain::entities::selection::Selection;
 use crate::features::browser::domain::entities::sort_order::SortOrder;
 use crate::features::browser::presentation::actions::{
-    GoBack, GoForward, GoParent, MoveDown, MoveUp, OpenEntry, Reload, SelectFirst, SelectLast,
-    ToggleHidden,
+    ClearFilter, GoBack, GoForward, GoParent, MoveDown, MoveUp, OpenEntry, OpenFilter, Reload,
+    SelectFirst, SelectLast, ToggleHidden,
 };
 use crate::features::browser::presentation::components::file_row::FileRow;
 use crate::features::browser::presentation::components::list_header::ListHeader;
@@ -32,6 +33,7 @@ use crate::features::places::domain::entities::crumb_trail::CrumbTrail;
 use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::global_components::empty_state::EmptyState;
 use crate::global_components::handlers::{ClickHandler, IndexClickHandler, IndexHandler};
+use crate::global_components::text_field::text_field_view::TextField;
 
 pub struct PaneView {
     pub(super) setup: Rc<BrowserSetup>,
@@ -47,10 +49,23 @@ pub struct PaneView {
     pub(super) scroll: UniformListScrollHandle,
     pub(super) focus_handle: FocusHandle,
     pub(super) load_task: Option<Task<()>>,
+    pub(super) filter_field: Entity<TextField>,
+    pub(super) filter: String,
+    pub(super) filter_open: bool,
+    pub(super) _filter_events: Subscription,
 }
 
 impl PaneView {
-    pub fn new(setup: Rc<BrowserSetup>, start: PlaceTarget, cx: &mut Context<Self>) -> Self {
+    pub fn new(
+        setup: Rc<BrowserSetup>,
+        start: PlaceTarget,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> Self {
+        let filter_field = cx.new(|cx| TextField::new(t!("filter.placeholder").to_string(), cx));
+        let filter_events = cx.subscribe_in(&filter_field, window, |this, _, event, window, cx| {
+            this.on_filter_event(*event, window, cx)
+        });
         let mut view = Self {
             setup,
             location: start,
@@ -65,6 +80,10 @@ impl PaneView {
             scroll: UniformListScrollHandle::new(),
             focus_handle: cx.focus_handle(),
             load_task: None,
+            filter_field,
+            filter: String::new(),
+            filter_open: false,
+            _filter_events: filter_events,
         };
         view.load(cx);
         view
@@ -127,9 +146,11 @@ impl PaneView {
             can_go_back: self.history.can_go_back(),
             can_go_forward: self.history.can_go_forward(),
             can_go_up: self.parent_target().is_some(),
+            filter: self.filter_model(),
             on_back: Self::handler(cx, Self::go_back),
             on_forward: Self::handler(cx, Self::go_forward),
             on_up: Self::handler(cx, Self::go_parent),
+            on_filter: Self::open_filter_handler(cx),
             on_crumb,
         }
     }
@@ -140,6 +161,17 @@ impl PaneView {
             icon,
             title: t!(&title).to_string().into(),
             body: t!(&body).to_string().into(),
+        }
+        .into_any_element()
+    }
+
+    fn no_matches(&self) -> AnyElement {
+        EmptyState {
+            icon: Icon::Filter,
+            title: t!("empty.filter.title", query = self.filter)
+                .to_string()
+                .into(),
+            body: t!("empty.filter.body").to_string().into(),
         }
         .into_any_element()
     }
@@ -155,6 +187,9 @@ impl PaneView {
             }
             LoadState::Failed(ListError::Failed) => Self::empty_state(Icon::Folder, "empty.failed"),
             LoadState::Loading if self.entries.is_empty() => div().into_any_element(),
+            LoadState::Ready(_) if self.entries.is_empty() && !self.filter.is_empty() => {
+                self.no_matches()
+            }
             LoadState::Ready(_) if self.entries.is_empty() => {
                 Self::empty_state(Icon::Folder, "empty.folder")
             }
@@ -220,11 +255,18 @@ impl PaneView {
             .on_action(cx.listener(|this, _: &GoForward, _, cx| this.go_forward(cx)))
             .on_action(cx.listener(|this, _: &ToggleHidden, _, cx| this.toggle_hidden(cx)))
             .on_action(cx.listener(|this, _: &Reload, _, cx| this.load(cx)))
+            .on_action(cx.listener(|this, _: &OpenFilter, window, cx| this.open_filter(window, cx)))
+            .on_action(
+                cx.listener(|this, _: &ClearFilter, window, cx| this.clear_filter(window, cx)),
+            )
     }
 }
 
 impl Render for PaneView {
-    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        if !self.filter_open && self.filter_field.focus_handle(cx).is_focused(window) {
+            window.focus(&self.focus_handle, cx);
+        }
         let root = div()
             .track_focus(&self.focus_handle)
             .key_context(PANE_CONTEXT)

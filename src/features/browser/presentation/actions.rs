@@ -13,6 +13,8 @@ actions!(
         GoForward,
         ToggleHidden,
         Reload,
+        OpenFilter,
+        ClearFilter,
         NewTab,
         CloseTab,
         NextTab,

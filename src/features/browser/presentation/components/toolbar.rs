@@ -4,6 +4,7 @@ use crate::core::enums::assets::icon::Icon;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::core::theme::metrics::{TOOLBAR_GAP, TOOLBAR_PAD_X, TOOLBAR_PAD_Y};
 use crate::features::browser::presentation::components::breadcrumbs::Breadcrumbs;
+use crate::features::browser::presentation::components::filter_field::FilterField;
 use crate::features::browser::presentation::components::view_switcher::ViewSwitcher;
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
 use crate::global_components::icon_button::IconButton;
@@ -16,6 +17,15 @@ pub struct Toolbar {
 impl RenderOnce for Toolbar {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
         let model = self.model;
+        let filter_open = model.filter.is_some();
+        let filter = model.filter.map(|filter| FilterField { model: filter });
+        let filter_buttons = (!filter_open).then(|| {
+            div()
+                .flex()
+                .gap(px(TOOLBAR_GAP))
+                .child(IconButton::new("filter", Icon::Filter).on_click(model.on_filter))
+                .child(IconButton::new("search", Icon::Search))
+        });
         div()
             .flex()
             .flex_wrap()
@@ -43,8 +53,8 @@ impl RenderOnce for Toolbar {
                 trail: model.trail,
                 on_crumb: model.on_crumb,
             })
-            .child(IconButton::new("filter", Icon::Filter))
-            .child(IconButton::new("search", Icon::Search))
+            .children(filter)
+            .children(filter_buttons)
             .child(ViewSwitcher {
                 active: ViewMode::List,
             })

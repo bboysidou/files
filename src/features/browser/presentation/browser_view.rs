@@ -25,14 +25,19 @@ pub struct BrowserView {
 }
 
 impl BrowserView {
-    pub fn new(setup: BrowserSetup, home_target: PlaceTarget, cx: &mut Context<Self>) -> Self {
+    pub fn new(
+        setup: BrowserSetup,
+        home_target: PlaceTarget,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> Self {
         let mut view = Self {
             setup: Rc::new(setup),
             tabs: Vec::new(),
             active: 0,
             home_target,
         };
-        let first = view.open_pane(view.home_target.clone(), cx);
+        let first = view.open_pane(view.home_target.clone(), window, cx);
         view.tabs.push(first);
         view
     }
@@ -47,9 +52,14 @@ impl BrowserView {
             .update(cx, |pane, cx| pane.navigate(target, cx));
     }
 
-    pub(super) fn open_pane(&self, target: PlaceTarget, cx: &mut Context<Self>) -> Tab {
+    pub(super) fn open_pane(
+        &self,
+        target: PlaceTarget,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> Tab {
         let setup = self.setup.clone();
-        let pane = cx.new(|cx| PaneView::new(setup, target, cx));
+        let pane = cx.new(|cx| PaneView::new(setup, target, window, cx));
         let changes = cx.observe(&pane, |_, _, cx| cx.notify());
         Tab {
             pane,

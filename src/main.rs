@@ -12,6 +12,7 @@ use crate::core::helpers::i18n::system_locale::system_locale;
 use crate::features::browser::presentation::key_bindings::browser_key_bindings;
 use crate::features::shell::presentation::actions::ToggleRail;
 use crate::features::shell::presentation::shell_view::ShellView;
+use crate::global_components::text_field::text_field_actions::text_field_key_bindings;
 
 rust_i18n::i18n!("locales", fallback = "en");
 
@@ -22,6 +23,7 @@ fn main() {
         .run(|cx: &mut App| {
             cx.bind_keys([KeyBinding::new(TOGGLE_RAIL_KEYS, ToggleRail, None)]);
             cx.bind_keys(browser_key_bindings());
+            cx.bind_keys(text_field_key_bindings());
             let bounds = Bounds::centered(None, size(px(WINDOW_WIDTH), px(WINDOW_HEIGHT)), cx);
             let options = WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(bounds)),
@@ -29,7 +31,7 @@ fn main() {
                 ..Default::default()
             };
             cx.open_window(options, |window, cx| {
-                let view = cx.new(|cx| ShellView::new(places_repository().as_ref(), cx));
+                let view = cx.new(|cx| ShellView::new(places_repository().as_ref(), window, cx));
                 window.focus(&view.focus_handle(cx), cx);
                 view
             })

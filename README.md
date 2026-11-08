@@ -15,6 +15,7 @@ Early development. Working today:
 - List view of real folders: folders first, natural sort, sortable columns, sizes, item counts,
   kinds and relative dates
 - Tabs, back/forward/up history, clickable path crumbs
+- Filter the current folder as you type
 - Opening files with your default applications (`xdg-open`)
 
 ## Build
@@ -36,6 +37,7 @@ Needs a recent stable Rust toolchain and the Wayland or X11 development librarie
 | `Alt+←` / `Alt+→` | Back / forward |
 | `t` / `w` | New / close tab |
 | `1`–`9`, `[` `]` | Go to a tab |
+| `/` / `Esc` | Filter this folder / clear the filter |
 | `Ctrl+H` | Show hidden files |
 | `F5` | Reload |
 | `Ctrl+B` | Collapse the sidebar |

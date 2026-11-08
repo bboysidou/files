@@ -93,3 +93,7 @@ pub const BADGE_WIDTH: f32 = 42.0;
 pub const BADGE_PAD_Y: f32 = 3.0;
 pub const BADGE_RADIUS: f32 = 6.0;
 pub const SORT_ARROW_GAP: f32 = 4.0;
+pub const TEXT_CURSOR_WIDTH: f32 = 2.0;
+pub const FILTER_FIELD_WIDTH: f32 = 220.0;
+pub const FILTER_FIELD_GAP: f32 = 8.0;
+pub const FILTER_FIELD_PAD_X: f32 = 12.0;

@@ -29,7 +29,11 @@ pub struct ShellView {
 }
 
 impl ShellView {
-    pub fn new(repository: &dyn PlacesRepository, cx: &mut Context<Self>) -> Self {
+    pub fn new(
+        repository: &dyn PlacesRepository,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> Self {
         let places = repository.places();
         let home = repository.home();
         let start = Self::start_target(&places, home.as_ref());
@@ -39,7 +43,7 @@ impl ShellView {
             places: places.clone(),
             home,
         };
-        let browser = cx.new(|cx| BrowserView::new(setup, start, cx));
+        let browser = cx.new(|cx| BrowserView::new(setup, start, window, cx));
         let browser_changes = cx.observe(&browser, |_, _, cx| cx.notify());
         Self {
             places,

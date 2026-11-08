@@ -2,8 +2,9 @@ use gpui::KeyBinding;
 
 use crate::features::browser::presentation::actions::{
     ActivateTab1, ActivateTab2, ActivateTab3, ActivateTab4, ActivateTab5, ActivateTab6,
-    ActivateTab7, ActivateTab8, ActivateTab9, CloseTab, GoBack, GoForward, GoParent, MoveDown,
-    MoveUp, NewTab, NextTab, OpenEntry, PreviousTab, Reload, SelectFirst, SelectLast, ToggleHidden,
+    ActivateTab7, ActivateTab8, ActivateTab9, ClearFilter, CloseTab, GoBack, GoForward, GoParent,
+    MoveDown, MoveUp, NewTab, NextTab, OpenEntry, OpenFilter, PreviousTab, Reload, SelectFirst,
+    SelectLast, ToggleHidden,
 };
 
 pub const BROWSER_CONTEXT: &str = "Browser";
@@ -37,20 +38,12 @@ fn pane_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("alt-right", GoForward, context),
         KeyBinding::new("ctrl-h", ToggleHidden, context),
         KeyBinding::new("f5", Reload, context),
-    ]
-}
-
-fn tab_bindings() -> Vec<KeyBinding> {
-    let context = Some(BROWSER_CONTEXT);
-    vec![
+        KeyBinding::new("/", OpenFilter, context),
+        KeyBinding::new("escape", ClearFilter, context),
         KeyBinding::new("t", NewTab, context),
-        KeyBinding::new("ctrl-t", NewTab, context),
         KeyBinding::new("w", CloseTab, context),
-        KeyBinding::new("ctrl-w", CloseTab, context),
         KeyBinding::new("]", NextTab, context),
-        KeyBinding::new("ctrl-tab", NextTab, context),
         KeyBinding::new("[", PreviousTab, context),
-        KeyBinding::new("ctrl-shift-tab", PreviousTab, context),
         KeyBinding::new("1", ActivateTab1, context),
         KeyBinding::new("2", ActivateTab2, context),
         KeyBinding::new("3", ActivateTab3, context),
@@ -60,5 +53,15 @@ fn tab_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("7", ActivateTab7, context),
         KeyBinding::new("8", ActivateTab8, context),
         KeyBinding::new("9", ActivateTab9, context),
+    ]
+}
+
+fn tab_bindings() -> Vec<KeyBinding> {
+    let context = Some(BROWSER_CONTEXT);
+    vec![
+        KeyBinding::new("ctrl-t", NewTab, context),
+        KeyBinding::new("ctrl-w", CloseTab, context),
+        KeyBinding::new("ctrl-tab", NextTab, context),
+        KeyBinding::new("ctrl-shift-tab", PreviousTab, context),
     ]
 }

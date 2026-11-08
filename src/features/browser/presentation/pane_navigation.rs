@@ -30,6 +30,7 @@ impl PaneView {
     ) {
         self.location = target;
         self.pending_focus = focus;
+        self.reset_filter(cx);
         self.selection = Selection::default();
         self.entries.clear();
         self.load(cx);
@@ -86,7 +87,7 @@ impl PaneView {
             .pending_focus
             .take()
             .or_else(|| self.current_entry_path());
-        self.entries = arrange_entries(raw, self.sort, self.show_hidden);
+        self.entries = arrange_entries(raw, self.sort, self.show_hidden, &self.filter);
         let cursor = focus
             .and_then(|focus| self.entries.iter().position(|entry| entry.path == focus))
             .unwrap_or_default();

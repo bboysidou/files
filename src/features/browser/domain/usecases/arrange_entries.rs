@@ -11,10 +11,13 @@ pub fn arrange_entries(
     entries: &[FileEntry],
     order: SortOrder,
     show_hidden: bool,
+    filter: &str,
 ) -> Vec<FileEntry> {
+    let needle = filter.to_lowercase();
     let mut visible: Vec<FileEntry> = entries
         .iter()
         .filter(|entry| show_hidden || !entry.hidden)
+        .filter(|entry| needle.is_empty() || entry.name.to_lowercase().contains(&needle))
         .cloned()
         .collect();
     visible.sort_by(|left, right| {

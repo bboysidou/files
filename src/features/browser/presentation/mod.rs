@@ -3,6 +3,7 @@ pub mod browser_tabs;
 pub mod browser_view;
 pub mod components;
 pub mod key_bindings;
+pub mod pane_filter;
 pub mod pane_navigation;
 pub mod pane_selection;
 pub mod pane_view;

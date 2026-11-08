@@ -1,4 +1,5 @@
 pub mod browser_setup;
+pub mod filter_model;
 pub mod handlers;
 pub mod load_state;
 pub mod row_click;
