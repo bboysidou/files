@@ -16,6 +16,9 @@ use crate::features::browser::presentation::actions::{
     BulkNextField, Duplicate, NewFile, PasteLink,
 };
 use crate::features::browser::presentation::actions::{CloseProperties, ShowProperties};
+use crate::features::browser::presentation::actions::{
+    CollisionMerge, CollisionReplace, CollisionSkip,
+};
 use crate::features::browser::presentation::actions::{MoveTabLeft, MoveTabRight};
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
@@ -23,7 +26,7 @@ use crate::features::browser::presentation::state::confirm_state::ConfirmState;
 impl BrowserView {
     pub(super) fn with_actions(element: Div, cx: &mut Context<Self>) -> Div {
         let element = Self::with_overlay_actions(element, cx);
-        let element = Self::with_file_actions(element, cx);
+        let element = Self::with_collision_actions(Self::with_file_actions(element, cx), cx);
         Self::with_tab_actions(Self::with_operation_actions(element, cx), cx)
     }
 
@@ -121,6 +124,15 @@ impl BrowserView {
             )
             .on_action(cx.listener(|this, _: &Duplicate, _, cx| this.duplicate(cx)))
             .on_action(cx.listener(|this, _: &PasteLink, _, cx| this.paste_links(cx)))
+    }
+
+    fn with_collision_actions(element: Div, cx: &mut Context<Self>) -> Div {
+        element
+            .on_action(cx.listener(|this, _: &CollisionMerge, window, cx| this.merge(window, cx)))
+            .on_action(cx.listener(|this, _: &CollisionSkip, window, cx| this.skip(window, cx)))
+            .on_action(
+                cx.listener(|this, _: &CollisionReplace, window, cx| this.replace(window, cx)),
+            )
     }
 
     fn with_tab_actions(element: Div, cx: &mut Context<Self>) -> Div {

@@ -5,6 +5,8 @@ use crate::features::operations::domain::repositories::progress_sink::ProgressSi
 
 pub trait FileOperations: Send + Sync {
     fn exists(&self, path: &Path) -> bool;
+    fn is_dir(&self, path: &Path) -> bool;
+    fn children(&self, path: &Path) -> Vec<PathBuf>;
     fn copy(&self, from: &Path, to: &Path, sink: &dyn ProgressSink) -> Result<(), OperationError>;
     fn move_path(
         &self,

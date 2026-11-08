@@ -36,7 +36,9 @@ Early development. Working today:
 - Copy, cut, paste, rename, new folder and move to Trash, all with undo and redo; copy and paste work
   with other file managers and apps through the system clipboard (Wayland)
 - Copies show live progress in the sidebar and can be cancelled; later operations queue; pasting over
-  existing names asks to keep both, skip or replace (replaced items go to the Trash)
+  existing names asks to keep both, merge folders, skip or replace (replaced items go to the
+  Trash), also by key (`Enter`, `m`, `s`, `r`); a move across disks checks the copied size before
+  deleting the source
 - Quick Look for images, folders, source code with syntax colour, rendered Markdown and the first
   page of a PDF (`pdftoppm`, from poppler) (`Space`)
 - Archives (zip, tar.gz/xz/zst/bz2, 7z, rar, iso, cpio, jar): Quick Look and the preview column

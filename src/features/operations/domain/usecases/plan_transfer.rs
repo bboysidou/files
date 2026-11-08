@@ -1,11 +1,13 @@
 use std::path::{Path, PathBuf};
 
+use super::plan_merge::{MergePlan, plan_merge};
 use super::unique_target::unique_target;
 use crate::core::enums::operations::clipboard_mode::ClipboardMode;
 use crate::core::enums::operations::collision_policy::CollisionPolicy;
 use crate::features::operations::domain::entities::file_operation::{FileOperation, Transfer};
 use crate::features::operations::domain::entities::operation_error::OperationError;
 use crate::features::operations::domain::entities::transfer_request::TransferRequest;
+use crate::features::operations::domain::repositories::file_operations::FileOperations;
 
 pub fn count_collisions(request: &TransferRequest, exists: &dyn Fn(&Path) -> bool) -> usize {
     request
@@ -22,11 +24,16 @@ pub fn count_collisions(request: &TransferRequest, exists: &dyn Fn(&Path) -> boo
 
 pub fn plan_transfer(
     request: &TransferRequest,
-    exists: &dyn Fn(&Path) -> bool,
+    files: &dyn FileOperations,
 ) -> Result<FileOperation, OperationError> {
+    let exists = |path: &Path| files.exists(path);
     let destination = request.destination.as_path();
     let mut planned: Vec<PathBuf> = Vec::new();
     let mut replaced: Vec<PathBuf> = Vec::new();
+    let mut merge = MergePlan {
+        transfers: Vec::new(),
+        emptied: Vec::new(),
+    };
     let mut transfers = Vec::new();
     for source in &request.sources {
         if destination.starts_with(source) {
@@ -43,6 +50,10 @@ pub fn plan_transfer(
         let direct = destination.join(&name);
         let target = match (request.policy, exists(&direct)) {
             (CollisionPolicy::Skip, true) => continue,
+            (CollisionPolicy::Merge, true) if files.is_dir(&direct) && files.is_dir(source) => {
+                plan_merge(source, &direct, files, &mut merge);
+                continue;
+            }
             (CollisionPolicy::Replace, true) => {
                 replaced.push(direct.clone());
                 direct
@@ -60,13 +71,31 @@ pub fn plan_transfer(
             to: target,
         });
     }
-    let transfer = match request.mode {
+    transfers.extend(merge.transfers);
+    Ok(assemble(request.mode, transfers, replaced, merge.emptied))
+}
+
+fn assemble(
+    mode: ClipboardMode,
+    transfers: Vec<Transfer>,
+    replaced: Vec<PathBuf>,
+    emptied: Vec<PathBuf>,
+) -> FileOperation {
+    let transfer = match mode {
         ClipboardMode::Copy => FileOperation::Copy(transfers),
         ClipboardMode::Cut => FileOperation::Move(transfers),
     };
-    Ok(if replaced.is_empty() {
-        transfer
+    let mut steps = Vec::new();
+    if !replaced.is_empty() {
+        steps.push(FileOperation::Trash(replaced));
+    }
+    steps.push(transfer);
+    if mode == ClipboardMode::Cut {
+        steps.extend(emptied.into_iter().map(FileOperation::RemoveFolder));
+    }
+    if steps.len() == 1 {
+        steps.remove(0)
     } else {
-        FileOperation::Batch(vec![FileOperation::Trash(replaced), transfer])
-    })
+        FileOperation::Batch(steps)
+    }
 }

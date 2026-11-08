@@ -3,4 +3,5 @@ pub enum CollisionPolicy {
     KeepBoth,
     Skip,
     Replace,
+    Merge,
 }

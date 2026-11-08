@@ -184,6 +184,9 @@ fn overlay_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("escape", CloseProperties, Some(PROPERTIES_CONTEXT)),
         KeyBinding::new("enter", ConfirmAccept, Some(CONFIRM_CONTEXT)),
         KeyBinding::new("escape", ConfirmCancel, Some(CONFIRM_CONTEXT)),
+        KeyBinding::new("m", CollisionMerge, Some(CONFIRM_CONTEXT)),
+        KeyBinding::new("s", CollisionSkip, Some(CONFIRM_CONTEXT)),
+        KeyBinding::new("r", CollisionReplace, Some(CONFIRM_CONTEXT)),
     ]
 }
 

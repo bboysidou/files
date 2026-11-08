@@ -84,7 +84,7 @@ impl BrowserView {
 
     pub(super) fn transfer(&mut self, request: TransferRequest, cx: &mut Context<Self>) {
         let files = self.setup.operations.clone();
-        match plan_transfer(&request, &|path: &Path| files.exists(path)) {
+        match plan_transfer(&request, files.as_ref()) {
             Ok(operation) if operation.item_count() == 0 => {}
             Ok(operation) => {
                 if request.mode == ClipboardMode::Cut {

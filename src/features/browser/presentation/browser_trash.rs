@@ -86,15 +86,19 @@ impl BrowserView {
         }
     }
 
-    fn keep_both(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+    pub(super) fn keep_both(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.resolve(CollisionPolicy::KeepBoth, window, cx);
     }
 
-    fn skip(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+    pub(super) fn skip(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.resolve(CollisionPolicy::Skip, window, cx);
     }
 
-    fn replace(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+    pub(super) fn merge(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.resolve(CollisionPolicy::Merge, window, cx);
+    }
+
+    pub(super) fn replace(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.resolve(CollisionPolicy::Replace, window, cx);
     }
 
@@ -171,6 +175,15 @@ impl BrowserView {
                     label_key: "collision.skip",
                     danger: false,
                     choice: Self::skip,
+                },
+                cx,
+            ),
+            self.button(
+                ButtonSpec {
+                    id: "collision-merge",
+                    label_key: "collision.merge",
+                    danger: false,
+                    choice: Self::merge,
                 },
                 cx,
             ),

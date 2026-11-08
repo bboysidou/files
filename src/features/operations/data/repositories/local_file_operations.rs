@@ -91,6 +91,16 @@ impl FileOperations for LocalFileOperations {
         fs::symlink_metadata(path).is_ok()
     }
 
+    fn is_dir(&self, path: &Path) -> bool {
+        fs::symlink_metadata(path).is_ok_and(|meta| meta.is_dir())
+    }
+
+    fn children(&self, path: &Path) -> Vec<PathBuf> {
+        fs::read_dir(path)
+            .map(|items| items.flatten().map(|item| item.path()).collect())
+            .unwrap_or_default()
+    }
+
     fn copy(&self, from: &Path, to: &Path, sink: &dyn ProgressSink) -> Result<(), OperationError> {
         self.ensure_free(to)?;
         Self::copy_tree(from, to, sink).map_err(|error| Self::error_of(&error))
@@ -123,9 +133,11 @@ impl FileOperations for LocalFileOperations {
         match fs::rename(from, to) {
             Ok(()) => Ok(()),
             Err(error) if error.kind() == ErrorKind::CrossesDevices => {
-                Self::copy_tree(from, to, sink)
-                    .and_then(|()| Self::remove_tree(from))
-                    .map_err(|error| Self::error_of(&error))
+                Self::copy_tree(from, to, sink).map_err(|error| Self::error_of(&error))?;
+                if self.size_of(from) != self.size_of(to) {
+                    return Err(OperationError::Failed);
+                }
+                Self::remove_tree(from).map_err(|error| Self::error_of(&error))
             }
             Err(error) => Err(Self::error_of(&error)),
         }
