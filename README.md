@@ -18,8 +18,9 @@ Early development. Working today:
 - Filter the current folder as you type, or search every name below it (`f`)
 - Search inside files: start the search with `text:` (for example `text:TODO`); text files up to
   2 MB are scanned in the background, binary files skipped, and each hit shows its folder, the
-  first matching line and how many more matches the file has, scanned on up to 8 threads. Typing
-  again cancels the running scan
+  first matching line and how many more matches the file has, scanned on up to 8 threads; the
+  preview column and Quick Look list every matching line with its line number. Typing again
+  cancels the running scan
 - Type a path to jump there (`:` or `Ctrl+L`, `~` for home); network locations work too (`sftp://`, `smb://`,
   `ftp://`, `dav://` or `user@host:/path`), mounted with `gio mount` (gvfs; each protocol needs its
   gvfs backend). A server that asks for a login opens a user/password dialog (plus domain for
@@ -68,9 +69,9 @@ Early development. Working today:
   folder under the cursor on the right; click a side column to move there
 - Overview page (sidebar): disk usage per device, your home folder by file type, and recent files
   from `recently-used.xbel` (click one to open its folder with the file selected)
-- More windows (`Ctrl+N`, or `Ctrl+Alt+N` to move the current tab out). The first window owns the
-  saved session and the single-instance service; extra windows start on the folder they were
-  opened from and their tabs and setting changes are not saved
+- More windows (`Ctrl+N`). Drag a tab out of the window, or press `Ctrl+Alt+N`, to move it into
+  a new window with its history. Settings changed in one window apply to all of them, and every
+  open window comes back with its tabs at the next start
 - Dual pane (`Ctrl+4`): two folders side by side, `Tab` moves between them, `F6` copies the
   selection to the other side and `Shift+F6` moves it; drag the gap between them to resize
   (20–80 %, double-click resets, remembered across launches)
@@ -113,7 +114,7 @@ files --picker         # register files as the file chooser portal backend
 files --portal         # run the file chooser backend (started by D-Bus)
 ```
 
-Only one window runs: launching `files` again opens the path as a new tab in it. While `files` is
+Only one instance runs: launching `files` again opens the path as a new tab in the focused window. While `files` is
 the default, it also answers `org.freedesktop.FileManager1`, so "Show in folder" in other apps
 opens it.
 
@@ -183,7 +184,7 @@ the active preset.
 | `Ctrl+Shift+C` | Copy path |
 | `?` | Keyboard shortcuts |
 | `Ctrl+H` | Show hidden files |
-| `F5` | Reload (rarely needed, folders update live) |
+| `F5` / `Ctrl+R` | Reload and report how many rows were added, removed or changed (rarely needed, folders update live) |
 | `Ctrl+B` | Collapse the sidebar |
 
 ## Licence
