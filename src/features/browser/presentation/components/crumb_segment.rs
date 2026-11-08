@@ -4,7 +4,10 @@ use gpui::{
 
 use crate::core::theme::colors::{FG_BRIGHT, FG_MUTED, LINE_STRONG};
 use crate::core::theme::metrics::{CRUMB_PAD_X, CRUMB_PAD_Y, CRUMB_RADIUS};
-use crate::global_components::handlers::IndexHandler;
+use std::rc::Rc;
+
+use crate::global_components::drag::accept_paths::accept_paths;
+use crate::global_components::handlers::{IndexHandler, IndexPathsHandler};
 
 #[derive(IntoElement)]
 pub struct CrumbSegment {
@@ -12,11 +15,12 @@ pub struct CrumbSegment {
     pub text: SharedString,
     pub last: bool,
     pub on_click: IndexHandler,
+    pub on_drop: IndexPathsHandler,
 }
 
 impl RenderOnce for CrumbSegment {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
-        let (index, on_click) = (self.index, self.on_click);
+        let (index, on_click, on_drop) = (self.index, self.on_click, self.on_drop);
         let segment = div()
             .id(("crumb", index))
             .flex_shrink_0()
@@ -27,6 +31,10 @@ impl RenderOnce for CrumbSegment {
             .hover(|style| style.bg(rgb(LINE_STRONG)).text_color(rgb(FG_BRIGHT)))
             .on_click(move |_, window, cx| on_click(index, window, cx))
             .child(self.text);
+        let segment = accept_paths(
+            segment,
+            Rc::new(move |paths, window, cx| on_drop(index, paths, window, cx)),
+        );
         if self.last {
             segment
                 .text_color(rgb(FG_BRIGHT))

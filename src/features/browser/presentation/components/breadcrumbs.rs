@@ -8,7 +8,7 @@ use crate::core::theme::metrics::{
 };
 use crate::features::browser::presentation::components::crumb_segment::CrumbSegment;
 use crate::features::places::domain::entities::crumb_trail::CrumbTrail;
-use crate::global_components::handlers::IndexHandler;
+use crate::global_components::handlers::{IndexHandler, IndexPathsHandler};
 use crate::global_components::kbd_hint::KbdHint;
 
 const PATH_EDIT_KEY: &str = ":";
@@ -17,6 +17,7 @@ const PATH_EDIT_KEY: &str = ":";
 pub struct Breadcrumbs {
     pub trail: CrumbTrail,
     pub on_crumb: IndexHandler,
+    pub on_drop: IndexPathsHandler,
 }
 
 impl Breadcrumbs {
@@ -35,6 +36,7 @@ impl Breadcrumbs {
             text: self.trail.root.text().into_owned().into(),
             last: count == 0,
             on_click: self.on_crumb.clone(),
+            on_drop: self.on_drop.clone(),
         };
         let mut crumbs = vec![root.into_any_element()];
         for (offset, segment) in self.trail.segments.iter().enumerate() {
@@ -47,6 +49,7 @@ impl Breadcrumbs {
                 text: segment.clone().into(),
                 last: offset + 1 == count,
                 on_click: self.on_crumb.clone(),
+                on_drop: self.on_drop.clone(),
             };
             crumbs.push(crumb.into_any_element());
         }

@@ -191,6 +191,7 @@ impl PaneView {
         let trail = self.trail();
         let view = cx.entity().downgrade();
         let targets = trail.targets.clone();
+        let targets_for_drop = trail.targets.clone();
         let on_crumb: IndexHandler = Rc::new(move |index, _, cx| {
             let Some(target) = targets.get(index).cloned() else {
                 return;
@@ -210,6 +211,7 @@ impl PaneView {
             on_up: Self::handler(cx, Self::go_parent),
             on_filter: Self::open_filter_handler(cx),
             on_search: Self::start_search_handler(cx),
+            on_crumb_drop: self.crumb_drop_handler(targets_for_drop, cx),
             on_crumb,
         }
     }

@@ -8,7 +8,10 @@ use crate::core::theme::metrics::{
 };
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::components::name_cell::NameCell;
-use crate::global_components::handlers::IndexHandler;
+use std::rc::Rc;
+
+use crate::global_components::drag::accept_paths::accept_paths;
+use crate::global_components::handlers::{IndexHandler, IndexPathsHandler};
 
 #[derive(IntoElement)]
 pub struct MillerColumn {
@@ -16,14 +19,17 @@ pub struct MillerColumn {
     pub entries: Vec<FileEntry>,
     pub highlight: Option<PathBuf>,
     pub on_select: IndexHandler,
+    pub on_drop: IndexPathsHandler,
 }
 
 impl RenderOnce for MillerColumn {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
-        let (highlight, on_select) = (self.highlight, self.on_select);
+        let (highlight, on_select, on_drop) = (self.highlight, self.on_select, self.on_drop);
         let rows = self.entries.into_iter().enumerate().map(|(index, entry)| {
             let on_select = on_select.clone();
             let active = highlight.as_ref() == Some(&entry.path);
+            let is_dir = entry.is_dir;
+            let on_drop = on_drop.clone();
             let row = div()
                 .id(ElementId::NamedInteger(self.id.into(), index as u64))
                 .flex()
@@ -38,6 +44,14 @@ impl RenderOnce for MillerColumn {
                     rename: None,
                     context: None,
                 });
+            let row = if is_dir {
+                accept_paths(
+                    row,
+                    Rc::new(move |paths, window, cx| on_drop(index, paths, window, cx)),
+                )
+            } else {
+                row
+            };
             let row = if active {
                 row.bg(rgba((ACCENT << 8) | SELECTION_ALPHA))
             } else {

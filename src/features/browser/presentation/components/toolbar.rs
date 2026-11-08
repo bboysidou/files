@@ -80,6 +80,7 @@ impl RenderOnce for Toolbar {
                 None => Breadcrumbs {
                     trail: model.trail,
                     on_crumb: model.on_crumb,
+                    on_drop: model.on_crumb_drop,
                 }
                 .into_any_element(),
             })

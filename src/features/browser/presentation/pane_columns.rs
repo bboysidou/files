@@ -23,6 +23,7 @@ impl PaneView {
             entries: self.columns.child.clone(),
             highlight: None,
             on_select: Self::column_handler(cx, Self::open_child_column),
+            on_drop: self.column_drop_handler(&self.columns.child, cx),
         });
         div()
             .size_full()
@@ -32,6 +33,7 @@ impl PaneView {
                 entries: self.columns.parent.clone(),
                 highlight: self.directory(),
                 on_select: Self::column_handler(cx, Self::open_parent_column),
+                on_drop: self.column_drop_handler(&self.columns.parent, cx),
             })
             .child(
                 div()

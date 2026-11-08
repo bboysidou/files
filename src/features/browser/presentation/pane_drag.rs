@@ -7,10 +7,11 @@ use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::drop_request::DropRequest;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
+use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::global_components::drag::accept_paths::accept_paths;
 use crate::global_components::drag::drag_slot::DragSlot;
 use crate::global_components::drag::dragged_files::DraggedFiles;
-use crate::global_components::handlers::PathsHandler;
+use crate::global_components::handlers::{IndexPathsHandler, PathsHandler};
 
 pub struct DragKit {
     view: WeakEntity<PaneView>,
@@ -46,6 +47,33 @@ impl PaneView {
             .is_dir
             .then(|| drop_into(kit.view.clone(), entry.path.clone()));
         DragSlot { files, on_drop }
+    }
+
+    pub(super) fn crumb_drop_handler(
+        &self,
+        targets: Vec<PlaceTarget>,
+        cx: &Context<Self>,
+    ) -> IndexPathsHandler {
+        let view = cx.entity().downgrade();
+        Rc::new(move |index, paths, window, cx| {
+            if let Some(PlaceTarget::Directory(path)) = targets.get(index) {
+                drop_into(view.clone(), path.clone())(paths, window, cx);
+            }
+        })
+    }
+
+    pub(super) fn column_drop_handler(
+        &self,
+        entries: &[FileEntry],
+        cx: &Context<Self>,
+    ) -> IndexPathsHandler {
+        let view = cx.entity().downgrade();
+        let paths: Vec<PathBuf> = entries.iter().map(|entry| entry.path.clone()).collect();
+        Rc::new(move |index, sources, window, cx| {
+            if let Some(path) = paths.get(index) {
+                drop_into(view.clone(), path.clone())(sources, window, cx);
+            }
+        })
     }
 
     pub(super) fn drop_zone(&self, body: AnyElement, cx: &Context<Self>) -> AnyElement {

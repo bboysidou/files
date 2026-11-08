@@ -2,7 +2,7 @@ use gpui::Entity;
 
 use crate::features::browser::presentation::state::filter_model::FilterModel;
 use crate::features::places::domain::entities::crumb_trail::CrumbTrail;
-use crate::global_components::handlers::{ClickHandler, IndexHandler};
+use crate::global_components::handlers::{ClickHandler, IndexHandler, IndexPathsHandler};
 use crate::global_components::text_field::text_field_view::TextField;
 
 pub struct ToolbarModel {
@@ -19,4 +19,5 @@ pub struct ToolbarModel {
     pub on_filter: ClickHandler,
     pub on_search: ClickHandler,
     pub on_crumb: IndexHandler,
+    pub on_crumb_drop: IndexPathsHandler,
 }
