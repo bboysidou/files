@@ -103,10 +103,9 @@ impl PaneView {
         let LoadState::Ready(raw) = &self.load else {
             return;
         };
-        let focus = self
-            .pending_focus
-            .take()
-            .or_else(|| self.current_entry_path());
+        let requested = self.pending_focus.take();
+        let explicit = requested.is_some() || self.entries.is_empty();
+        let focus = requested.or_else(|| self.current_entry_path());
         let previous_cursor = self.selection.cursor();
         self.entries = match &self.search {
             Some(search) => search.results.clone(),
@@ -129,7 +128,11 @@ impl PaneView {
         if let Some(path) = self.pending_rename.take() {
             self.begin_rename_of(path, cx);
         }
-        self.reveal(cx);
+        if explicit || cursor != previous_cursor {
+            self.reveal(cx);
+        } else {
+            cx.notify();
+        }
     }
 
     pub(super) fn go_back(&mut self, cx: &mut Context<Self>) {
