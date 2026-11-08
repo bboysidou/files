@@ -18,6 +18,7 @@ pub mod handlers;
 pub mod job_card_model;
 pub mod job_state;
 pub mod keymap_rows;
+pub mod kinetic_state;
 pub mod load_state;
 pub mod menu_state;
 pub mod network_login_state;

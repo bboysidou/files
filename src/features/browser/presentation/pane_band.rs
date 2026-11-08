@@ -20,6 +20,7 @@ impl PaneView {
             .flex_1()
             .min_h_0()
             .size_full()
+            .on_scroll(cx.listener(Self::track_kinetic))
             .on_mouse_down(MouseButton::Left, cx.listener(Self::start_band))
             .on_mouse_move(cx.listener(Self::drag_band))
             .on_mouse_up(
@@ -55,6 +56,7 @@ impl PaneView {
     }
 
     fn start_band(&mut self, event: &MouseDownEvent, _: &mut gpui::Window, cx: &mut Context<Self>) {
+        self.stop_kinetic();
         let origin = self.content_point(event.position);
         if self.band_hits(origin, origin).next().is_some() {
             return;

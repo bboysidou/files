@@ -44,6 +44,7 @@ pub mod pane_drag;
 pub mod pane_filter;
 pub mod pane_grid;
 pub mod pane_inputs;
+pub mod pane_kinetic;
 pub mod pane_navigation;
 pub mod pane_network;
 pub mod pane_operations;

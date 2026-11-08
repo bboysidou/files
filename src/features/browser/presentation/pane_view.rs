@@ -23,6 +23,7 @@ use crate::features::browser::presentation::state::band_state::BandState;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::column_state::ColumnState;
 use crate::features::browser::presentation::state::folder_sizes::FolderSizes;
+use crate::features::browser::presentation::state::kinetic_state::KineticState;
 use crate::features::browser::presentation::state::load_state::LoadState;
 use crate::features::browser::presentation::state::overview_state::OverviewState;
 use crate::features::browser::presentation::state::pane_parts::{RenameSlot, ThumbSlot, WatchSlot};
@@ -70,6 +71,7 @@ pub struct PaneView {
     pub(super) columns_task: Option<Task<()>>,
     pub(super) body_width: f32,
     pub(super) band: Option<BandState>,
+    pub(super) kinetic: KineticState,
     pub(super) sizes: FolderSizes,
     pub(super) tree: TreeState,
     pub(super) picker: bool,
@@ -123,6 +125,7 @@ impl PaneView {
             columns_task: None,
             body_width: 0.0,
             band: None,
+            kinetic: KineticState::default(),
             sizes: FolderSizes::default(),
             tree: TreeState::default(),
             picker: false,
