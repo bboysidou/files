@@ -55,9 +55,6 @@ impl PaneView {
     }
 
     fn start_band(&mut self, event: &MouseDownEvent, _: &mut gpui::Window, cx: &mut Context<Self>) {
-        if self.view == ViewMode::Columns {
-            return;
-        }
         let origin = self.content_point(event.position);
         if self.band_hits(origin, origin).next().is_some() {
             return;

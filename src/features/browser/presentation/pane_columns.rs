@@ -42,7 +42,7 @@ impl PaneView {
                     .flex_1()
                     .min_w_0()
                     .h_full()
-                    .child(self.entry_list(cx)),
+                    .child(self.band_area(self.entry_list(cx), cx)),
             )
             .children(child)
             .into_any_element()
