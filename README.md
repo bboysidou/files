@@ -74,6 +74,10 @@ Early development. Working today:
   `xdg-terminal-exec`, kitty, foot, Alacritty, Ghostty, WezTerm, GNOME Terminal, Konsole, Xfce
   Terminal, Console or xterm found on your `PATH`
 
+Languages: English and French, chosen from `LC_ALL` / `LC_MESSAGES` / `LANG` (a region such as
+`fr_FR` falls back to `fr`). `python3 scripts/check_locales.py` fails when a locale misses or adds
+keys compared with `locales/en.yml`.
+
 ## Build
 
 ```sh

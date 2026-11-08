@@ -268,10 +268,10 @@ impl BrowserView {
                 cx.listener(|this, _, window, cx| this.close_menu(window, cx)),
             )
             .child(
-                div()
-                    .absolute()
-                    .left(origin.x)
-                    .top(origin.y)
+                anchored()
+                    .position_mode(AnchoredPositionMode::Window)
+                    .position(origin)
+                    .snap_to_window_with_margin(px(MENU_EDGE_MARGIN))
                     .child(MenuPanel {
                         entries,
                         hot: menu.hot,

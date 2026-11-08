@@ -13,6 +13,7 @@ use crate::core::constants::keymap::TOGGLE_RAIL_KEYS;
 use crate::core::dependency_injection::integration::{default_handler, instance_bridge};
 use crate::core::dependency_injection::picker::portal_registration;
 use crate::core::dependency_injection::places::places_repository;
+use crate::core::helpers::i18n::supported_locale::supported_locale;
 use crate::core::helpers::i18n::system_locale::system_locale;
 use crate::features::browser::presentation::key_bindings::browser_key_bindings;
 use crate::features::integration::domain::entities::launch_request::LaunchRequest;
@@ -67,7 +68,9 @@ fn open_main_window(launch: LaunchRequest, cx: &mut App) {
 }
 
 fn main() {
-    rust_i18n::set_locale(&system_locale());
+    let locales = rust_i18n::available_locales!();
+    let available: Vec<&str> = locales.iter().map(|locale| locale.as_ref()).collect();
+    rust_i18n::set_locale(&supported_locale(&system_locale(), &available));
     let arguments: Vec<String> = env::args().skip(1).collect();
     let working = env::current_dir().unwrap_or_default();
     let launch = parse_launch(&arguments, &working);
