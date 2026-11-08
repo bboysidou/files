@@ -25,6 +25,7 @@ use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::pane_start::PaneStart;
 use crate::features::browser::presentation::state::preview_state::PreviewState;
 use crate::features::browser::presentation::state::tab::Tab;
+use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::browser::presentation::state::toast_model::ToastModel;
 use crate::features::operations::domain::entities::clipboard::Clipboard;
 use crate::features::operations::domain::entities::operation_history::OperationHistory;
@@ -84,12 +85,12 @@ impl BrowserView {
             column_scroll: UniformListScrollHandle::new(),
         };
         let targets = if restore.tabs.is_empty() {
-            vec![view.setup.home_target.clone()]
+            vec![TabSnapshot::fresh(view.setup.home_target.clone())]
         } else {
             restore.tabs
         };
-        for target in targets {
-            let tab = view.open_pane(target, window, cx);
+        for snapshot in targets {
+            let tab = view.open_pane(snapshot, window, cx);
             view.tabs.push(tab);
         }
         view.active = restore.active.min(view.tabs.len() - 1);
@@ -103,7 +104,7 @@ impl BrowserView {
             tabs: self
                 .tabs
                 .iter()
-                .map(|tab| tab.pane.read(cx).location().clone())
+                .map(|tab| tab.pane.read(cx).tab_snapshot())
                 .collect(),
             active: self.active,
             options: self.options,
@@ -144,13 +145,13 @@ impl BrowserView {
 
     pub(super) fn open_pane(
         &self,
-        target: PlaceTarget,
+        tab: TabSnapshot,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Tab {
         let setup = self.setup.clone();
         let start = PaneStart {
-            target,
+            tab,
             options: self.options,
         };
         let pane = cx.new(|cx| PaneView::new(setup, start, window, cx));

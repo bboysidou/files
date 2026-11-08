@@ -14,6 +14,24 @@ pub enum SavedTab {
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
+pub struct SavedStop {
+    #[serde(flatten)]
+    pub target: SavedTab,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub focus: Option<PathBuf>,
+}
+
+#[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
+pub struct SavedTabState {
+    #[serde(flatten)]
+    pub location: SavedTab,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub back: Vec<SavedStop>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub forward: Vec<SavedStop>,
+}
+
+#[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Settings {
     pub show_hidden: bool,
@@ -23,7 +41,7 @@ pub struct Settings {
     pub sidebar_open: bool,
     pub preview_open: bool,
     pub active_tab: usize,
-    pub tabs: Vec<SavedTab>,
+    pub tabs: Vec<SavedTabState>,
 }
 
 impl Default for Settings {

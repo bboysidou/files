@@ -8,11 +8,11 @@ use crate::features::browser::domain::entities::view_options::ViewOptions;
 use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
 use crate::features::settings::domain::entities::settings::Settings;
 use crate::features::shell::presentation::shell_view::ShellView;
-use crate::features::shell::presentation::state::saved_tab_mapping::{restored_target, saved_tab};
+use crate::features::shell::presentation::state::saved_tab_mapping::{restored_tab, saved_tab};
 
 impl ShellView {
     pub(super) fn restored_snapshot(settings: &Settings) -> BrowserSnapshot {
-        let tabs: Vec<_> = settings.tabs.iter().filter_map(restored_target).collect();
+        let tabs: Vec<_> = settings.tabs.iter().filter_map(restored_tab).collect();
         BrowserSnapshot {
             active: settings.active_tab.min(tabs.len().saturating_sub(1)),
             tabs,

@@ -23,6 +23,7 @@ use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::load_state::LoadState;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::pane_start::PaneStart;
+use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::browser::presentation::state::thumb_state::{ThumbEntry, ThumbRequest};
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
 use crate::features::places::domain::entities::crumb_trail::CrumbTrail;
@@ -81,8 +82,8 @@ impl PaneView {
         });
         let mut view = Self {
             setup,
-            location: start.target,
-            history: NavigationHistory::default(),
+            location: start.tab.location,
+            history: start.tab.history,
             load: LoadState::Loading,
             entries: Vec::new(),
             selection: Selection::default(),
@@ -114,6 +115,13 @@ impl PaneView {
         };
         view.load(cx);
         view
+    }
+
+    pub(super) fn tab_snapshot(&self) -> TabSnapshot {
+        TabSnapshot {
+            location: self.location.clone(),
+            history: self.history.clone(),
+        }
     }
 
     pub fn location(&self) -> &PlaceTarget {

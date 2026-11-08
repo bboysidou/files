@@ -15,6 +15,18 @@ pub struct NavigationHistory {
 }
 
 impl NavigationHistory {
+    pub fn from_stops(back: Vec<HistoryStop>, forward: Vec<HistoryStop>) -> Self {
+        Self { back, forward }
+    }
+
+    pub fn back_stops(&self) -> &[HistoryStop] {
+        &self.back
+    }
+
+    pub fn forward_stops(&self) -> &[HistoryStop] {
+        &self.forward
+    }
+
     pub fn can_go_back(&self) -> bool {
         !self.back.is_empty()
     }

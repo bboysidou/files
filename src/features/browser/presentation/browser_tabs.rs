@@ -1,6 +1,7 @@
 use gpui::{Context, Focusable, Window};
 
 use crate::features::browser::presentation::browser_view::BrowserView;
+use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::places::domain::entities::place::PlaceTarget;
 
 impl BrowserView {
@@ -9,7 +10,7 @@ impl BrowserView {
             PlaceTarget::Overview => self.setup.home_target.clone(),
             target => target,
         };
-        let tab = self.open_pane(target, window, cx);
+        let tab = self.open_pane(TabSnapshot::fresh(target), window, cx);
         self.tabs.push(tab);
         self.sync_cut(cx);
         self.sync_compact(cx);
@@ -25,7 +26,11 @@ impl BrowserView {
             return;
         }
         if self.tabs.len() == 1 {
-            let fresh = self.open_pane(self.setup.home_target.clone(), window, cx);
+            let fresh = self.open_pane(
+                TabSnapshot::fresh(self.setup.home_target.clone()),
+                window,
+                cx,
+            );
             self.tabs = vec![fresh];
             self.activate(0, window, cx);
             return;
