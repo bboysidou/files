@@ -28,7 +28,8 @@ Early development. Working today:
   with other file managers and apps through the system clipboard (Wayland)
 - Copies show live progress in the sidebar and can be cancelled; later operations queue; pasting over
   existing names asks to keep both, skip or replace (replaced items go to the Trash)
-- Quick Look for images, any text file and folders (`Space`)
+- Quick Look for images, folders, source code with syntax colour, rendered Markdown and the first
+  page of a PDF (`pdftoppm`, from poppler) (`Space`)
 - Preview column beside the list that follows the cursor (`F3`)
 - Grid view with image thumbnails (`Ctrl+3`, back to the list with `Ctrl+1`), cached in the shared
   freedesktop thumbnail cache (`~/.cache/thumbnails`) that other file managers also use

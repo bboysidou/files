@@ -15,6 +15,7 @@ use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::components::preview_folder::PreviewFolder;
 use crate::features::browser::presentation::components::preview_image::PreviewImage;
 use crate::features::browser::presentation::components::preview_line::PreviewLine;
+use crate::features::browser::presentation::components::preview_markdown::PreviewMarkdown;
 use crate::features::browser::presentation::state::preview_state::PreviewState;
 use crate::features::browser::presentation::state::preview_surface::PreviewSurface;
 use crate::features::preview::domain::entities::preview_content::PreviewContent;
@@ -27,14 +28,6 @@ impl BrowserView {
         surface: PreviewSurface,
         cx: &mut Context<Self>,
     ) -> AnyElement {
-        let empty = |icon: Icon, title: String, body: String| {
-            EmptyState {
-                icon,
-                title: title.into(),
-                body: body.into(),
-            }
-            .into_any_element()
-        };
         match &state.content {
             None => div().into_any_element(),
             Some(PreviewContent::Image { path, .. }) => PreviewImage {
@@ -53,6 +46,16 @@ impl BrowserView {
             .p(px(QUICK_LOOK_STAGE_PAD))
             .track_scroll(self.preview_scroll_for(surface))
             .into_any_element(),
+            Some(PreviewContent::Pdf { page, .. }) => PreviewImage {
+                path: page.clone(),
+                zoom: state.zoom,
+            }
+            .into_any_element(),
+            Some(PreviewContent::Markdown { blocks, .. }) => PreviewMarkdown {
+                id: surface.markdown_id(),
+                blocks: blocks.clone(),
+            }
+            .into_any_element(),
             Some(PreviewContent::Folder { entries, total }) => div()
                 .size_full()
                 .p(px(QUICK_LOOK_STAGE_PAD))
@@ -61,17 +64,31 @@ impl BrowserView {
                     total: *total,
                 })
                 .into_any_element(),
-            Some(PreviewContent::Empty) => empty(
+            Some(notice) => Self::preview_notice(notice, state),
+        }
+    }
+
+    fn preview_notice(content: &PreviewContent, state: &PreviewState) -> AnyElement {
+        let empty = |icon: Icon, title: String, body: String| {
+            EmptyState {
+                icon,
+                title: title.into(),
+                body: body.into(),
+            }
+            .into_any_element()
+        };
+        match content {
+            PreviewContent::Empty => empty(
                 Icon::Document,
                 t!("ql.empty_file").to_string(),
                 t!("ql.empty_file.body").to_string(),
             ),
-            Some(PreviewContent::Unsupported) => empty(
+            PreviewContent::Unsupported => empty(
                 Icon::Document,
                 t!(state.entry.kind.label_key()).to_string(),
                 t!("ql.unsupported.body").to_string(),
             ),
-            Some(PreviewContent::Failed) => empty(
+            _ => empty(
                 Icon::Document,
                 t!("ql.failed.title").to_string(),
                 t!("ql.failed.body").to_string(),
@@ -99,7 +116,7 @@ impl BrowserView {
             .filter_map(|index| {
                 Some(PreviewLine {
                     number: index + 1,
-                    text: lines.get(index)?.clone().into(),
+                    line: lines.get(index)?.clone(),
                 })
             })
             .collect()
@@ -138,6 +155,9 @@ impl BrowserView {
                 t!("ql.fact.dimensions").to_string(),
                 format!("{width} × {height}"),
             )),
+            PreviewContent::Pdf {
+                pages: Some(pages), ..
+            } => Some((t!("ql.fact.pages").to_string(), pages.to_string())),
             PreviewContent::Text {
                 lines,
                 truncated: true,
