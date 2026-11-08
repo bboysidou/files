@@ -1,0 +1,8 @@
+[package]
+name = "files"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+gpui-pre = "0.3.11"
+gpui-pre-platform = { version = "0.3.11", features = ["font-kit", "wayland", "x11"] }
