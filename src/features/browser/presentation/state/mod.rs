@@ -2,6 +2,7 @@ pub mod browser_setup;
 pub mod browser_snapshot;
 pub mod column_state;
 pub mod confirm_state;
+pub mod drop_request;
 pub mod dual_pane;
 pub mod filter_model;
 pub mod handlers;

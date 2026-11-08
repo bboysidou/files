@@ -217,6 +217,7 @@ impl BrowserView {
                     PaneEvent::RestoreRequested(entries) => {
                         this.restore_from_trash(entries.clone(), cx)
                     }
+                    PaneEvent::DropRequested(request) => this.drop_files(request.clone(), cx),
                     PaneEvent::Picked(_) | PaneEvent::PickCancelled => {}
                 },
             );

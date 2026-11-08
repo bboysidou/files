@@ -276,7 +276,8 @@ impl Render for PaneView {
                 this.request_menu(event.position, window, cx)
             }),
         );
-        Self::with_tag_actions(Self::with_actions(root, cx), cx).child(self.body(cx))
+        let body = self.drop_zone(self.body(cx), cx);
+        Self::with_tag_actions(Self::with_actions(root, cx), cx).child(body)
     }
 }
 

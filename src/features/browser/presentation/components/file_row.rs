@@ -16,12 +16,14 @@ use crate::core::theme::metrics::{
 };
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::components::name_cell::NameCell;
+use crate::global_components::drag::drag_slot::DragSlot;
 use crate::global_components::handlers::{IndexClickHandler, IndexPointHandler};
 use crate::global_components::text_field::text_field_view::TextField;
 
 #[derive(IntoElement)]
 pub struct FileRow {
     pub index: usize,
+    pub drag: DragSlot,
     pub entry: FileEntry,
     pub marked: bool,
     pub cursor: bool,
@@ -80,6 +82,7 @@ impl RenderOnce for FileRow {
                 cx.stop_propagation();
                 on_right(index, event.position, window, cx)
             });
+        let row = self.drag.apply(row);
         let row = if self.marked {
             row.bg(rgba((ACCENT << 8) | SELECTION_ALPHA))
         } else {

@@ -14,6 +14,7 @@ use crate::core::theme::metrics::{
 };
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::components::entry_icon::EntryIcon;
+use crate::global_components::drag::drag_slot::DragSlot;
 use crate::global_components::handlers::{IndexClickHandler, IndexPointHandler};
 use crate::global_components::icon_glyph::IconGlyph;
 use crate::global_components::tag_dots::TagDots;
@@ -21,6 +22,7 @@ use crate::global_components::tag_dots::TagDots;
 #[derive(IntoElement)]
 pub struct FileTile {
     pub index: usize,
+    pub drag: DragSlot,
     pub entry: FileEntry,
     pub thumbnail: Option<PathBuf>,
     pub marked: bool,
@@ -128,6 +130,7 @@ impl RenderOnce for FileTile {
             })
             .child(thumb)
             .child(name);
+        let tile = self.drag.apply(tile);
         if self.marked {
             tile.bg(rgba((ACCENT << 8) | SELECTION_ALPHA))
         } else {

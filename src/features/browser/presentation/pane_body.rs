@@ -112,11 +112,14 @@ impl PaneView {
         });
         let on_right = Self::right_click_handler(cx);
         let now = SystemTime::now();
+        let kit = self.drag_kit(cx);
         range
             .filter_map(|index| {
+                let entry = self.entries.get(index)?;
                 Some(FileRow {
                     index,
-                    entry: self.entries.get(index)?.clone(),
+                    drag: self.drag_slot(&kit, index, entry),
+                    entry: entry.clone(),
                     marked: self.selection.is_marked(index),
                     cursor: index == self.selection.cursor(),
                     cut: self.cut.contains(&self.entries.get(index)?.path),

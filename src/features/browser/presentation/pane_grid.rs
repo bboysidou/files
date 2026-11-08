@@ -73,6 +73,7 @@ impl PaneView {
             });
         });
         let on_right = Self::right_click_handler(cx);
+        let kit = self.drag_kit(cx);
         let mut rows = Vec::new();
         for row in range {
             let start = row * layout.columns;
@@ -85,6 +86,7 @@ impl PaneView {
                 let thumbnail = self.thumbnail_for(&entry, cx);
                 tiles.push(FileTile {
                     index,
+                    drag: self.drag_slot(&kit, index, &entry),
                     marked: self.selection.is_marked(index),
                     cursor: index == self.selection.cursor(),
                     cut: self.cut.contains(&entry.path),

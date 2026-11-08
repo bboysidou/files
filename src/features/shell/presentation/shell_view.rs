@@ -20,6 +20,7 @@ use crate::core::theme::colors::{FG, FRAME};
 use crate::core::theme::metrics::{FRAME_GAP, TEXT_BASE};
 use crate::features::browser::domain::repositories::directory_watcher::DirectoryWatcher;
 use crate::features::browser::presentation::browser_view::BrowserView;
+use crate::features::browser::presentation::state::drop_request::DropRequest;
 use crate::features::devices::domain::entities::device::Device;
 use crate::features::devices::domain::repositories::device_repository::DeviceRepository;
 use crate::features::integration::domain::entities::launch_request::LaunchRequest;
@@ -30,7 +31,7 @@ use crate::features::settings::domain::repositories::settings_repository::Settin
 use crate::features::shell::presentation::actions::ToggleRail;
 use crate::features::shell::presentation::components::rail::Rail;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
-use crate::global_components::handlers::{ClickHandler, IndexHandler};
+use crate::global_components::handlers::{ClickHandler, IndexHandler, IndexPathsHandler};
 
 pub struct ShellView {
     places: Vec<Place>,
@@ -123,6 +124,26 @@ impl ShellView {
             .update(cx, |browser, cx| browser.navigate(target, cx));
     }
 
+    fn place_drop_handler(&self) -> IndexPathsHandler {
+        let targets: Vec<PlaceTarget> = self
+            .places
+            .iter()
+            .map(|place| place.target.clone())
+            .collect();
+        let browser = self.browser.downgrade();
+        Rc::new(move |index, sources, window, cx| {
+            let Some(PlaceTarget::Directory(destination)) = targets.get(index).cloned() else {
+                return;
+            };
+            let request = DropRequest {
+                sources,
+                destination,
+                copy: window.modifiers().control,
+            };
+            let _ = browser.update(cx, |browser, cx| browser.drop_files(request, cx));
+        })
+    }
+
     fn handlers(cx: &mut Context<Self>) -> (ClickHandler, IndexHandler) {
         let view = cx.entity().downgrade();
         let toggle_view = view.clone();
@@ -183,6 +204,7 @@ impl Render for ShellView {
                 motion: self.rail,
                 on_toggle,
                 on_select,
+                on_drop_place: self.place_drop_handler(),
                 on_search,
                 devices: self.device_items(&location),
                 on_device,

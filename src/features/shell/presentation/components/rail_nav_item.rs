@@ -8,7 +8,8 @@ use crate::core::theme::metrics::{
 };
 use crate::features::shell::presentation::components::rail_label::RailLabel;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
-use crate::global_components::handlers::IndexHandler;
+use crate::global_components::drag::accept_paths::accept_paths;
+use crate::global_components::handlers::{IndexHandler, PathsHandler};
 use crate::global_components::icon_glyph::IconGlyph;
 
 const GROUP: &str = "rail-nav-item";
@@ -20,6 +21,7 @@ pub struct RailNavItem {
     pub active: bool,
     pub motion: RailMotion,
     pub on_select: IndexHandler,
+    pub on_drop: Option<PathsHandler>,
 }
 
 impl RenderOnce for RailNavItem {
@@ -37,6 +39,10 @@ impl RenderOnce for RailNavItem {
             .rounded(px(CONTROL_RADIUS))
             .cursor_pointer()
             .on_click(move |_, window, cx| on_select(index, window, cx));
+        let item = match self.on_drop {
+            Some(on_drop) => accept_paths(item, on_drop),
+            None => item,
+        };
         let item = if self.motion.open {
             item.w_full().h(px(NAV_HEIGHT))
         } else {

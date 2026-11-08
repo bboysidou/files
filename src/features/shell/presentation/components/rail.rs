@@ -8,7 +8,7 @@ use gpui::{
 use crate::core::helpers::motion::lerp::lerp;
 use crate::core::theme::metrics::{JOB_SECTION_PAD_TOP, RAIL_PAD_BOTTOM, RAIL_PAD_TOP, RAIL_PAD_X};
 use crate::features::browser::presentation::state::job_card_model::JobCardModel;
-use crate::features::places::domain::entities::place::{Place, PlaceSection};
+use crate::features::places::domain::entities::place::{Place, PlaceSection, PlaceTarget};
 use crate::features::shell::presentation::components::rail_brand::RailBrand;
 use crate::features::shell::presentation::components::rail_device_item::RailDeviceItem;
 use crate::features::shell::presentation::components::rail_job_card::RailJobCard;
@@ -18,7 +18,9 @@ use crate::features::shell::presentation::components::rail_section_label::RailSe
 use crate::features::shell::presentation::components::rail_tags::RailTags;
 use crate::features::shell::presentation::state::device_item::DeviceItem;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
-use crate::global_components::handlers::{ClickHandler, IndexHandler};
+use crate::global_components::handlers::{
+    ClickHandler, IndexHandler, IndexPathsHandler, PathsHandler,
+};
 
 const TAGS_SECTION_KEY: &str = "rail.section.tags";
 
@@ -29,6 +31,7 @@ pub struct Rail {
     pub motion: RailMotion,
     pub on_toggle: ClickHandler,
     pub on_select: IndexHandler,
+    pub on_drop_place: IndexPathsHandler,
     pub on_search: ClickHandler,
     pub devices: Vec<DeviceItem>,
     pub on_device: IndexHandler,
@@ -53,6 +56,8 @@ impl Rail {
                     active: Some(index) == self.active,
                     motion: self.motion,
                     on_select: self.on_select.clone(),
+                    on_drop: matches!(place.target, PlaceTarget::Directory(_))
+                        .then(|| place_drop(self.on_drop_place.clone(), index)),
                 }
                 .into_any_element()
             });
@@ -153,4 +158,8 @@ impl RenderOnce for Rail {
         })
         .into_any_element()
     }
+}
+
+fn place_drop(on_drop: IndexPathsHandler, index: usize) -> PathsHandler {
+    Rc::new(move |paths, window, cx| on_drop(index, paths, window, cx))
 }
