@@ -10,6 +10,7 @@ pub enum CrumbRoot {
     Filesystem,
     Overview,
     Trash,
+    Network,
 }
 
 impl CrumbRoot {
@@ -19,6 +20,7 @@ impl CrumbRoot {
             CrumbRoot::Filesystem => Cow::Borrowed(PATH_SEPARATOR),
             CrumbRoot::Overview => t!("places.overview"),
             CrumbRoot::Trash => t!("places.trash"),
+            CrumbRoot::Network => t!("rail.section.network"),
         }
     }
 }

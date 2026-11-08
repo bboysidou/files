@@ -33,7 +33,7 @@ impl Breadcrumbs {
         let count = self.trail.segments.len();
         let root = CrumbSegment {
             index: 0,
-            text: self.trail.root.text().into_owned().into(),
+            text: self.trail.root_text().into(),
             last: count == 0,
             on_click: self.on_crumb.clone(),
             on_drop: self.on_drop.clone(),

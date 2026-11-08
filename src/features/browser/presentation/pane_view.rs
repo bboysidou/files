@@ -33,6 +33,7 @@ use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
 use crate::features::browser::presentation::state::tree_state::TreeState;
 use crate::features::browser::presentation::state::type_ahead::TypeAhead;
+use crate::features::network::domain::usecases::network_mount_root::network_mount_root;
 use crate::features::places::domain::entities::crumb_trail::CrumbTrail;
 use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::global_components::handlers::{ClickHandler, IndexHandler};
@@ -167,10 +168,13 @@ impl PaneView {
             return t!(place.kind.label_key()).to_string().into();
         }
         match &self.location {
-            PlaceTarget::Directory(path) => path.file_name().map_or_else(
-                || self.trail().display_path(),
-                |name| name.to_string_lossy().into_owned(),
-            ),
+            PlaceTarget::Directory(path) => match network_mount_root(path) {
+                Some((mount, label)) if mount == *path => label,
+                _ => path.file_name().map_or_else(
+                    || self.trail().display_path(),
+                    |name| name.to_string_lossy().into_owned(),
+                ),
+            },
             _ => self.trail().display_path(),
         }
         .into()

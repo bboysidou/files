@@ -4,6 +4,7 @@ use gpui::{Context, Focusable, Window};
 use rust_i18n::t;
 
 use crate::core::constants::paths::HOME_SHORTHAND;
+use crate::core::enums::places::crumb_root::CrumbRoot;
 use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::network::domain::usecases::network_uri::network_uri;
@@ -12,7 +13,13 @@ use crate::global_components::text_field::text_field_view::TextFieldEvent;
 
 impl PaneView {
     pub(super) fn start_path_entry(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let text = self.trail().display_path();
+        let trail = self.trail();
+        let text = match (&self.location, trail.root) {
+            (PlaceTarget::Directory(path), CrumbRoot::Network) => {
+                path.to_string_lossy().into_owned()
+            }
+            _ => trail.display_path(),
+        };
         let length = text.len();
         self.path_field
             .update(cx, |field, cx| field.set_text(&text, 0..length, cx));

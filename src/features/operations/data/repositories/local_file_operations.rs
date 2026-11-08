@@ -7,6 +7,7 @@ use trash::TrashItem;
 use trash::os_limited;
 
 use crate::core::constants::files::COPY_BUFFER_BYTES;
+use crate::core::helpers::files::has_no_trash::has_no_trash;
 use crate::features::operations::domain::entities::operation_error::OperationError;
 use crate::features::operations::domain::repositories::file_operations::FileOperations;
 use crate::features::operations::domain::repositories::progress_sink::ProgressSink;
@@ -144,7 +145,13 @@ impl FileOperations for LocalFileOperations {
     }
 
     fn trash(&self, paths: &[PathBuf]) -> Result<(), OperationError> {
-        trash::delete_all(paths).map_err(|_| OperationError::Failed)
+        let (without, with): (Vec<PathBuf>, Vec<PathBuf>) =
+            paths.iter().cloned().partition(|path| has_no_trash(path));
+        self.delete(&without)?;
+        if with.is_empty() {
+            return Ok(());
+        }
+        trash::delete_all(&with).map_err(|_| OperationError::Failed)
     }
 
     fn delete(&self, paths: &[PathBuf]) -> Result<(), OperationError> {
@@ -170,6 +177,9 @@ impl FileOperations for LocalFileOperations {
         match fs::remove_dir(path) {
             Ok(()) => Ok(()),
             Err(error) if error.kind() == ErrorKind::DirectoryNotEmpty => {
+                if has_no_trash(path) {
+                    return Err(OperationError::NotEmpty);
+                }
                 self.trash(&[path.to_path_buf()])
             }
             Err(error) => Err(Self::error_of(&error)),

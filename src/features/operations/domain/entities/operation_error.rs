@@ -6,6 +6,7 @@ pub enum OperationError {
     IntoItself,
     Failed,
     Cancelled,
+    NotEmpty,
 }
 
 impl OperationError {
@@ -17,6 +18,7 @@ impl OperationError {
             OperationError::IntoItself => "op.error.into_itself",
             OperationError::Failed => "op.error.failed",
             OperationError::Cancelled => "op.error.cancelled",
+            OperationError::NotEmpty => "op.error.not_empty",
         }
     }
 }
