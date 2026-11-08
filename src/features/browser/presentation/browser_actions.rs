@@ -3,6 +3,7 @@ use gpui::{Context, Div, prelude::*};
 use crate::core::enums::archives::archive_format::ArchiveFormat;
 use crate::core::enums::operations::clipboard_mode::ClipboardMode;
 use crate::core::enums::view::view_mode::ViewMode;
+use crate::features::browser::presentation::actions::Dismiss;
 use crate::features::browser::presentation::actions::{
     ActivateTab1, ActivateTab2, ActivateTab3, ActivateTab4, ActivateTab5, ActivateTab6,
     ActivateTab7, ActivateTab8, ActivateTab9, CloseKeymap, CloseMenu, CloseSettings, CloseTab,
@@ -43,6 +44,7 @@ impl BrowserView {
                 cx.listener(|this, _: &CloseKeymap, window, cx| this.close_keymap(window, cx)),
             )
             .on_action(cx.listener(|this, _: &CopyPath, _, cx| this.copy_paths(cx)))
+            .on_action(cx.listener(|this, _: &Dismiss, _, cx| this.cancel_clipboard(cx)))
             .on_action(
                 cx.listener(|this, _: &ShowSettings, window, cx| this.open_settings(window, cx)),
             )

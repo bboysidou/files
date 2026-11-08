@@ -90,6 +90,7 @@ impl PaneView {
         } else {
             let cursor = self.selection.cursor();
             self.selection.move_to(cursor);
+            cx.propagate();
             cx.notify();
         }
     }
