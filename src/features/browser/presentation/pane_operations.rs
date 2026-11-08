@@ -3,6 +3,7 @@ use std::path::PathBuf;
 
 use gpui::{Context, Window};
 
+use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::places::domain::entities::place::PlaceTarget;
 
@@ -19,6 +20,10 @@ impl PaneView {
         } else {
             marked
         }
+    }
+
+    pub(super) fn current_entry(&self) -> Option<FileEntry> {
+        self.entries.get(self.selection.cursor()).cloned()
     }
 
     pub(super) fn directory(&self) -> Option<PathBuf> {

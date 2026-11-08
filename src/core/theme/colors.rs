@@ -22,3 +22,5 @@ pub const TEXT_SELECTION_ALPHA: u32 = 0x66;
 pub const BADGE_SATURATION: f32 = 0.55;
 pub const BADGE_LIGHTNESS: f32 = 0.70;
 pub const BADGE_BACKGROUND_OPACITY: f32 = 0.14;
+pub const SCRIM: u32 = 0x0000_008C;
+pub const STAGE: u32 = 0x0B0B0B;

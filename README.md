@@ -17,6 +17,8 @@ Early development. Working today:
 - Tabs, back/forward/up history, clickable path crumbs
 - Filter the current folder as you type
 - Copy, cut, paste, rename, new folder and move to Trash, all with undo and redo
+- Quick Look for images, any text file and folders (`Space`)
+- Extension badges coloured from a hash of the extension, so every type gets a stable colour
 - Opening files with your default applications (`xdg-open`)
 
 ## Build
@@ -45,6 +47,7 @@ Needs a recent stable Rust toolchain and the Wayland or X11 development librarie
 | `dd` `Delete` | Move to Trash |
 | `Ctrl+Shift+N` | New folder |
 | `z` / `Ctrl+Shift+Z` | Undo / redo |
+| `Space` | Quick Look (`←` `→` next file, `+` `−` zoom) |
 | `Ctrl+H` | Show hidden files |
 | `F5` | Reload |
 | `Ctrl+B` | Collapse the sidebar |

@@ -10,6 +10,7 @@ use crate::core::constants::app::FONT_FAMILY;
 use crate::core::constants::paths::PATH_SEPARATOR;
 use crate::core::dependency_injection::browser::{directory_repository, file_launcher};
 use crate::core::dependency_injection::operations::file_operations;
+use crate::core::dependency_injection::preview::preview_source;
 use crate::core::enums::places::place_kind::PlaceKind;
 use crate::core::theme::colors::{FG, FRAME};
 use crate::core::theme::metrics::{FRAME_GAP, TEXT_BASE};
@@ -38,8 +39,10 @@ impl ShellView {
         let places = repository.places();
         let home = repository.home();
         let start = Self::start_target(&places, home.as_ref());
+        let repository = directory_repository();
         let setup = BrowserSetup {
-            repository: directory_repository(),
+            preview: preview_source(repository.clone()),
+            repository,
             launcher: file_launcher(),
             operations: file_operations(),
             places: places.clone(),

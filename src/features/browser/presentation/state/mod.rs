@@ -4,6 +4,7 @@ pub mod handlers;
 pub mod load_state;
 pub mod operation_intent;
 pub mod pane_event;
+pub mod quick_look_state;
 pub mod row_click;
 pub mod tab;
 pub mod tab_strip_model;

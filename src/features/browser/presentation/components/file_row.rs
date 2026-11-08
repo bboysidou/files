@@ -6,8 +6,7 @@ use gpui::{
 use rust_i18n::t;
 
 use crate::core::constants::files::MISSING_VALUE;
-use crate::core::helpers::format::file_size::file_size;
-use crate::core::helpers::format::item_count::item_count;
+use crate::core::helpers::format::size_text::size_text;
 use crate::core::helpers::time::relative_time::relative_time;
 use crate::core::theme::colors::{ACCENT, FG_SOFT, ROW_HOVER, SELECTION_ALPHA, TRANSPARENT};
 use crate::core::theme::metrics::{
@@ -33,12 +32,7 @@ pub struct FileRow {
 
 impl FileRow {
     fn size_text(entry: &FileEntry) -> SharedString {
-        match (entry.is_dir, entry.child_count, entry.size) {
-            (true, Some(count), _) => item_count(count),
-            (false, _, Some(bytes)) => file_size(bytes),
-            _ => MISSING_VALUE.to_string(),
-        }
-        .into()
+        size_text(entry.is_dir, entry.child_count, entry.size).into()
     }
 
     fn cell(width: f32, text: impl Into<SharedString>) -> gpui::Div {

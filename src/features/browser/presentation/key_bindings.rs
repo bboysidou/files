@@ -4,6 +4,7 @@ use crate::features::browser::presentation::actions::*;
 
 pub const BROWSER_CONTEXT: &str = "Browser";
 pub const PANE_CONTEXT: &str = "Pane";
+pub const QUICK_LOOK_CONTEXT: &str = "QuickLook";
 const PANE_KEYS: &str = "Pane && !TextField";
 
 pub fn browser_key_bindings() -> Vec<KeyBinding> {
@@ -11,6 +12,7 @@ pub fn browser_key_bindings() -> Vec<KeyBinding> {
     bindings.extend(selection_bindings());
     bindings.extend(operation_bindings());
     bindings.extend(tab_bindings());
+    bindings.extend(quick_look_bindings());
     bindings
 }
 
@@ -37,6 +39,7 @@ fn navigation_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("ctrl-h", ToggleHidden, context),
         KeyBinding::new("f5", Reload, context),
         KeyBinding::new("/", OpenFilter, context),
+        KeyBinding::new("space", QuickLook, context),
     ]
 }
 
@@ -93,5 +96,22 @@ fn tab_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("ctrl-w", CloseTab, browser),
         KeyBinding::new("ctrl-tab", NextTab, browser),
         KeyBinding::new("ctrl-shift-tab", PreviousTab, browser),
+    ]
+}
+
+fn quick_look_bindings() -> Vec<KeyBinding> {
+    let context = Some(QUICK_LOOK_CONTEXT);
+    vec![
+        KeyBinding::new("space", CloseQuickLook, context),
+        KeyBinding::new("escape", CloseQuickLook, context),
+        KeyBinding::new("right", QuickLookNext, context),
+        KeyBinding::new("down", QuickLookNext, context),
+        KeyBinding::new("j", QuickLookNext, context),
+        KeyBinding::new("left", QuickLookPrevious, context),
+        KeyBinding::new("up", QuickLookPrevious, context),
+        KeyBinding::new("k", QuickLookPrevious, context),
+        KeyBinding::new("+", ZoomIn, context),
+        KeyBinding::new("=", ZoomIn, context),
+        KeyBinding::new("-", ZoomOut, context),
     ]
 }

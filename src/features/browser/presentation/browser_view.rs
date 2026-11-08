@@ -2,13 +2,13 @@ use std::rc::Rc;
 
 use gpui::{
     AnyElement, App, Context, Div, Entity, FocusHandle, Focusable, IntoElement, Render,
-    SharedString, Task, Window, div, prelude::*, px,
+    SharedString, Task, UniformListScrollHandle, Window, div, prelude::*, px,
 };
 
 use crate::features::browser::presentation::actions::{
     ActivateTab1, ActivateTab2, ActivateTab3, ActivateTab4, ActivateTab5, ActivateTab6,
     ActivateTab7, ActivateTab8, ActivateTab9, CloseTab, CopySelection, CutSelection, NewFolder,
-    NewTab, NextTab, PasteClipboard, PreviousTab, Redo, TrashSelection, Undo,
+    NewTab, NextTab, PasteClipboard, PreviousTab, QuickLook, Redo, TrashSelection, Undo,
 };
 use rust_i18n::t;
 
@@ -19,6 +19,7 @@ use crate::features::browser::presentation::key_bindings::BROWSER_CONTEXT;
 use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
+use crate::features::browser::presentation::state::quick_look_state::QuickLookState;
 use crate::features::browser::presentation::state::tab::Tab;
 use crate::features::browser::presentation::state::tab_strip_model::TabStripModel;
 use crate::features::browser::presentation::state::toast_model::ToastModel;
@@ -39,6 +40,11 @@ pub struct BrowserView {
     pub(super) toast_generation: usize,
     pub(super) toast_task: Option<Task<()>>,
     pub(super) operation_task: Option<Task<()>>,
+    pub(super) quick_look: Option<QuickLookState>,
+    pub(super) quick_look_focus: FocusHandle,
+    pub(super) quick_look_task: Option<Task<()>>,
+    pub(super) quick_look_generation: usize,
+    pub(super) preview_scroll: UniformListScrollHandle,
 }
 
 impl BrowserView {
@@ -59,6 +65,11 @@ impl BrowserView {
             toast_generation: 0,
             toast_task: None,
             operation_task: None,
+            quick_look: None,
+            quick_look_focus: cx.focus_handle(),
+            quick_look_task: None,
+            quick_look_generation: 0,
+            preview_scroll: UniformListScrollHandle::new(),
         };
         let first = view.open_pane(view.home_target.clone(), window, cx);
         view.tabs.push(first);
@@ -163,6 +174,9 @@ impl BrowserView {
             .on_action(cx.listener(|this, _: &TrashSelection, _, cx| this.trash_selection(cx)))
             .on_action(cx.listener(|this, _: &NewFolder, _, cx| this.new_folder(cx)))
             .on_action(cx.listener(|this, _: &Undo, _, cx| this.undo(cx)))
+            .on_action(
+                cx.listener(|this, _: &QuickLook, window, cx| this.open_quick_look(window, cx)),
+            )
             .on_action(cx.listener(|this, _: &Redo, _, cx| this.redo(cx)))
             .on_action(cx.listener(|this, _: &NewTab, window, cx| this.new_tab(window, cx)))
             .on_action(cx.listener(|this, _: &CloseTab, window, cx| this.close_active(window, cx)))
@@ -199,7 +213,8 @@ impl BrowserView {
 }
 
 impl Render for BrowserView {
-    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let quick_look = self.quick_look_overlay(window, cx);
         let pane = self.active_pane().clone();
         let toolbar = pane.update(cx, |pane, cx| pane.toolbar_model(cx));
         let (item_count, selected_count) = {
@@ -223,6 +238,7 @@ impl Render for BrowserView {
                 selected_count,
             })
             .children(toast)
+            .children(quick_look)
     }
 }
 
