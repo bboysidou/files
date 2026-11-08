@@ -1,5 +1,6 @@
 pub mod app;
 pub mod files;
+pub mod hash;
 pub mod i18n;
 pub mod keymap;
 pub mod operations;

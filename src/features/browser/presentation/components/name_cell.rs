@@ -2,6 +2,7 @@ use gpui::{AnyElement, App, Entity, IntoElement, RenderOnce, Window, div, prelud
 
 use crate::core::enums::assets::icon::Icon;
 use crate::core::helpers::files::extension_badge::extension_badge;
+use crate::core::helpers::files::extension_color::extension_color;
 use crate::core::theme::colors::{ACCENT, FG, FG_BRIGHT};
 use crate::core::theme::metrics::{
     CUT_OPACITY, FOLDER_ICON, LIST_CELL_PAD_X, LIST_NAME_GAP, TEXT_BASE,
@@ -48,7 +49,7 @@ impl RenderOnce for NameCell {
         }
         let badge = FileBadge {
             text: extension_badge(self.entry.extension.as_deref()).into(),
-            color: self.entry.kind.color(),
+            color: extension_color(self.entry.extension.as_deref()),
         };
         cell.text_color(rgb(FG)).child(badge).child(label)
     }
