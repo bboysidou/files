@@ -46,6 +46,7 @@ icons! {
     Forward => "fwd",
     Grid => "grid",
     Home => "home",
+    Key => "key",
     Image => "image",
     Keys => "keys",
     List => "list",
@@ -66,5 +67,6 @@ icons! {
     Up => "up",
     Usb => "usb",
     Video => "video",
+    Warning => "warning",
     Close => "x",
 }

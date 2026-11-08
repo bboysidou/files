@@ -36,6 +36,18 @@ impl NetworkProtocol {
         }
     }
 
+    pub fn hue(self) -> f32 {
+        match self {
+            NetworkProtocol::Sftp => 0.47,
+            NetworkProtocol::Ftp => 0.11,
+            NetworkProtocol::Ftps => 0.03,
+            NetworkProtocol::Smb => 0.78,
+            NetworkProtocol::Dav => 0.58,
+            NetworkProtocol::Davs => 0.67,
+            NetworkProtocol::Nfs => 0.92,
+        }
+    }
+
     pub fn encrypted(self) -> bool {
         !matches!(
             self,
