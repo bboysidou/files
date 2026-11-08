@@ -273,4 +273,23 @@ impl BrowserView {
         }));
         cx.notify();
     }
+
+    pub(super) fn copy_paths(&mut self, cx: &mut Context<Self>) {
+        let paths = self.active_pane().read(cx).target_paths();
+        let Some(first) = paths.first() else {
+            return;
+        };
+        let message = if paths.len() == 1 {
+            t!("op.copied_path_one", path = first.to_string_lossy()).to_string()
+        } else {
+            t!("op.copied_paths", count = paths.len()).to_string()
+        };
+        let text = paths
+            .iter()
+            .map(|path| path.to_string_lossy())
+            .collect::<Vec<_>>()
+            .join("\n");
+        cx.write_to_clipboard(gpui::ClipboardItem::new_string(text));
+        self.show_toast(message, false, cx);
+    }
 }

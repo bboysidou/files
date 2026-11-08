@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
 use gpui::{
-    AnyElement, App, IntoElement, ObjectFit, RenderOnce, Window, div, img, prelude::*, px, rgb,
-    rgba,
+    AnyElement, App, IntoElement, MouseButton, ObjectFit, RenderOnce, Window, div, img, prelude::*,
+    px, rgb, rgba,
 };
 
 use crate::core::enums::assets::icon::Icon;
@@ -13,7 +13,7 @@ use crate::core::theme::metrics::{
 };
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::components::entry_icon::EntryIcon;
-use crate::global_components::handlers::IndexClickHandler;
+use crate::global_components::handlers::{IndexClickHandler, IndexPointHandler};
 use crate::global_components::icon_glyph::IconGlyph;
 
 #[derive(IntoElement)]
@@ -27,6 +27,7 @@ pub struct FileTile {
     pub width: f32,
     pub thumb_height: f32,
     pub on_click: IndexClickHandler,
+    pub on_right: IndexPointHandler,
 }
 
 impl FileTile {
@@ -64,10 +65,9 @@ impl FileTile {
     }
 }
 
-impl RenderOnce for FileTile {
-    fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
-        let (index, on_click) = (self.index, self.on_click);
-        let thumb = div()
+impl FileTile {
+    fn thumb(&self) -> gpui::Div {
+        div()
             .flex()
             .items_center()
             .justify_center()
@@ -76,7 +76,14 @@ impl RenderOnce for FileTile {
             .overflow_hidden()
             .rounded(px(TILE_THUMB_RADIUS))
             .bg(rgb(CARD))
-            .child(Self::thumb_content(&self.entry, self.thumbnail.clone()));
+            .child(Self::thumb_content(&self.entry, self.thumbnail.clone()))
+    }
+}
+
+impl RenderOnce for FileTile {
+    fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
+        let thumb = self.thumb();
+        let (index, on_click, on_right) = (self.index, self.on_click, self.on_right);
         let name = div()
             .w_full()
             .h(px(TILE_NAME_HEIGHT))
@@ -106,6 +113,10 @@ impl RenderOnce for FileTile {
             })
             .when(self.cut, |tile| tile.opacity(CUT_OPACITY))
             .on_click(move |event, window, cx| on_click(index, event, window, cx))
+            .on_mouse_down(MouseButton::Right, move |event, window, cx| {
+                cx.stop_propagation();
+                on_right(index, event.position, window, cx)
+            })
             .child(thumb)
             .child(name);
         if self.marked {

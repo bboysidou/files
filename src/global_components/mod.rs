@@ -3,5 +3,7 @@ pub mod handlers;
 pub mod icon_button;
 pub mod icon_glyph;
 pub mod kbd_hint;
+pub mod menu;
+pub mod modal_scrim;
 pub mod text_field;
 pub mod toast;

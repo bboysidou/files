@@ -17,6 +17,7 @@ Early development. Working today:
 - Tabs, back/forward/up history, clickable path crumbs
 - Filter the current folder as you type, or search every name below it (`f`)
 - Type a path to jump there (`:` or `Ctrl+L`, `~` for home)
+- Context menu on right click or `m`, and a searchable keymap sheet (`?`)
 - Folders refresh by themselves when files change on disk
 - Remembers hidden files, sort order, the sidebar, the preview column, the view mode and your open tabs
 - Copy, cut, paste, rename, new folder and move to Trash, all with undo and redo; copy and paste work
@@ -64,6 +65,9 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 | `Space` | Quick Look (`←` `→` next file, `+` `−` zoom) |
 | `F3` | Show or hide the preview column |
 | `Ctrl+1` / `Ctrl+3` | List / grid view |
+| `m` / right click | Context menu |
+| `Ctrl+Shift+C` | Copy path |
+| `?` | Keyboard shortcuts |
 | `Ctrl+H` | Show hidden files |
 | `F5` | Reload (rarely needed, folders update live) |
 | `Ctrl+B` | Collapse the sidebar |

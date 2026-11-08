@@ -1,11 +1,15 @@
 use std::collections::HashSet;
 use std::path::PathBuf;
 
-use gpui::{Context, Window};
+use std::rc::Rc;
+
+use gpui::{Context, Pixels, Point, Window};
 
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::pane_view::PaneView;
+use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::places::domain::entities::place::PlaceTarget;
+use crate::global_components::handlers::IndexPointHandler;
 
 impl PaneView {
     pub(super) fn target_paths(&self) -> Vec<PathBuf> {
@@ -86,5 +90,37 @@ impl PaneView {
             self.selection.move_to(cursor);
             cx.notify();
         }
+    }
+
+    pub(super) fn right_click(
+        &mut self,
+        (index, position): (usize, Point<Pixels>),
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if !self.selection.is_marked(index) {
+            self.selection.move_to(index);
+        }
+        self.request_menu(position, window, cx);
+    }
+
+    pub(super) fn request_menu(
+        &mut self,
+        position: Point<Pixels>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        window.focus(&self.focus_handle, cx);
+        cx.emit(PaneEvent::ContextMenu(position));
+        cx.notify();
+    }
+
+    pub(super) fn right_click_handler(cx: &mut Context<Self>) -> IndexPointHandler {
+        let view = cx.entity().downgrade();
+        Rc::new(move |index, position, window, cx| {
+            let _ = view.update(cx, |this, cx| {
+                this.right_click((index, position), window, cx)
+            });
+        })
     }
 }

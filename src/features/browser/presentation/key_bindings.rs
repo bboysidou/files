@@ -7,6 +7,8 @@ pub const PANE_CONTEXT: &str = "Pane";
 pub const PANE_GRID_CONTEXT: &str = "Pane view=grid";
 const PANE_GRID_KEYS: &str = "Pane && view == grid && !TextField";
 pub const QUICK_LOOK_CONTEXT: &str = "QuickLook";
+pub const MENU_CONTEXT: &str = "Menu";
+pub const KEYMAP_CONTEXT: &str = "Keymap";
 const PANE_KEYS: &str = "Pane && !TextField";
 
 pub fn browser_key_bindings() -> Vec<KeyBinding> {
@@ -16,6 +18,7 @@ pub fn browser_key_bindings() -> Vec<KeyBinding> {
     bindings.extend(operation_bindings());
     bindings.extend(tab_bindings());
     bindings.extend(quick_look_bindings());
+    bindings.extend(overlay_bindings());
     bindings
 }
 
@@ -45,6 +48,8 @@ fn navigation_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("space", QuickLook, context),
         KeyBinding::new("f", StartSearch, context),
         KeyBinding::new(":", EditPath, context),
+        KeyBinding::new("m", OpenMenu, context),
+        KeyBinding::new("?", ShowKeymap, context),
     ]
 }
 
@@ -106,6 +111,7 @@ fn tab_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("ctrl-3", ShowGrid, browser),
         KeyBinding::new("ctrl-l", EditPath, browser),
         KeyBinding::new("ctrl-f", StartSearch, browser),
+        KeyBinding::new("ctrl-shift-c", CopyPath, browser),
     ]
 }
 
@@ -131,5 +137,20 @@ fn grid_bindings() -> Vec<KeyBinding> {
     vec![
         KeyBinding::new("left", MoveLeft, context),
         KeyBinding::new("right", MoveRight, context),
+    ]
+}
+
+fn overlay_bindings() -> Vec<KeyBinding> {
+    let menu = Some(MENU_CONTEXT);
+    let keymap = Some(KEYMAP_CONTEXT);
+    vec![
+        KeyBinding::new("down", MenuNext, menu),
+        KeyBinding::new("j", MenuNext, menu),
+        KeyBinding::new("up", MenuPrevious, menu),
+        KeyBinding::new("k", MenuPrevious, menu),
+        KeyBinding::new("enter", MenuConfirm, menu),
+        KeyBinding::new("escape", CloseMenu, menu),
+        KeyBinding::new("m", CloseMenu, menu),
+        KeyBinding::new("escape", CloseKeymap, keymap),
     ]
 }

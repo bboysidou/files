@@ -23,6 +23,7 @@ pub struct Sheet {
     pub on_preview: ClickHandler,
     pub view: ViewMode,
     pub on_view: ViewHandler,
+    pub on_keys: ClickHandler,
 }
 
 impl RenderOnce for Sheet {
@@ -44,6 +45,7 @@ impl RenderOnce for Sheet {
                 on_preview: self.on_preview,
                 view: self.view,
                 on_view: self.on_view,
+                on_keys: self.on_keys,
             })
             .child(
                 div()

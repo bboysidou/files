@@ -72,6 +72,7 @@ impl PaneView {
                 this.click_row(RowClick::from_event(index, event), window, cx)
             });
         });
+        let on_right = Self::right_click_handler(cx);
         let mut rows = Vec::new();
         for row in range {
             let start = row * layout.columns;
@@ -92,6 +93,7 @@ impl PaneView {
                     width: layout.tile_width,
                     thumb_height: layout.thumb_height,
                     on_click: on_click.clone(),
+                    on_right: on_right.clone(),
                 });
             }
             rows.push(

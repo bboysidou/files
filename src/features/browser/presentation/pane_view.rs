@@ -3,8 +3,9 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 use gpui::{
-    App, Context, Div, Entity, EventEmitter, FocusHandle, Focusable, IntoElement, Render,
-    SharedString, Subscription, Task, UniformListScrollHandle, Window, div, prelude::*,
+    App, Context, Div, Entity, EventEmitter, FocusHandle, Focusable, IntoElement, MouseButton,
+    MouseDownEvent, Render, SharedString, Subscription, Task, UniformListScrollHandle, Window, div,
+    prelude::*,
 };
 use rust_i18n::t;
 
@@ -15,8 +16,8 @@ use crate::features::browser::domain::entities::selection::Selection;
 use crate::features::browser::domain::entities::sort_order::SortOrder;
 use crate::features::browser::presentation::actions::{
     Dismiss, EditPath, ExtendDown, ExtendUp, GoBack, GoForward, GoParent, MoveDown, MoveLeft,
-    MoveRight, MoveUp, OpenEntry, OpenFilter, Reload, RenameEntry, SelectAllEntries, SelectFirst,
-    SelectLast, StartSearch, ToggleHidden, ToggleMark,
+    MoveRight, MoveUp, OpenEntry, OpenFilter, OpenMenu, Reload, RenameEntry, SelectAllEntries,
+    SelectFirst, SelectLast, StartSearch, ToggleHidden, ToggleMark,
 };
 use crate::features::browser::presentation::key_bindings::{PANE_CONTEXT, PANE_GRID_CONTEXT};
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
@@ -231,6 +232,10 @@ impl PaneView {
             .on_action(
                 cx.listener(|this, _: &EditPath, window, cx| this.start_path_entry(window, cx)),
             )
+            .on_action(cx.listener(|this, _: &OpenMenu, window, cx| {
+                let position = window.mouse_position();
+                this.request_menu(position, window, cx)
+            }))
     }
 }
 
@@ -254,6 +259,12 @@ impl Render for PaneView {
             .flex_1()
             .min_h_0()
             .size_full();
+        let root = root.on_mouse_down(
+            MouseButton::Right,
+            cx.listener(|this, event: &MouseDownEvent, window, cx| {
+                this.request_menu(event.position, window, cx)
+            }),
+        );
         Self::with_actions(root, cx).child(self.body(cx))
     }
 }

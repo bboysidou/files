@@ -1,6 +1,8 @@
 pub mod actions;
 pub mod browser_actions;
 pub mod browser_chrome;
+pub mod browser_keymap;
+pub mod browser_menu;
 pub mod browser_operations;
 pub mod browser_preview;
 pub mod browser_quick_look;

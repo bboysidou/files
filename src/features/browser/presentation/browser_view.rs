@@ -1,9 +1,11 @@
 use std::rc::Rc;
 
 use gpui::{
-    App, Context, Entity, FocusHandle, Focusable, IntoElement, Render, Task,
+    App, Context, Entity, FocusHandle, Focusable, IntoElement, Render, Subscription, Task,
     UniformListScrollHandle, Window, div, prelude::*,
 };
+
+use rust_i18n::t;
 
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::view_options::ViewOptions;
@@ -13,6 +15,7 @@ use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
 use crate::features::browser::presentation::state::handlers::ViewHandler;
+use crate::features::browser::presentation::state::menu_state::MenuState;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::pane_start::PaneStart;
 use crate::features::browser::presentation::state::preview_state::PreviewState;
@@ -23,6 +26,7 @@ use crate::features::operations::domain::entities::clipboard::Clipboard;
 use crate::features::operations::domain::entities::operation_history::OperationHistory;
 use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::global_components::handlers::ClickHandler;
+use crate::global_components::text_field::text_field_view::{TextField, TextFieldEvent};
 
 pub struct BrowserView {
     pub(super) setup: Rc<BrowserSetup>,
@@ -46,6 +50,12 @@ pub struct BrowserView {
     pub(super) column_task: Option<Task<()>>,
     pub(super) column_generation: usize,
     pub(super) column_scroll: UniformListScrollHandle,
+    pub(super) menu: Option<MenuState>,
+    pub(super) menu_focus: FocusHandle,
+    pub(super) keymap_open: bool,
+    pub(super) keymap_focus: FocusHandle,
+    pub(super) keymap_field: Entity<TextField>,
+    pub(super) _keymap_events: Subscription,
 }
 
 impl BrowserView {
@@ -55,6 +65,7 @@ impl BrowserView {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
+        let (keymap_field, keymap_events) = Self::create_keymap_field(window, cx);
         let mut view = Self {
             setup: Rc::new(setup),
             tabs: Vec::new(),
@@ -77,6 +88,12 @@ impl BrowserView {
             column_task: None,
             column_generation: 0,
             column_scroll: UniformListScrollHandle::new(),
+            menu: None,
+            menu_focus: cx.focus_handle(),
+            keymap_open: false,
+            keymap_focus: cx.focus_handle(),
+            keymap_field,
+            _keymap_events: keymap_events,
         };
         let targets = if restore.tabs.is_empty() {
             vec![TabSnapshot::fresh(view.setup.home_target.clone())]
@@ -139,6 +156,18 @@ impl BrowserView {
         cx.notify();
     }
 
+    fn create_keymap_field(
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> (Entity<TextField>, Subscription) {
+        let field = cx.new(|cx| TextField::new(t!("keys.placeholder").to_string(), cx));
+        let events = cx.subscribe_in(&field, window, |this, _, event, window, cx| match event {
+            TextFieldEvent::Changed => cx.notify(),
+            TextFieldEvent::Submitted | TextFieldEvent::Cancelled => this.close_keymap(window, cx),
+        });
+        (field, events)
+    }
+
     pub fn location(&self, cx: &App) -> PlaceTarget {
         self.active_pane().read(cx).location().clone()
     }
@@ -165,11 +194,17 @@ impl BrowserView {
             this.sync_preview_column(cx);
             cx.notify();
         });
-        let events = cx.subscribe(&pane, |this, _, event: &PaneEvent, cx| match event {
-            PaneEvent::RenameRequested(transfer) => this.rename(transfer.clone(), cx),
-            PaneEvent::ViewOptionsChanged(options) => this.apply_view_options(*options, cx),
-            PaneEvent::Message(message) => this.show_toast(message.clone(), false, cx),
-        });
+        let events =
+            cx.subscribe_in(
+                &pane,
+                window,
+                |this, _, event: &PaneEvent, window, cx| match event {
+                    PaneEvent::RenameRequested(transfer) => this.rename(transfer.clone(), cx),
+                    PaneEvent::ViewOptionsChanged(options) => this.apply_view_options(*options, cx),
+                    PaneEvent::Message(message) => this.show_toast(message.clone(), false, cx),
+                    PaneEvent::ContextMenu(position) => this.open_menu(*position, window, cx),
+                },
+            );
         Tab {
             pane,
             _changes: changes,
@@ -185,6 +220,8 @@ impl BrowserView {
 impl Render for BrowserView {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let quick_look = self.quick_look_overlay(window, cx);
+        let menu = self.menu_overlay(window, cx);
+        let keymap = self.keymap_overlay(window, cx);
         let pane = self.active_pane().clone();
         let toolbar = pane.update(cx, |pane, cx| pane.toolbar_model(cx));
         let (item_count, selected_count) = {
@@ -204,6 +241,10 @@ impl Render for BrowserView {
         let on_preview: ClickHandler = Rc::new(move |_, cx| {
             let _ = view.update(cx, |this, cx| this.toggle_preview_column(cx));
         });
+        let keys_handle = cx.entity().downgrade();
+        let on_keys: ClickHandler = Rc::new(move |window, cx| {
+            let _ = keys_handle.update(cx, |this, cx| this.open_keymap(window, cx));
+        });
         let view_handle = cx.entity().downgrade();
         let on_view: ViewHandler = Rc::new(move |view, _, cx| {
             let _ = view_handle.update(cx, |this, cx| this.set_view(view, cx));
@@ -218,11 +259,14 @@ impl Render for BrowserView {
                 on_preview,
                 view: self.options.view,
                 on_view,
+                on_keys,
                 item_count,
                 selected_count,
             })
             .children(toast)
             .children(quick_look)
+            .children(menu)
+            .children(keymap)
     }
 }
 

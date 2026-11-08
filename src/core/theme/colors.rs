@@ -24,3 +24,6 @@ pub const BADGE_LIGHTNESS: f32 = 0.70;
 pub const BADGE_BACKGROUND_OPACITY: f32 = 0.14;
 pub const SCRIM: u32 = 0x0000_008C;
 pub const STAGE: u32 = 0x0B0B0B;
+pub const MENU_BG: u32 = 0x161616;
+pub const DANGER: u32 = 0xF44747;
+pub const KEY_ROW_LINE: u32 = 0x202020;

@@ -99,6 +99,7 @@ impl PaneView {
                 this.click_row(RowClick::from_event(index, event), window, cx)
             });
         });
+        let on_right = Self::right_click_handler(cx);
         let now = SystemTime::now();
         range
             .filter_map(|index| {
@@ -112,6 +113,7 @@ impl PaneView {
                         .then(|| self.rename_field.clone()),
                     now,
                     on_click: on_click.clone(),
+                    on_right: on_right.clone(),
                     compact: self.compact,
                     context: self.search_context(&self.entries.get(index)?.path),
                 })

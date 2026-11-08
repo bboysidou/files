@@ -4,15 +4,32 @@ use crate::core::enums::operations::clipboard_mode::ClipboardMode;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::presentation::actions::{
     ActivateTab1, ActivateTab2, ActivateTab3, ActivateTab4, ActivateTab5, ActivateTab6,
-    ActivateTab7, ActivateTab8, ActivateTab9, CloseTab, CopySelection, CutSelection, EditPath,
-    NewFolder, NewTab, NextTab, PasteClipboard, PreviousTab, QuickLook, Redo, ShowGrid, ShowList,
+    ActivateTab7, ActivateTab8, ActivateTab9, CloseKeymap, CloseMenu, CloseTab, CopyPath,
+    CopySelection, CutSelection, EditPath, MenuConfirm, MenuNext, MenuPrevious, NewFolder, NewTab,
+    NextTab, PasteClipboard, PreviousTab, QuickLook, Redo, ShowGrid, ShowKeymap, ShowList,
     StartSearch, TogglePreview, TrashSelection, Undo,
 };
 use crate::features::browser::presentation::browser_view::BrowserView;
 
 impl BrowserView {
     pub(super) fn with_actions(element: Div, cx: &mut Context<Self>) -> Div {
+        let element = Self::with_overlay_actions(element, cx);
         Self::with_tab_actions(Self::with_operation_actions(element, cx), cx)
+    }
+
+    fn with_overlay_actions(element: Div, cx: &mut Context<Self>) -> Div {
+        element
+            .on_action(cx.listener(|this, _: &MenuNext, _, cx| this.step_menu(1, cx)))
+            .on_action(cx.listener(|this, _: &MenuPrevious, _, cx| this.step_menu(-1, cx)))
+            .on_action(
+                cx.listener(|this, _: &MenuConfirm, window, cx| this.confirm_menu(window, cx)),
+            )
+            .on_action(cx.listener(|this, _: &CloseMenu, window, cx| this.close_menu(window, cx)))
+            .on_action(cx.listener(|this, _: &ShowKeymap, window, cx| this.open_keymap(window, cx)))
+            .on_action(
+                cx.listener(|this, _: &CloseKeymap, window, cx| this.close_keymap(window, cx)),
+            )
+            .on_action(cx.listener(|this, _: &CopyPath, _, cx| this.copy_paths(cx)))
     }
 
     fn with_operation_actions(element: Div, cx: &mut Context<Self>) -> Div {

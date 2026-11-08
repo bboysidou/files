@@ -5,6 +5,7 @@ pub mod file_badge;
 pub mod file_row;
 pub mod file_tile;
 pub mod header_cell;
+pub mod key_row;
 pub mod list_header;
 pub mod name_cell;
 pub mod nav_buttons;
