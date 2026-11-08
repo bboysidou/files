@@ -11,6 +11,7 @@ pub const MENU_CONTEXT: &str = "Menu";
 pub const KEYMAP_CONTEXT: &str = "Keymap";
 pub const CONFIRM_CONTEXT: &str = "Confirm";
 pub const SETTINGS_CONTEXT: &str = "Settings";
+pub const BULK_CONTEXT: &str = "BulkRename";
 const PANE_KEYS: &str = "Pane && !TextField";
 
 pub fn browser_key_bindings() -> Vec<KeyBinding> {
@@ -169,6 +170,7 @@ fn overlay_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("m", CloseMenu, menu),
         KeyBinding::new("escape", CloseKeymap, keymap),
         KeyBinding::new("escape", CloseSettings, Some(SETTINGS_CONTEXT)),
+        KeyBinding::new("tab", BulkNextField, Some(BULK_CONTEXT)),
         KeyBinding::new("enter", ConfirmAccept, Some(CONFIRM_CONTEXT)),
         KeyBinding::new("escape", ConfirmCancel, Some(CONFIRM_CONTEXT)),
     ]

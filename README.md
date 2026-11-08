@@ -26,6 +26,9 @@ Early development. Working today:
 - Settings panel (sliders button, `,` or `Ctrl+,`): hidden files and whether they sort last, sort
   key and direction, view, preview column, and whether to reopen the last session or start in Home
 - Remembers hidden files, sort order, the sidebar, the preview column, the view mode and your open tabs
+- Rename several items at once (`r` with a selection): find and replace, or a new name with `{n}`
+  numbering, live preview with clashes in red, one undo for the whole batch
+- New file (`N`), duplicate (`Ctrl+D`) and paste as symbolic link (`Ctrl+Shift+V`)
 - Copy, cut, paste, rename, new folder and move to Trash, all with undo and redo; copy and paste work
   with other file managers and apps through the system clipboard (Wayland)
 - Copies show live progress in the sidebar and can be cancelled; later operations queue; pasting over

@@ -84,6 +84,7 @@ actions!(
         NewFile,
         Duplicate,
         PasteLink,
+        BulkNextField,
         CloseSettings,
     ]
 );

@@ -10,6 +10,9 @@ use crate::global_components::text_field::text_field_view::TextFieldEvent;
 
 impl PaneView {
     pub(super) fn start_rename(&mut self, cx: &mut Context<Self>) {
+        if self.selection.marked_count() > 1 {
+            return cx.emit(PaneEvent::BulkRenameRequested(self.target_paths()));
+        }
         if let Some(path) = self.current_entry_path() {
             self.begin_rename_of(path, cx);
         }

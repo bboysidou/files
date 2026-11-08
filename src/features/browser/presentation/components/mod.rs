@@ -1,4 +1,5 @@
 pub mod breadcrumbs;
+pub mod bulk_row;
 pub mod crumb_segment;
 pub mod entry_icon;
 pub mod file_badge;

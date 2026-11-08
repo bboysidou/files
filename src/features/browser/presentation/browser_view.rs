@@ -14,6 +14,7 @@ use crate::features::browser::presentation::key_bindings::BROWSER_CONTEXT;
 use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
+use crate::features::browser::presentation::state::bulk_rename_state::BulkRenameState;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
 use crate::features::browser::presentation::state::dual_pane::DualPane;
 use crate::features::browser::presentation::state::job_state::JobState;
@@ -58,6 +59,7 @@ pub struct BrowserView {
     pub(super) menu_focus: FocusHandle,
     pub(super) open_with_task: Option<Task<()>>,
     pub(super) settings: SettingsSheet,
+    pub(super) bulk: Option<BulkRenameState>,
     pub(super) keymap_open: bool,
     pub(super) keymap_focus: FocusHandle,
     pub(super) keymap_field: Entity<TextField>,
@@ -106,6 +108,7 @@ impl BrowserView {
             menu: None,
             menu_focus: cx.focus_handle(),
             open_with_task: None,
+            bulk: None,
             settings: SettingsSheet::closed(cx.focus_handle(), restore.restore_tabs),
             keymap_open: false,
             keymap_focus: cx.focus_handle(),
@@ -207,6 +210,9 @@ impl BrowserView {
                         this.restore_from_trash(entries.clone(), cx)
                     }
                     PaneEvent::DropRequested(request) => this.drop_files(request.clone(), cx),
+                    PaneEvent::BulkRenameRequested(paths) => {
+                        this.open_bulk_rename(paths.clone(), window, cx)
+                    }
                     PaneEvent::Picked(_) | PaneEvent::PickCancelled => {}
                 },
             );
@@ -239,6 +245,7 @@ impl Render for BrowserView {
             self.menu_overlay(window, cx),
             self.keymap_overlay(window, cx),
             self.settings_overlay(window, cx),
+            self.bulk_overlay(window, cx),
         ];
         let confirm = self.confirm_overlay(window, cx);
         let pane = self.active_pane().clone();
