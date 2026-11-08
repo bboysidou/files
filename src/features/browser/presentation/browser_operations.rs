@@ -8,6 +8,7 @@ use rust_i18n::t;
 use crate::core::constants::operations::TOAST_DURATION_MS;
 use crate::core::enums::operations::clipboard_mode::ClipboardMode;
 use crate::core::enums::operations::collision_policy::CollisionPolicy;
+use crate::core::helpers::files::has_no_trash::has_no_trash;
 use crate::core::helpers::format::item_count::item_count;
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
@@ -114,6 +115,9 @@ impl BrowserView {
                 self.ask(ConfirmState::Purge(paths), window, cx);
             }
             return;
+        }
+        if paths.iter().any(|path| has_no_trash(path)) {
+            return self.ask(ConfirmState::DeleteForever(paths), window, cx);
         }
         if !paths.is_empty() {
             self.execute(FileOperation::Trash(paths), OperationIntent::Fresh, cx);

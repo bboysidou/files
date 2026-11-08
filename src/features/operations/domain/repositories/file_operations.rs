@@ -16,6 +16,7 @@ pub trait FileOperations: Send + Sync {
     ) -> Result<(), OperationError>;
     fn size_of(&self, path: &Path) -> u64;
     fn trash(&self, paths: &[PathBuf]) -> Result<(), OperationError>;
+    fn delete(&self, paths: &[PathBuf]) -> Result<(), OperationError>;
     fn restore(&self, paths: &[PathBuf]) -> Result<(), OperationError>;
     fn create_folder(&self, path: &Path) -> Result<(), OperationError>;
     fn remove_folder(&self, path: &Path) -> Result<(), OperationError>;

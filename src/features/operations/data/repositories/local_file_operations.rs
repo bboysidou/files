@@ -147,6 +147,12 @@ impl FileOperations for LocalFileOperations {
         trash::delete_all(paths).map_err(|_| OperationError::Failed)
     }
 
+    fn delete(&self, paths: &[PathBuf]) -> Result<(), OperationError> {
+        paths
+            .iter()
+            .try_for_each(|path| Self::remove_tree(path).map_err(|error| Self::error_of(&error)))
+    }
+
     fn restore(&self, paths: &[PathBuf]) -> Result<(), OperationError> {
         let items = os_limited::list().map_err(|_| OperationError::Failed)?;
         let wanted: Vec<TrashItem> = paths

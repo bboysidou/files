@@ -5,6 +5,7 @@ use crate::features::operations::domain::entities::transfer_request::TransferReq
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum ConfirmState {
     Purge(Vec<PathBuf>),
+    DeleteForever(Vec<PathBuf>),
     EmptyTrash,
     Collision(TransferRequest, usize),
 }

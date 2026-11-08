@@ -109,6 +109,9 @@ impl BrowserView {
         let Some(request) = self.take_confirm(window, cx) else {
             return;
         };
+        if let ConfirmState::DeleteForever(paths) = request {
+            return self.delete_forever(paths, cx);
+        }
         let bin = self.setup.trash_bin.clone();
         let message = match &request {
             ConfirmState::Purge(entries) => {
@@ -244,6 +247,11 @@ impl BrowserView {
             ConfirmState::Purge(entries) => self.destructive_dialog(
                 t!("confirm.purge.title", items = item_count(entries.len())).to_string(),
                 t!("confirm.purge.body").to_string(),
+                cx,
+            ),
+            ConfirmState::DeleteForever(paths) => self.destructive_dialog(
+                t!("confirm.purge.title", items = item_count(paths.len())).to_string(),
+                t!("confirm.forever.body").to_string(),
                 cx,
             ),
             ConfirmState::EmptyTrash => self.destructive_dialog(
