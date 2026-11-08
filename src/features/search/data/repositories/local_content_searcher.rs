@@ -6,15 +6,14 @@ use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::thread;
 
 use crate::core::constants::search::{
-    CONTENT_MAX_BYTES, CONTENT_MAX_WORKERS, CONTENT_RESULT_LIMIT, CONTENT_SNIFF_BYTES,
-    CONTENT_SNIPPET_CHARS,
+    CONTENT_LINE_CHARS, CONTENT_LINE_LIMIT, CONTENT_MAX_BYTES, CONTENT_MAX_WORKERS,
+    CONTENT_RESULT_LIMIT, CONTENT_SNIFF_BYTES,
 };
-use crate::features::search::domain::entities::content_match::ContentMatch;
+use crate::features::search::domain::entities::content_match::{ContentMatch, MatchLine};
 use crate::features::search::domain::entities::indexed_path::IndexedPath;
 use crate::features::search::domain::repositories::content_searcher::ContentSearcher;
 
 const NUL: u8 = 0;
-const LINE_BREAK: char = '\n';
 
 pub struct LocalContentSearcher;
 
@@ -96,13 +95,23 @@ fn file_match(path: &Path, needle: &str) -> Option<ContentMatch> {
     }
     let text = String::from_utf8_lossy(&bytes);
     let lowered = text.to_lowercase();
-    let first = lowered.find(needle)?;
-    let line_index = lowered[..first].matches(LINE_BREAK).count();
-    let line = text.lines().nth(line_index).unwrap_or_default();
+    let matches = lowered.matches(needle).count();
+    if matches == 0 {
+        return None;
+    }
+    let lines = text
+        .lines()
+        .enumerate()
+        .filter(|(_, line)| line.to_lowercase().contains(needle))
+        .take(CONTENT_LINE_LIMIT)
+        .map(|(index, line)| MatchLine {
+            number: index + 1,
+            text: line.trim().chars().take(CONTENT_LINE_CHARS).collect(),
+        })
+        .collect();
     Some(ContentMatch {
         path: path.to_path_buf(),
-        line_number: line_index + 1,
-        line: line.trim().chars().take(CONTENT_SNIPPET_CHARS).collect(),
-        matches: lowered.matches(needle).count(),
+        lines,
+        matches,
     })
 }

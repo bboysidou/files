@@ -12,3 +12,5 @@ pub const CONTENT_RESULT_LIMIT: usize = 300;
 pub const CONTENT_SNIPPET_CHARS: usize = 120;
 pub const CONTEXT_SEPARATOR: &str = " · ";
 pub const CONTENT_MAX_WORKERS: usize = 8;
+pub const CONTENT_LINE_LIMIT: usize = 1_000;
+pub const CONTENT_LINE_CHARS: usize = 400;

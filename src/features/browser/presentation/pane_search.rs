@@ -9,6 +9,7 @@ use rust_i18n::t;
 use crate::core::constants::search::{CONTEXT_SEPARATOR, SEARCH_DEBOUNCE_MS, SEARCH_RESULT_LIMIT};
 use crate::core::dependency_injection::tags::tag_store;
 use crate::core::enums::tags::tag_color::TagColor;
+use crate::features::browser::presentation::pane_content_search::content_snippet;
 use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::filter_model::FilterModel;
 use crate::features::browser::presentation::state::search_state::SearchState;
@@ -56,7 +57,7 @@ impl PaneView {
             index: None,
             results: Vec::new(),
             return_focus: self.current_entry_path(),
-            snippets: Default::default(),
+            hits: Default::default(),
             cancel: Default::default(),
         });
         self.build_index(root, cx);
@@ -123,7 +124,7 @@ impl PaneView {
         }
         self.cancel_content_search();
         if let Some(search) = self.search.as_mut() {
-            search.snippets.clear();
+            search.hits.clear();
         }
         let repository = self.setup.repository.clone();
         let wanted = query.clone();
@@ -179,7 +180,7 @@ impl PaneView {
         let search = self.search.as_ref()?;
         let parent = path.parent()?.strip_prefix(&search.root).ok()?;
         let folder = parent.to_string_lossy().into_owned();
-        match search.snippets.get(path) {
+        match search.hits.get(path).map(content_snippet) {
             Some(snippet) if folder.is_empty() => Some(snippet.clone()),
             Some(snippet) => Some(format!("{folder}{CONTEXT_SEPARATOR}{snippet}")),
             None => Some(folder).filter(|text| !text.is_empty()),

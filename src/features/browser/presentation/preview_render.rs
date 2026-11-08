@@ -136,9 +136,10 @@ impl BrowserView {
         };
         range
             .filter_map(|index| {
+                let line = lines.get(index)?.clone();
                 Some(PreviewLine {
-                    number: index + 1,
-                    line: lines.get(index)?.clone(),
+                    number: line.number.unwrap_or(index + 1),
+                    line,
                 })
             })
             .collect()

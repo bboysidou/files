@@ -115,6 +115,7 @@ impl LocalPreviewSource {
                 colored.get(index).cloned().unwrap_or_else(|| TextLine {
                     text: line.to_string(),
                     runs: Vec::new(),
+                    number: None,
                 })
             })
             .collect();
@@ -201,6 +202,7 @@ fn plain_text(text: &str) -> PreviewContent {
         .map(|line| TextLine {
             text: line.to_owned(),
             runs: Vec::new(),
+            number: None,
         })
         .collect();
     if lines.is_empty() {

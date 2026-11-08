@@ -74,7 +74,11 @@ impl SyntaxHighlighter {
                 color: (u32::from(color.r) << 16) | (u32::from(color.g) << 8) | u32::from(color.b),
             });
         }
-        Some(TextLine { text, runs })
+        Some(TextLine {
+            text,
+            runs,
+            number: None,
+        })
     }
 
     pub fn highlight(&self, path: &Path, text: &str) -> Option<Vec<TextLine>> {

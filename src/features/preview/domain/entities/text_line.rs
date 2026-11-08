@@ -10,4 +10,5 @@ pub struct ColorRun {
 pub struct TextLine {
     pub text: String,
     pub runs: Vec<ColorRun>,
+    pub number: Option<usize>,
 }

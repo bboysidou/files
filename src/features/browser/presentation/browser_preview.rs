@@ -45,11 +45,16 @@ impl BrowserView {
             }
         };
         let source = self.setup.preview.clone();
+        let ready = self.active_pane().read(cx).content_preview(&entry.path);
         let task = cx.spawn(async move |this, cx| {
-            let content = cx
-                .background_executor()
-                .spawn(async move { source.load(&entry) })
-                .await;
+            let content = match ready {
+                Some(content) => content,
+                None => {
+                    cx.background_executor()
+                        .spawn(async move { source.load(&entry) })
+                        .await
+                }
+            };
             let _ = this.update(cx, |this, cx| {
                 this.finish_preview(
                     PreviewTicket {
@@ -92,17 +97,23 @@ impl BrowserView {
         if !self.column.open {
             return;
         }
-        match self.active_pane().read(cx).current_entry() {
+        let pane = self.active_pane().read(cx);
+        let entry = pane.current_entry();
+        let fresh = entry
+            .as_ref()
+            .and_then(|entry| pane.content_preview(&entry.path));
+        match entry {
             None => {
                 self.column.state = None;
                 self.column.task = None;
             }
             Some(entry)
-                if self
-                    .column
-                    .state
-                    .as_ref()
-                    .is_some_and(|state| state.entry == entry) => {}
+                if self.column.state.as_ref().is_some_and(|state| {
+                    state.entry == entry
+                        && fresh
+                            .as_ref()
+                            .is_none_or(|fresh| state.content.as_ref() == Some(fresh))
+                }) => {}
             Some(entry) => self.begin_preview(entry, PreviewSurface::Column, cx),
         }
     }
