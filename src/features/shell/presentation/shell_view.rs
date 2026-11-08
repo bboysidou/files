@@ -15,6 +15,7 @@ use crate::core::dependency_injection::browser::{
 use crate::core::dependency_injection::operations::file_operations;
 use crate::core::dependency_injection::preview::preview_source;
 use crate::core::dependency_injection::settings::settings_repository;
+use crate::core::dependency_injection::thumbnails::thumbnail_store;
 use crate::core::enums::places::place_kind::PlaceKind;
 use crate::core::theme::colors::{FG, FRAME};
 use crate::core::theme::metrics::{FRAME_GAP, TEXT_BASE};
@@ -55,6 +56,7 @@ impl ShellView {
         let repository = directory_repository();
         let setup = BrowserSetup {
             preview: preview_source(repository.clone()),
+            thumbnails: thumbnail_store(),
             repository,
             launcher: file_launcher(),
             watcher: directory_watcher(),

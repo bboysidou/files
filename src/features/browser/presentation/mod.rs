@@ -15,6 +15,7 @@ pub mod pane_operations;
 pub mod pane_options;
 pub mod pane_rename;
 pub mod pane_selection;
+pub mod pane_thumbnails;
 pub mod pane_view;
 pub mod pane_watch;
 pub mod preview_render;

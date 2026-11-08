@@ -11,9 +11,13 @@ dirs = "7.0.0"
 futures = "0.3"
 gpui-pre = "0.3.11"
 gpui-pre-platform = { version = "0.3.11", features = ["font-kit", "wayland", "x11"] }
+image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "gif", "webp", "bmp", "tiff", "ico", "qoi", "tga", "pnm"] }
 imagesize = "0.15.0"
 jiff = "0.2.40"
+md-5 = "0.10.6"
 notify = "8.2.1"
+percent-encoding = "2.3.2"
+png = "0.18.1"
 rust-i18n = "4.2.4"
 serde = { version = "1", features = ["derive"] }
 toml = "1.2.1"

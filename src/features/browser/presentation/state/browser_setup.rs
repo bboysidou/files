@@ -8,6 +8,7 @@ use crate::features::browser::domain::repositories::file_launcher::FileLauncher;
 use crate::features::operations::domain::repositories::file_operations::FileOperations;
 use crate::features::places::domain::entities::place::{Place, PlaceTarget};
 use crate::features::preview::domain::repositories::preview_source::PreviewSource;
+use crate::features::thumbnails::domain::repositories::thumbnail_store::ThumbnailStore;
 
 pub struct BrowserSetup {
     pub repository: Arc<dyn DirectoryRepository>,
@@ -15,6 +16,7 @@ pub struct BrowserSetup {
     pub watcher: Arc<dyn DirectoryWatcher>,
     pub operations: Arc<dyn FileOperations>,
     pub preview: Arc<dyn PreviewSource>,
+    pub thumbnails: Arc<dyn ThumbnailStore>,
     pub places: Vec<Place>,
     pub home: Option<PathBuf>,
     pub home_target: PlaceTarget,

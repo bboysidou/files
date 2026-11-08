@@ -12,5 +12,6 @@ pub mod preview_ticket;
 pub mod row_click;
 pub mod tab;
 pub mod tab_strip_model;
+pub mod thumb_state;
 pub mod toast_model;
 pub mod toolbar_model;

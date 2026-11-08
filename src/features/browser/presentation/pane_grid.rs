@@ -72,29 +72,36 @@ impl PaneView {
                 this.click_row(RowClick::from_event(index, event), window, cx)
             });
         });
-        range
-            .map(|row| {
-                let start = row * layout.columns;
-                let end = (start + layout.columns).min(self.entries.len());
-                let tiles = (start..end).filter_map(|index| {
-                    let entry = self.entries.get(index)?.clone();
-                    Some(FileTile {
-                        index,
-                        marked: self.selection.is_marked(index),
-                        cursor: index == self.selection.cursor(),
-                        cut: self.cut.contains(&entry.path),
-                        entry,
-                        width: layout.tile_width,
-                        thumb_height: layout.thumb_height,
-                        on_click: on_click.clone(),
-                    })
+        let mut rows = Vec::new();
+        for row in range {
+            let start = row * layout.columns;
+            let end = (start + layout.columns).min(self.entries.len());
+            let mut tiles = Vec::new();
+            for index in start..end {
+                let Some(entry) = self.entries.get(index).cloned() else {
+                    continue;
+                };
+                let thumbnail = self.thumbnail_for(&entry, cx);
+                tiles.push(FileTile {
+                    index,
+                    marked: self.selection.is_marked(index),
+                    cursor: index == self.selection.cursor(),
+                    cut: self.cut.contains(&entry.path),
+                    entry,
+                    thumbnail,
+                    width: layout.tile_width,
+                    thumb_height: layout.thumb_height,
+                    on_click: on_click.clone(),
                 });
+            }
+            rows.push(
                 div()
                     .flex()
                     .gap(px(TILE_GAP))
                     .h(px(layout.row_height()))
-                    .children(tiles)
-            })
-            .collect()
+                    .children(tiles),
+            );
+        }
+        rows
     }
 }

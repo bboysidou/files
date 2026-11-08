@@ -1,9 +1,10 @@
+use std::path::PathBuf;
+
 use gpui::{
     AnyElement, App, IntoElement, ObjectFit, RenderOnce, Window, div, img, prelude::*, px, rgb,
     rgba,
 };
 
-use crate::core::constants::preview::IMAGE_EXTENSIONS;
 use crate::core::enums::assets::icon::Icon;
 use crate::core::theme::colors::{ACCENT, CARD, FG, ROW_HOVER, SELECTION_ALPHA, TRANSPARENT};
 use crate::core::theme::metrics::{
@@ -19,6 +20,7 @@ use crate::global_components::icon_glyph::IconGlyph;
 pub struct FileTile {
     pub index: usize,
     pub entry: FileEntry,
+    pub thumbnail: Option<PathBuf>,
     pub marked: bool,
     pub cursor: bool,
     pub cut: bool,
@@ -28,16 +30,13 @@ pub struct FileTile {
 }
 
 impl FileTile {
-    fn thumb_content(entry: &FileEntry) -> AnyElement {
-        let is_image = entry.extension.as_deref().is_some_and(|extension| {
-            IMAGE_EXTENSIONS.contains(&extension.to_ascii_lowercase().as_str())
-        });
+    fn thumb_content(entry: &FileEntry, thumbnail: Option<PathBuf>) -> AnyElement {
         if entry.is_dir {
             IconGlyph::new(Icon::Folder, ACCENT)
                 .size(TILE_FOLDER_ICON)
                 .into_any_element()
-        } else if is_image {
-            img(entry.path.clone())
+        } else if let Some(thumbnail) = thumbnail {
+            img(thumbnail)
                 .object_fit(ObjectFit::Cover)
                 .size_full()
                 .rounded(px(TILE_THUMB_RADIUS))
@@ -77,7 +76,7 @@ impl RenderOnce for FileTile {
             .overflow_hidden()
             .rounded(px(TILE_THUMB_RADIUS))
             .bg(rgb(CARD))
-            .child(Self::thumb_content(&self.entry));
+            .child(Self::thumb_content(&self.entry, self.thumbnail.clone()));
         let name = div()
             .w_full()
             .h(px(TILE_NAME_HEIGHT))

@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::path::PathBuf;
 use std::rc::Rc;
 
@@ -23,6 +23,7 @@ use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::load_state::LoadState;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::pane_start::PaneStart;
+use crate::features::browser::presentation::state::thumb_state::{ThumbEntry, ThumbRequest};
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
 use crate::features::places::domain::entities::crumb_trail::CrumbTrail;
 use crate::features::places::domain::entities::place::PlaceTarget;
@@ -58,6 +59,9 @@ pub struct PaneView {
     pub(super) compact: bool,
     pub(super) view: ViewMode,
     pub(super) grid_width: f32,
+    pub(super) thumbs: HashMap<PathBuf, ThumbEntry>,
+    pub(super) thumb_queue: VecDeque<ThumbRequest>,
+    pub(super) thumb_worker: Option<Task<()>>,
 }
 
 impl PaneView {
@@ -104,6 +108,9 @@ impl PaneView {
             compact: false,
             view: start.options.view,
             grid_width: 0.0,
+            thumbs: HashMap::new(),
+            thumb_queue: VecDeque::new(),
+            thumb_worker: None,
         };
         view.load(cx);
         view

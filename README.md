@@ -21,7 +21,8 @@ Early development. Working today:
 - Copy, cut, paste, rename, new folder and move to Trash, all with undo and redo
 - Quick Look for images, any text file and folders (`Space`)
 - Preview column beside the list that follows the cursor (`F3`)
-- Grid view with image thumbnails (`Ctrl+3`, back to the list with `Ctrl+1`)
+- Grid view with image thumbnails (`Ctrl+3`, back to the list with `Ctrl+1`), cached in the shared
+  freedesktop thumbnail cache (`~/.cache/thumbnails`) that other file managers also use
 - Extension badges coloured from a hash of the extension, so every type gets a stable colour
 - Opening files with your default applications (`xdg-open`)
 

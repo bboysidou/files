@@ -2,7 +2,11 @@ use std::path::PathBuf;
 
 use gpui::{App, IntoElement, ObjectFit, RenderOnce, Window, div, img, prelude::*, px, relative};
 
+use rust_i18n::t;
+
+use crate::core::enums::assets::icon::Icon;
 use crate::core::theme::metrics::QUICK_LOOK_STAGE_PAD;
+use crate::global_components::empty_state::EmptyState;
 
 #[derive(IntoElement)]
 pub struct PreviewImage {
@@ -24,7 +28,17 @@ impl RenderOnce for PreviewImage {
                     .object_fit(ObjectFit::Contain)
                     .flex_shrink_0()
                     .w(relative(self.zoom))
-                    .h(relative(self.zoom)),
+                    .h(relative(self.zoom))
+                    .with_fallback(|| {
+                        EmptyState {
+                            icon: Icon::Image,
+
+                            title: t!("ql.failed.title").to_string().into(),
+
+                            body: t!("ql.failed.body").to_string().into(),
+                        }
+                        .into_any_element()
+                    }),
             )
     }
 }

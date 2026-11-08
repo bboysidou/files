@@ -30,6 +30,7 @@ impl PaneView {
         self.location = target;
         self.pending_focus = focus;
         self.renaming = None;
+        self.reset_thumbnails();
         self.reset_filter(cx);
         self.selection = Selection::default();
         self.entries.clear();

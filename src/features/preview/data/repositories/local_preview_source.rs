@@ -4,9 +4,10 @@ use std::path::Path;
 use std::sync::Arc;
 
 use crate::core::constants::preview::{
-    IMAGE_EXTENSIONS, PREVIEW_FOLDER_LIMIT, PREVIEW_MAX_LINES, PREVIEW_SNIFF_BYTES, PREVIEW_TAB,
+    PREVIEW_FOLDER_LIMIT, PREVIEW_MAX_LINES, PREVIEW_SNIFF_BYTES, PREVIEW_TAB,
     PREVIEW_TEXT_MAX_BYTES,
 };
+use crate::core::helpers::files::is_image::is_image;
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::domain::entities::sort_order::SortOrder;
 use crate::features::browser::domain::repositories::directory_repository::DirectoryRepository;
@@ -24,12 +25,6 @@ pub struct LocalPreviewSource {
 impl LocalPreviewSource {
     pub fn new(directories: Arc<dyn DirectoryRepository>) -> Self {
         Self { directories }
-    }
-
-    fn is_image(entry: &FileEntry) -> bool {
-        entry.extension.as_deref().is_some_and(|extension| {
-            IMAGE_EXTENSIONS.contains(&extension.to_ascii_lowercase().as_str())
-        })
     }
 
     fn image(path: &Path) -> PreviewContent {
@@ -94,7 +89,7 @@ impl PreviewSource for LocalPreviewSource {
     fn load(&self, entry: &FileEntry) -> PreviewContent {
         if entry.is_dir {
             self.folder(&entry.path)
-        } else if Self::is_image(entry) {
+        } else if is_image(entry.extension.as_deref()) {
             Self::image(&entry.path)
         } else {
             Self::text(&entry.path)
