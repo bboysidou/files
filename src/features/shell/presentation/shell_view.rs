@@ -13,6 +13,7 @@ use crate::core::constants::paths::PATH_SEPARATOR;
 use crate::core::dependency_injection::browser::directory_watcher;
 use crate::core::dependency_injection::browser_setup::browser_setup;
 use crate::core::dependency_injection::devices::device_repository;
+use crate::core::dependency_injection::network::mount_watcher;
 use crate::core::dependency_injection::network::network_mounter;
 use crate::core::dependency_injection::settings::settings_repository;
 use crate::core::enums::places::place_kind::PlaceKind;
@@ -103,7 +104,7 @@ impl ShellView {
             device_task: None,
             device_list_task: None,
             device_watch: None,
-            network: NetworkRail::new(network_mounter()),
+            network: NetworkRail::new(network_mounter(), mount_watcher()),
             bus: None,
             launch_task: None,
             role: start.role,

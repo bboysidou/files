@@ -1,9 +1,12 @@
 use std::path::PathBuf;
 use std::rc::Rc;
+use std::time::Duration;
 
+use futures::StreamExt;
 use gpui::{Context, SharedString};
 use rust_i18n::t;
 
+use crate::core::constants::network::NETWORK_REFRESH_DEBOUNCE_MS;
 use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::features::shell::presentation::shell_view::ShellView;
 use crate::features::shell::presentation::state::device_item::DeviceItem;
@@ -17,6 +20,28 @@ impl ShellView {
         }
         self.network.seen = Some(location);
         self.refresh_network(cx);
+    }
+
+    pub(super) fn watch_network(&mut self, cx: &mut Context<Self>) {
+        let Some(subscription) = self.network.watcher.watch() else {
+            return;
+        };
+        let (mut changes, guard) = (subscription.changes, subscription.guard);
+        self.network.watch = Some(cx.spawn(async move |this, cx| {
+            let _guard = guard;
+            while changes.next().await.is_some() {
+                cx.background_executor()
+                    .timer(Duration::from_millis(NETWORK_REFRESH_DEBOUNCE_MS))
+                    .await;
+                while changes.try_recv().is_ok() {}
+                if this
+                    .update(cx, |this, cx| this.refresh_network(cx))
+                    .is_err()
+                {
+                    break;
+                }
+            }
+        }));
     }
 
     pub(super) fn refresh_network(&mut self, cx: &mut Context<Self>) {

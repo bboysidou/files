@@ -25,6 +25,7 @@ impl ShellView {
         self.refresh_devices(cx);
         self.watch_servers(cx);
         self.watch_devices(cx);
+        self.watch_network(cx);
         if self.role == WindowRole::Primary {
             cx.background_executor()
                 .spawn(async { prune_caches() })

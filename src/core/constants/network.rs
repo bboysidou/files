@@ -29,3 +29,6 @@ pub const MOUNT_TIMEOUT_SECS: u64 = 60;
 pub const GVFS_SERVER_KEY: &str = "server";
 pub const GVFS_DAV_SCHEME: &str = "dav";
 pub const GVFS_SSL_ON: &str = "ssl=true";
+pub const GVFS_TRACKER_INTERFACE: &str = "org.gtk.vfs.MountTracker";
+pub const GVFS_TRACKER_PATH: &str = "/org/gtk/vfs/mounttracker";
+pub const NETWORK_REFRESH_DEBOUNCE_MS: u64 = 300;
