@@ -1,6 +1,8 @@
 use std::path::{Path, PathBuf};
 
-use crate::core::constants::integration::{ARG_DEFAULT, ARG_OFF, ARG_SELECT};
+use crate::core::constants::integration::{
+    ARG_DEFAULT, ARG_OFF, ARG_PICKER, ARG_PORTAL, ARG_SELECT,
+};
 use crate::core::helpers::files::path_from_uri::path_from_uri;
 use crate::features::integration::domain::entities::launch_request::LaunchRequest;
 
@@ -17,6 +19,8 @@ pub fn parse_launch(arguments: &[String], working: &Path) -> LaunchRequest {
     match arguments {
         [] => LaunchRequest::Window,
         [flag] if flag == ARG_DEFAULT => LaunchRequest::SetDefault(true),
+        [flag] if flag == ARG_PORTAL => LaunchRequest::Portal,
+        [flag] if flag == ARG_PICKER => LaunchRequest::PortalSetup,
         [flag, value] if flag == ARG_DEFAULT => LaunchRequest::SetDefault(value != ARG_OFF),
         [flag, target, ..] if flag == ARG_SELECT => {
             LaunchRequest::Reveal(absolute(target, working))

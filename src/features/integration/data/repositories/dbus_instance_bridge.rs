@@ -65,7 +65,9 @@ impl InstanceBridge for DbusInstanceBridge {
             LaunchRequest::Open(path) => (path.clone(), false),
             LaunchRequest::Reveal(path) => (path.clone(), true),
             LaunchRequest::Window => (PathBuf::new(), false),
-            LaunchRequest::SetDefault(_) => return false,
+            LaunchRequest::SetDefault(_) | LaunchRequest::Portal | LaunchRequest::PortalSetup => {
+                return false;
+            }
         };
         let Ok(connection) = Connection::session() else {
             return false;

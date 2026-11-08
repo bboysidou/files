@@ -1,7 +1,9 @@
 pub mod browser;
+pub mod browser_setup;
 pub mod devices;
 pub mod integration;
 pub mod operations;
+pub mod picker;
 pub mod places;
 pub mod preview;
 pub mod search;

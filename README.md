@@ -48,11 +48,22 @@ files [PATH]           # open a folder, or the folder holding a file
 files --select PATH    # open the folder and put the cursor on PATH
 files --default        # make files the default file manager (inode/directory)
 files --default off    # give the default back to the previous file manager
+files --picker         # register files as the file chooser portal backend
+files --portal         # run the file chooser backend (started by D-Bus)
 ```
 
 Only one window runs: launching `files` again opens the path as a new tab in it. While `files` is
 the default, it also answers `org.freedesktop.FileManager1`, so "Show in folder" in other apps
 opens it.
+
+### File chooser
+
+`files` can stand in for the GTK or KDE dialog when apps ask the desktop portal for a file. Run
+`files --picker`: it writes the D-Bus service file for your user and prints the two steps that need
+you (copying `files.portal` into `/usr/share/xdg-desktop-portal/portals/` with sudo, and naming
+`files` as the `FileChooser` in `~/.config/xdg-desktop-portal/portals.conf`). Open, save, multiple
+selection and folder picking are supported. `Enter` picks, `Esc` cancels. The backend exits when its
+last dialog closes; D-Bus starts it again on the next request.
 
 ## Settings
 

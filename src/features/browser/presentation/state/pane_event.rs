@@ -12,4 +12,6 @@ pub enum PaneEvent {
     Message(String),
     ContextMenu(Point<Pixels>),
     RestoreRequested(Vec<PathBuf>),
+    Picked(Vec<PathBuf>),
+    PickCancelled,
 }

@@ -227,6 +227,7 @@ impl BrowserView {
                     PaneEvent::RestoreRequested(entries) => {
                         this.restore_from_trash(entries.clone(), cx)
                     }
+                    PaneEvent::Picked(_) | PaneEvent::PickCancelled => {}
                 },
             );
         Tab {

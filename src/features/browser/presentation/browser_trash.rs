@@ -8,6 +8,7 @@ use gpui::{
 use rust_i18n::t;
 
 use crate::core::enums::operations::collision_policy::CollisionPolicy;
+use crate::core::enums::view::button_tone::ButtonTone;
 use crate::core::helpers::format::item_count::item_count;
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::key_bindings::CONFIRM_CONTEXT;
@@ -140,7 +141,11 @@ impl BrowserView {
         DialogButton {
             id: spec.id,
             label: t!(spec.label_key).to_string().into(),
-            danger: spec.danger,
+            tone: if spec.danger {
+                ButtonTone::Danger
+            } else {
+                ButtonTone::Plain
+            },
             on_click,
         }
     }

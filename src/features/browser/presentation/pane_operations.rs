@@ -12,7 +12,7 @@ use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::global_components::handlers::IndexPointHandler;
 
 impl PaneView {
-    pub(super) fn target_paths(&self) -> Vec<PathBuf> {
+    pub(crate) fn target_paths(&self) -> Vec<PathBuf> {
         let marked: Vec<PathBuf> = self
             .selection
             .marked()
@@ -30,7 +30,7 @@ impl PaneView {
         self.entries.get(self.selection.cursor()).cloned()
     }
 
-    pub(super) fn directory(&self) -> Option<PathBuf> {
+    pub(crate) fn directory(&self) -> Option<PathBuf> {
         match &self.location {
             PlaceTarget::Directory(path) => Some(path.clone()),
             PlaceTarget::Overview | PlaceTarget::Trash => None,
@@ -85,6 +85,8 @@ impl PaneView {
             self.end_search(window, cx);
         } else if self.filter_open || !self.filter.is_empty() {
             self.clear_filter(window, cx);
+        } else if self.picker && self.selection.marked().next().is_none() {
+            cx.emit(PaneEvent::PickCancelled);
         } else {
             let cursor = self.selection.cursor();
             self.selection.move_to(cursor);
@@ -126,5 +128,9 @@ impl PaneView {
 
     pub(super) fn focus_when_loaded(&mut self, path: PathBuf) {
         self.pending_focus = Some(path);
+    }
+
+    pub(crate) fn set_picker(&mut self, picker: bool) {
+        self.picker = picker;
     }
 }

@@ -155,6 +155,9 @@ impl PaneView {
         if self.location == PlaceTarget::Trash {
             let entries = self.target_paths();
             cx.emit(PaneEvent::RestoreRequested(entries));
+        } else if self.picker && !entry.is_dir {
+            let entries = self.target_paths();
+            cx.emit(PaneEvent::Picked(entries));
         } else if entry.is_dir {
             self.navigate(PlaceTarget::Directory(entry.path.clone()), cx);
         } else {

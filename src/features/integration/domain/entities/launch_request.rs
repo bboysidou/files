@@ -6,4 +6,6 @@ pub enum LaunchRequest {
     Open(PathBuf),
     Reveal(PathBuf),
     SetDefault(bool),
+    Portal,
+    PortalSetup,
 }

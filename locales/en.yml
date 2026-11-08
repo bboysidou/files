@@ -189,3 +189,7 @@ collision.body: "Keep both renames the new copies. Replace moves the existing it
 collision.skip: "Skip"
 collision.keep: "Keep both"
 collision.replace: "Replace"
+picker.open: "Open"
+picker.save: "Save"
+picker.cancel: "Cancel"
+picker.name: "File name"

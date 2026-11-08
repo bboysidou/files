@@ -10,21 +10,15 @@ use gpui::{
 
 use crate::core::constants::app::FONT_FAMILY;
 use crate::core::constants::paths::PATH_SEPARATOR;
-use crate::core::dependency_injection::browser::{
-    directory_repository, directory_watcher, file_launcher,
-};
+use crate::core::dependency_injection::browser::directory_watcher;
+use crate::core::dependency_injection::browser_setup::browser_setup;
 use crate::core::dependency_injection::devices::device_repository;
-use crate::core::dependency_injection::operations::{file_operations, system_clipboard, trash_bin};
-use crate::core::dependency_injection::preview::preview_source;
-use crate::core::dependency_injection::search::search_indexer;
 use crate::core::dependency_injection::settings::settings_repository;
-use crate::core::dependency_injection::thumbnails::thumbnail_store;
 use crate::core::enums::places::place_kind::PlaceKind;
 use crate::core::theme::colors::{FG, FRAME};
 use crate::core::theme::metrics::{FRAME_GAP, TEXT_BASE};
 use crate::features::browser::domain::repositories::directory_watcher::DirectoryWatcher;
 use crate::features::browser::presentation::browser_view::BrowserView;
-use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::devices::domain::entities::device::Device;
 use crate::features::devices::domain::repositories::device_repository::DeviceRepository;
 use crate::features::integration::domain::entities::launch_request::LaunchRequest;
@@ -69,21 +63,7 @@ impl ShellView {
         let settings_repository = settings_repository();
         let saved = settings_repository.load();
         let restore = Self::restored_snapshot(&saved);
-        let repository = directory_repository();
-        let setup = BrowserSetup {
-            preview: preview_source(repository.clone()),
-            thumbnails: thumbnail_store(),
-            indexer: search_indexer(),
-            repository,
-            launcher: file_launcher(),
-            watcher: directory_watcher(),
-            operations: file_operations(),
-            system_clipboard: system_clipboard(),
-            trash_bin: trash_bin(),
-            places: places.clone(),
-            home,
-            home_target: home_target.clone(),
-        };
+        let setup = browser_setup(places.clone(), home, home_target.clone());
         let browser = cx.new(|cx| BrowserView::new(setup, restore, window, cx));
         let browser_changes = cx.observe(&browser, |this, _, cx| {
             this.persist(cx);
