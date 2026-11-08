@@ -79,5 +79,7 @@ actions!(
         ClearTags,
         OpenWith,
         OpenTerminal,
+        ShowSettings,
+        CloseSettings,
     ]
 );

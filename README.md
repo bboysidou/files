@@ -23,6 +23,8 @@ Early development. Working today:
 - Folders refresh by themselves when files change on disk
 - USB drives in the sidebar: click to mount and open, eject button to unmount and power off (udisks2)
 - Trash view: Enter restores, Delete deletes permanently after a confirmation, Empty Trash in the menu
+- Settings panel (sliders button, `,` or `Ctrl+,`): hidden files and whether they sort last, sort
+  key and direction, view, preview column, and whether to reopen the last session or start in Home
 - Remembers hidden files, sort order, the sidebar, the preview column, the view mode and your open tabs
 - Copy, cut, paste, rename, new folder and move to Trash, all with undo and redo; copy and paste work
   with other file managers and apps through the system clipboard (Wayland)
@@ -116,6 +118,7 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 | `Ctrl+1` `Ctrl+2` `Ctrl+3` `Ctrl+4` | List, columns, grid, dual pane |
 | `Tab` / `F6` / `Shift+F6` | Dual pane: other side / copy there / move there |
 | `m` / right click | Context menu |
+| `,` / `Ctrl+,` | Settings |
 | `Ctrl+Shift+C` | Copy path |
 | `?` | Keyboard shortcuts |
 | `Ctrl+H` | Show hidden files |

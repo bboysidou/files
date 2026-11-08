@@ -15,6 +15,7 @@ pub struct ToolbarEnd {
     pub preview_open: bool,
     pub on_preview: ClickHandler,
     pub on_keys: ClickHandler,
+    pub on_settings: ClickHandler,
 }
 
 impl RenderOnce for ToolbarEnd {
@@ -34,6 +35,6 @@ impl RenderOnce for ToolbarEnd {
                     .on_click(self.on_preview),
             )
             .child(IconButton::new("keys", Icon::Keys).on_click(self.on_keys))
-            .child(IconButton::new("settings", Icon::Sliders))
+            .child(IconButton::new("settings", Icon::Sliders).on_click(self.on_settings))
     }
 }

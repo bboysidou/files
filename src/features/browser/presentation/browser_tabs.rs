@@ -37,6 +37,7 @@ impl BrowserView {
             active: self.active,
             options: self.options,
             preview_open: self.column_open,
+            restore_tabs: self.settings.restore_tabs,
         }
     }
 

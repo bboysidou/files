@@ -12,16 +12,23 @@ use crate::features::shell::presentation::state::saved_tab_mapping::{restored_ta
 
 impl ShellView {
     pub(super) fn restored_snapshot(settings: &Settings) -> BrowserSnapshot {
-        let tabs: Vec<_> = settings.tabs.iter().filter_map(restored_tab).collect();
+        let saved = if settings.restore_tabs {
+            settings.tabs.as_slice()
+        } else {
+            &[]
+        };
+        let tabs: Vec<_> = saved.iter().filter_map(restored_tab).collect();
         BrowserSnapshot {
             active: settings.active_tab.min(tabs.len().saturating_sub(1)),
             tabs,
             preview_open: settings.preview_open,
+            restore_tabs: settings.restore_tabs,
             options: ViewOptions {
                 show_hidden: settings.show_hidden,
                 sort: SortOrder {
                     key: settings.sort_key,
                     ascending: settings.sort_ascending,
+                    hidden_last: settings.hidden_last,
                 },
                 view: settings.view_mode,
             },
@@ -34,6 +41,8 @@ impl ShellView {
             show_hidden: snapshot.options.show_hidden,
             sort_key: snapshot.options.sort.key,
             sort_ascending: snapshot.options.sort.ascending,
+            hidden_last: snapshot.options.sort.hidden_last,
+            restore_tabs: snapshot.restore_tabs,
             view_mode: snapshot.options.view,
             sidebar_open: self.rail.open,
             preview_open: snapshot.preview_open,

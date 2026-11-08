@@ -24,6 +24,7 @@ use crate::features::browser::presentation::state::operation_intent::OperationIn
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::pane_start::PaneStart;
 use crate::features::browser::presentation::state::preview_state::PreviewState;
+use crate::features::browser::presentation::state::settings_sheet::SettingsSheet;
 use crate::features::browser::presentation::state::tab::Tab;
 use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::browser::presentation::state::toast_model::ToastModel;
@@ -58,6 +59,7 @@ pub struct BrowserView {
     pub(super) menu: Option<MenuState>,
     pub(super) menu_focus: FocusHandle,
     pub(super) open_with_task: Option<Task<()>>,
+    pub(super) settings: SettingsSheet,
     pub(super) keymap_open: bool,
     pub(super) keymap_focus: FocusHandle,
     pub(super) keymap_field: Entity<TextField>,
@@ -106,6 +108,7 @@ impl BrowserView {
             menu: None,
             menu_focus: cx.focus_handle(),
             open_with_task: None,
+            settings: SettingsSheet::closed(cx.focus_handle(), restore.restore_tabs),
             keymap_open: false,
             keymap_focus: cx.focus_handle(),
             keymap_field,
@@ -154,7 +157,7 @@ impl BrowserView {
         }
     }
 
-    fn apply_view_options(&mut self, options: ViewOptions, cx: &mut Context<Self>) {
+    pub(super) fn apply_view_options(&mut self, options: ViewOptions, cx: &mut Context<Self>) {
         self.options = options;
         for tab in &self.tabs {
             tab.pane
@@ -246,8 +249,11 @@ impl Render for BrowserView {
         }
         let body = self.pane_body(window, cx);
         let quick_look = self.quick_look_overlay(window, cx);
-        let menu = self.menu_overlay(window, cx);
-        let keymap = self.keymap_overlay(window, cx);
+        let sheets = [
+            self.menu_overlay(window, cx),
+            self.keymap_overlay(window, cx),
+            self.settings_overlay(window, cx),
+        ];
         let confirm = self.confirm_overlay(window, cx);
         let pane = self.active_pane().clone();
         let toolbar = pane.update(cx, |pane, cx| pane.toolbar_model(cx));
@@ -264,7 +270,7 @@ impl Render for BrowserView {
             .min_w_0()
             .h_full();
         let side = self.preview_column(cx);
-        let (on_preview, on_keys, on_view) = Self::chrome_handlers(cx);
+        let (on_preview, on_keys, on_view, on_settings) = Self::chrome_handlers(cx);
         Self::with_dual_actions(Self::with_actions(root, cx), cx)
             .child(Sheet {
                 tabs: self.tab_strip_model(cx),
@@ -276,13 +282,13 @@ impl Render for BrowserView {
                 view: self.options.view,
                 on_view,
                 on_keys,
+                on_settings,
                 item_count,
                 selected_count,
             })
             .children(toast)
             .children(quick_look)
-            .children(menu)
-            .children(keymap)
+            .children(sheets.into_iter().flatten())
             .children(confirm)
     }
 }

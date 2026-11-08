@@ -21,14 +21,19 @@ pub fn arrange_entries(
         .cloned()
         .collect();
     visible.sort_by(|left, right| {
-        right.is_dir.cmp(&left.is_dir).then_with(|| {
-            let order_by_key = compare_by(left, right, order.key);
-            if order.ascending {
-                order_by_key
-            } else {
-                order_by_key.reverse()
-            }
-        })
+        let hidden_rank = |entry: &FileEntry| order.hidden_last && entry.hidden;
+        right
+            .is_dir
+            .cmp(&left.is_dir)
+            .then_with(|| hidden_rank(left).cmp(&hidden_rank(right)))
+            .then_with(|| {
+                let order_by_key = compare_by(left, right, order.key);
+                if order.ascending {
+                    order_by_key
+                } else {
+                    order_by_key.reverse()
+                }
+            })
     });
     visible
 }

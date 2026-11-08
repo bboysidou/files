@@ -1,3 +1,4 @@
+pub mod choice_group;
 pub mod confirm_dialog;
 pub mod dialog_button;
 pub mod drag;
@@ -12,3 +13,4 @@ pub mod progress_bar;
 pub mod tag_dots;
 pub mod text_field;
 pub mod toast;
+pub mod toggle_switch;

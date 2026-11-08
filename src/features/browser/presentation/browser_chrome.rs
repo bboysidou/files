@@ -66,7 +66,7 @@ impl BrowserView {
 
     pub(super) fn chrome_handlers(
         cx: &mut Context<Self>,
-    ) -> (ClickHandler, ClickHandler, ViewHandler) {
+    ) -> (ClickHandler, ClickHandler, ViewHandler, ClickHandler) {
         let (preview_view, keys_view, mode_view) = (
             cx.entity().downgrade(),
             cx.entity().downgrade(),
@@ -81,6 +81,10 @@ impl BrowserView {
         let on_view: ViewHandler = Rc::new(move |view, _, cx| {
             let _ = mode_view.update(cx, |this, cx| this.set_view(view, cx));
         });
-        (on_preview, on_keys, on_view)
+        let settings_view = cx.entity().downgrade();
+        let on_settings: ClickHandler = Rc::new(move |window, cx| {
+            let _ = settings_view.update(cx, |this, cx| this.open_settings(window, cx));
+        });
+        (on_preview, on_keys, on_view, on_settings)
     }
 }

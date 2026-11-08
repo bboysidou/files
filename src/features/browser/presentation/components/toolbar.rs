@@ -22,6 +22,7 @@ pub struct Toolbar {
     pub view: ViewMode,
     pub on_view: ViewHandler,
     pub on_keys: ClickHandler,
+    pub on_settings: ClickHandler,
 }
 
 impl Toolbar {
@@ -89,6 +90,7 @@ impl RenderOnce for Toolbar {
                 preview_open: self.preview_open,
                 on_preview: self.on_preview,
                 on_keys: self.on_keys,
+                on_settings: self.on_settings,
             })
     }
 }

@@ -10,6 +10,7 @@ pub const QUICK_LOOK_CONTEXT: &str = "QuickLook";
 pub const MENU_CONTEXT: &str = "Menu";
 pub const KEYMAP_CONTEXT: &str = "Keymap";
 pub const CONFIRM_CONTEXT: &str = "Confirm";
+pub const SETTINGS_CONTEXT: &str = "Settings";
 const PANE_KEYS: &str = "Pane && !TextField";
 
 pub fn browser_key_bindings() -> Vec<KeyBinding> {
@@ -52,6 +53,7 @@ fn navigation_bindings() -> Vec<KeyBinding> {
         KeyBinding::new(":", EditPath, context),
         KeyBinding::new("m", OpenMenu, context),
         KeyBinding::new("?", ShowKeymap, context),
+        KeyBinding::new(",", ShowSettings, context),
     ]
 }
 
@@ -121,6 +123,7 @@ fn tab_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("ctrl-l", EditPath, browser),
         KeyBinding::new("ctrl-f", StartSearch, browser),
         KeyBinding::new("ctrl-shift-c", CopyPath, browser),
+        KeyBinding::new("ctrl-,", ShowSettings, browser),
     ]
 }
 
@@ -161,6 +164,7 @@ fn overlay_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("escape", CloseMenu, menu),
         KeyBinding::new("m", CloseMenu, menu),
         KeyBinding::new("escape", CloseKeymap, keymap),
+        KeyBinding::new("escape", CloseSettings, Some(SETTINGS_CONTEXT)),
         KeyBinding::new("enter", ConfirmAccept, Some(CONFIRM_CONTEXT)),
         KeyBinding::new("escape", ConfirmCancel, Some(CONFIRM_CONTEXT)),
     ]

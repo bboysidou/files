@@ -1,4 +1,4 @@
-pub const KEYMAP_ROWS: [(&str, &str); 28] = [
+pub const KEYMAP_ROWS: [(&str, &str); 29] = [
     ("keys.move", "j k · ↓ ↑"),
     ("keys.parent_open", "h l · ← →"),
     ("keys.open", "Enter"),
@@ -27,4 +27,5 @@ pub const KEYMAP_ROWS: [(&str, &str); 28] = [
     ("keys.history", "Alt+← / Alt+→"),
     ("keys.reload", "F5"),
     ("keys.sheet", "?"),
+    ("keys.settings", ", · Ctrl+,"),
 ];

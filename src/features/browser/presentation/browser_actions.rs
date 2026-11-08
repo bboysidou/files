@@ -4,11 +4,11 @@ use crate::core::enums::operations::clipboard_mode::ClipboardMode;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::presentation::actions::{
     ActivateTab1, ActivateTab2, ActivateTab3, ActivateTab4, ActivateTab5, ActivateTab6,
-    ActivateTab7, ActivateTab8, ActivateTab9, CloseKeymap, CloseMenu, CloseTab, ConfirmAccept,
-    ConfirmCancel, CopyPath, CopySelection, CutSelection, EditPath, EmptyTrash, MenuConfirm,
-    MenuNext, MenuPrevious, NewFolder, NewTab, NextTab, OpenTerminal, OpenWith, PasteClipboard,
-    PreviousTab, QuickLook, Redo, ShowColumns, ShowGrid, ShowKeymap, ShowList, StartSearch,
-    TogglePreview, TrashSelection, Undo,
+    ActivateTab7, ActivateTab8, ActivateTab9, CloseKeymap, CloseMenu, CloseSettings, CloseTab,
+    ConfirmAccept, ConfirmCancel, CopyPath, CopySelection, CutSelection, EditPath, EmptyTrash,
+    MenuConfirm, MenuNext, MenuPrevious, NewFolder, NewTab, NextTab, OpenTerminal, OpenWith,
+    PasteClipboard, PreviousTab, QuickLook, Redo, ShowColumns, ShowGrid, ShowKeymap, ShowList,
+    ShowSettings, StartSearch, TogglePreview, TrashSelection, Undo,
 };
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
@@ -32,6 +32,12 @@ impl BrowserView {
                 cx.listener(|this, _: &CloseKeymap, window, cx| this.close_keymap(window, cx)),
             )
             .on_action(cx.listener(|this, _: &CopyPath, _, cx| this.copy_paths(cx)))
+            .on_action(
+                cx.listener(|this, _: &ShowSettings, window, cx| this.open_settings(window, cx)),
+            )
+            .on_action(
+                cx.listener(|this, _: &CloseSettings, window, cx| this.close_settings(window, cx)),
+            )
             .on_action(cx.listener(|this, _: &OpenWith, window, cx| this.open_with(window, cx)))
             .on_action(cx.listener(|this, _: &OpenTerminal, _, cx| this.open_terminal(cx)))
             .on_action(cx.listener(|this, _: &EmptyTrash, window, cx| {

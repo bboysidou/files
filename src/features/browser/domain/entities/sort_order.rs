@@ -4,6 +4,7 @@ use crate::core::enums::browser::sort_key::SortKey;
 pub struct SortOrder {
     pub key: SortKey,
     pub ascending: bool,
+    pub hidden_last: bool,
 }
 
 impl SortOrder {
@@ -11,20 +12,16 @@ impl SortOrder {
         Self {
             key: SortKey::Name,
             ascending: true,
+            hidden_last: false,
         }
     }
 
     pub fn toggled_on(self, key: SortKey) -> Self {
-        if key == self.key {
-            Self {
-                key,
-                ascending: !self.ascending,
-            }
-        } else {
-            Self {
-                key,
-                ascending: true,
-            }
+        let ascending = key != self.key || !self.ascending;
+        Self {
+            key,
+            ascending,
+            ..self
         }
     }
 }

@@ -23,6 +23,7 @@ pub mod quick_look_header;
 pub mod quick_look_panel;
 pub mod rename_box;
 pub mod rich_text_view;
+pub mod settings_row;
 pub mod sheet;
 pub mod sheet_tab;
 pub mod status_bar;

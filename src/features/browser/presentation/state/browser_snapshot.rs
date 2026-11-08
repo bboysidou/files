@@ -7,4 +7,5 @@ pub struct BrowserSnapshot {
     pub active: usize,
     pub options: ViewOptions,
     pub preview_open: bool,
+    pub restore_tabs: bool,
 }

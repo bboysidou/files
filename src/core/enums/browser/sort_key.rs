@@ -10,6 +10,13 @@ pub enum SortKey {
 }
 
 impl SortKey {
+    pub const ALL: [SortKey; 4] = [
+        SortKey::Name,
+        SortKey::Size,
+        SortKey::Kind,
+        SortKey::Modified,
+    ];
+
     pub fn label_key(self) -> &'static str {
         match self {
             SortKey::Name => "list.column.name",
