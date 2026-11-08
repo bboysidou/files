@@ -153,6 +153,7 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 | `z` / `Ctrl+Shift+Z` | Undo / redo |
 | `Space` | Quick Look: `h` `l` / `←` `→` previous / next file, `j` `k` / `↓` `↑` scroll or turn PDF pages, `+` `−` zoom |
 | `F3` | Show or hide the preview column |
+| `Shift+J` `Shift+K` | Next / previous page of a PDF in the preview column |
 | `Ctrl+1` `Ctrl+2` `Ctrl+3` `Ctrl+4` | List, columns, grid, dual pane |
 | `Tab` / `F6` / `Shift+F6` | Dual pane: other side / copy there / move there |
 | `m` / right click | Context menu |

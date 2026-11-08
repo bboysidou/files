@@ -324,4 +324,5 @@ login.hint: "Enter connects, Tab switches field, Esc cancels. The password is no
 op.move_cancelled: "Move cancelled"
 op.copy_cancelled: "Copy cancelled"
 keys.rail_focus: "Sidebar / file list"
+keys.preview_pages: "Preview column: next / previous PDF page"
 keys.quick_look_inside: "In Quick Look: file / scroll or PDF page"

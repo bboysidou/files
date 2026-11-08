@@ -26,7 +26,7 @@ use crate::features::browser::presentation::state::confirm_state::ConfirmState;
 
 impl BrowserView {
     pub(super) fn with_actions(element: Div, cx: &mut Context<Self>) -> Div {
-        let element = Self::with_overlay_actions(element, cx);
+        let element = Self::with_pdf_page_actions(Self::with_overlay_actions(element, cx), cx);
         let element = Self::with_collision_actions(Self::with_file_actions(element, cx), cx);
         Self::with_tab_actions(Self::with_operation_actions(element, cx), cx)
     }

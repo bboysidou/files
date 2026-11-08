@@ -33,6 +33,8 @@ actions!(
         QuickLookPrevious,
         QuickLookScrollDown,
         QuickLookScrollUp,
+        PreviewPageDown,
+        PreviewPageUp,
         ZoomIn,
         ZoomOut,
         TogglePreview,

@@ -38,6 +38,8 @@ fn navigation_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("g g", SelectFirst, context),
         KeyBinding::new("home", SelectFirst, context),
         KeyBinding::new("shift-g", SelectLast, context),
+        KeyBinding::new("shift-j", PreviewPageDown, context),
+        KeyBinding::new("shift-k", PreviewPageUp, context),
         KeyBinding::new("end", SelectLast, context),
         KeyBinding::new("enter", OpenEntry, context),
         KeyBinding::new("l", OpenEntry, context),

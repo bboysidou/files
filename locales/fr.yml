@@ -324,4 +324,5 @@ login.hint: "Entrée se connecte, Tab change de champ, Échap annule. Le mot de 
 op.move_cancelled: "Déplacement annulé"
 op.copy_cancelled: "Copie annulée"
 keys.rail_focus: "Barre latérale / liste des fichiers"
+keys.preview_pages: "Colonne d’aperçu : page PDF suivante / précédente"
 keys.quick_look_inside: "Dans l’aperçu rapide : fichier / défiler ou page PDF"

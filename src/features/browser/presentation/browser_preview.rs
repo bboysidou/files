@@ -68,7 +68,7 @@ impl BrowserView {
         cx.notify();
     }
 
-    fn finish_preview(
+    pub(super) fn finish_preview(
         &mut self,
         ticket: PreviewTicket,
         content: PreviewContent,

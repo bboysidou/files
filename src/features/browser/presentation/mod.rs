@@ -17,6 +17,7 @@ pub mod browser_keymap;
 pub mod browser_menu;
 pub mod browser_network_login;
 pub mod browser_operations;
+pub mod browser_pdf_pages;
 pub mod browser_preview;
 pub mod browser_properties;
 pub mod browser_quick_look;
