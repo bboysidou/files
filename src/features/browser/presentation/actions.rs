@@ -92,6 +92,8 @@ actions!(
         MoveTabLeft,
         ShowProperties,
         CollisionMerge,
+        ExpandFolder,
+        CollapseFolder,
         CollisionSkip,
         CollisionReplace,
         CloseProperties,

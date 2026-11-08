@@ -69,6 +69,8 @@ fn selection_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("s", MeasureFolders, context),
         KeyBinding::new("shift-down", ExtendDown, context),
         KeyBinding::new("shift-up", ExtendUp, context),
+        KeyBinding::new("shift-right", ExpandFolder, context),
+        KeyBinding::new("shift-left", CollapseFolder, context),
     ]
 }
 

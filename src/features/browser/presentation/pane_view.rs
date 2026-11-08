@@ -31,6 +31,7 @@ use crate::features::browser::presentation::state::search_state::SearchState;
 use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::browser::presentation::state::thumb_state::{ThumbEntry, ThumbRequest};
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
+use crate::features::browser::presentation::state::tree_state::TreeState;
 use crate::features::places::domain::entities::crumb_trail::CrumbTrail;
 use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::global_components::handlers::{ClickHandler, IndexHandler};
@@ -69,6 +70,7 @@ pub struct PaneView {
     pub(super) grid_width: f32,
     pub(super) band: Option<BandState>,
     pub(super) sizes: FolderSizes,
+    pub(super) tree: TreeState,
     pub(super) picker: bool,
     pub(super) thumbs: HashMap<PathBuf, ThumbEntry>,
     pub(super) thumb_queue: VecDeque<ThumbRequest>,
@@ -123,6 +125,7 @@ impl PaneView {
             grid_width: 0.0,
             band: None,
             sizes: FolderSizes::default(),
+            tree: TreeState::default(),
             picker: false,
             thumbs: HashMap::new(),
             thumb_queue: VecDeque::new(),
@@ -286,7 +289,10 @@ impl Render for PaneView {
             }),
         );
         let body = self.drop_zone(self.body(cx), cx);
-        Self::with_size_actions(Self::with_tag_actions(Self::with_actions(root, cx), cx), cx)
-            .child(body)
+        Self::with_tree_actions(
+            Self::with_size_actions(Self::with_tag_actions(Self::with_actions(root, cx), cx), cx),
+            cx,
+        )
+        .child(body)
     }
 }

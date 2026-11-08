@@ -11,6 +11,7 @@ use crate::core::enums::browser::sort_key::SortKey;
 use crate::core::helpers::format::size_text::size_text;
 use crate::core::helpers::time::relative_time::relative_time;
 use crate::core::theme::colors::{ACCENT, FG_SOFT, ROW_HOVER, SELECTION_ALPHA, TRANSPARENT};
+use crate::core::theme::metrics::TREE_INDENT;
 use crate::core::theme::metrics::{
     LIST_CELL_PAD_X, LIST_ROW_HEIGHT, LIST_ROW_RADIUS, LIST_ROW_SPACING, TEXT_SMALL,
 };
@@ -23,6 +24,7 @@ use crate::global_components::text_field::text_field_view::TextField;
 #[derive(IntoElement)]
 pub struct FileRow {
     pub index: usize,
+    pub depth: usize,
     pub drag: DragSlot,
     pub entry: FileEntry,
     pub marked: bool,
@@ -57,6 +59,23 @@ impl FileRow {
         }
     }
 
+    fn cells(&self) -> Vec<gpui::Div> {
+        self.columns
+            .iter()
+            .map(|(key, width)| {
+                let cell = Self::cell(
+                    f32::from(*width),
+                    Self::column_text(*key, &self.entry, self.now),
+                );
+                if *key == SortKey::Size {
+                    cell.flex().justify_end()
+                } else {
+                    cell
+                }
+            })
+            .collect()
+    }
+
     fn cell(width: f32, text: impl Into<SharedString>) -> gpui::Div {
         div()
             .min_w_0()
@@ -71,22 +90,8 @@ impl FileRow {
 
 impl RenderOnce for FileRow {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
+        let cells = self.cells();
         let (index, on_click, on_right) = (self.index, self.on_click, self.on_right);
-        let cells: Vec<gpui::Div> = self
-            .columns
-            .iter()
-            .map(|(key, width)| {
-                let cell = Self::cell(
-                    f32::from(*width),
-                    Self::column_text(*key, &self.entry, self.now),
-                );
-                if *key == SortKey::Size {
-                    cell.flex().justify_end()
-                } else {
-                    cell
-                }
-            })
-            .collect();
         let row = div()
             .id(("row", index))
             .flex()
@@ -113,12 +118,19 @@ impl RenderOnce for FileRow {
             row.hover(|style| style.bg(rgb(ROW_HOVER)))
         };
         div().py(px(LIST_ROW_SPACING)).child(
-            row.child(NameCell {
-                entry: self.entry,
-                cut: self.cut,
-                rename: self.rename,
-                context: self.context,
-            })
+            row.child(
+                div()
+                    .flex()
+                    .flex_1()
+                    .min_w_0()
+                    .pl(px(TREE_INDENT * self.depth as f32))
+                    .child(NameCell {
+                        entry: self.entry,
+                        cut: self.cut,
+                        rename: self.rename,
+                        context: self.context,
+                    }),
+            )
             .when(!self.name_only, |row| row.children(cells)),
         )
     }

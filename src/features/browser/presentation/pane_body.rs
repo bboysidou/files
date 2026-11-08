@@ -120,6 +120,7 @@ impl PaneView {
                 let entry = self.entries.get(index)?;
                 Some(FileRow {
                     index,
+                    depth: self.tree.depth(index),
                     drag: self.drag_slot(&kit, index, entry),
                     entry: entry.clone(),
                     marked: self.selection.is_marked(index),

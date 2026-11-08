@@ -45,6 +45,7 @@ pub mod pane_selection;
 pub mod pane_sizes;
 pub mod pane_tags;
 pub mod pane_thumbnails;
+pub mod pane_tree;
 pub mod pane_view;
 pub mod pane_watch;
 pub mod preview_render;

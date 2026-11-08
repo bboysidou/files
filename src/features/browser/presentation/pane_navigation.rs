@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use gpui::Context;
 
+use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::domain::entities::list_error::ListError;
 use crate::features::browser::domain::entities::navigation_history::HistoryStop;
@@ -43,6 +44,7 @@ impl PaneView {
         self.reset_filter(cx);
         self.selection = Selection::default();
         self.entries.clear();
+        self.tree = Default::default();
         if let PlaceTarget::Directory(folder) = &self.location {
             cx.emit(PaneEvent::Navigated(folder.clone()));
         }
@@ -115,6 +117,11 @@ impl PaneView {
                 &self.filter,
             ),
         };
+        self.tree.depths.clear();
+        if self.view == ViewMode::List && self.search.is_none() && !self.tree.expanded.is_empty() {
+            let top = std::mem::take(&mut self.entries);
+            self.entries = self.flatten_tree(top);
+        }
         let cursor = focus
             .and_then(|focus| self.entries.iter().position(|entry| entry.path == focus))
             .unwrap_or_else(|| previous_cursor.min(self.entries.len().saturating_sub(1)));
