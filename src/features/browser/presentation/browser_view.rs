@@ -73,7 +73,7 @@ impl BrowserView {
         let mut view = Self {
             setup: Rc::new(setup),
             tabs: Vec::new(),
-            dual: DualPane::default(),
+            dual: DualPane::restored(restore.dual_split),
             active: 0,
             options: restore.options,
             clipboard: None,

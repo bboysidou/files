@@ -213,3 +213,6 @@ pub const QUICK_LOOK_SCROLL_STEP: f32 = 96.0;
 pub const BAND_SCROLL_EDGE: f32 = 40.0;
 pub const BAND_SCROLL_GAIN: f32 = 0.5;
 pub const BAND_SCROLL_MAX_STEP: f32 = 24.0;
+pub const DUAL_SPLIT_DEFAULT: f32 = 0.5;
+pub const DUAL_SPLIT_MIN: f32 = 0.2;
+pub const DUAL_SPLIT_MAX: f32 = 0.8;

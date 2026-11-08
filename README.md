@@ -64,7 +64,8 @@ Early development. Working today:
 - Overview page (sidebar): disk usage per device, your home folder by file type, and recent files
   from `recently-used.xbel` (click one to open its folder with the file selected)
 - Dual pane (`Ctrl+4`): two folders side by side, `Tab` moves between them, `F6` copies the
-  selection to the other side and `Shift+F6` moves it
+  selection to the other side and `Shift+F6` moves it; drag the gap between them to resize
+  (20–80 %, double-click resets, remembered across launches)
 - Grid view with image thumbnails (`Ctrl+3`, back to the list with `Ctrl+1`), cached in the shared
   freedesktop thumbnail cache (`~/.cache/thumbnails`) that other file managers also use
 - Rubber-band selection in the list and grid: drag from empty space; `Ctrl` or `Shift` adds to the

@@ -22,6 +22,7 @@ impl ShellView {
             active: settings.active_tab.min(tabs.len().saturating_sub(1)),
             tabs,
             preview_open: settings.preview_open,
+            dual_split: settings.dual_split,
             restore_tabs: settings.restore_tabs,
             folder_views: settings.folder_views.clone(),
             options: ViewOptions {
@@ -51,6 +52,7 @@ impl ShellView {
             columns: snapshot.options.columns,
             sidebar_open: self.rail.open,
             preview_open: snapshot.preview_open,
+            dual_split: snapshot.dual_split,
             active_tab: snapshot.active,
             tabs: snapshot.tabs.iter().map(saved_tab).collect(),
         }

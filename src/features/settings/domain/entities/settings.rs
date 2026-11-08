@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
+use crate::core::constants::settings::DUAL_SPLIT_DEFAULT_PERMILLE;
 use crate::core::enums::browser::sort_key::SortKey;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::folder_views::FolderViews;
@@ -46,6 +47,7 @@ pub struct Settings {
     pub folder_views: FolderViews,
     pub sidebar_open: bool,
     pub preview_open: bool,
+    pub dual_split: u16,
     pub active_tab: usize,
     pub tabs: Vec<SavedTabState>,
 }
@@ -63,6 +65,7 @@ impl Default for Settings {
             folder_views: FolderViews::default(),
             sidebar_open: true,
             preview_open: true,
+            dual_split: DUAL_SPLIT_DEFAULT_PERMILLE,
             active_tab: 0,
             tabs: Vec::new(),
         }

@@ -7,7 +7,7 @@ use crate::core::enums::operations::clipboard_mode::ClipboardMode;
 use crate::core::enums::operations::collision_policy::CollisionPolicy;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::core::theme::colors::{ACCENT, LINE};
-use crate::core::theme::metrics::{DUAL_GAP, DUAL_PANE_PAD, DUAL_PANE_RADIUS};
+use crate::core::theme::metrics::{DUAL_PANE_PAD, DUAL_PANE_RADIUS};
 use crate::features::browser::presentation::actions::{
     CopyToOtherPane, MoveToOtherPane, ShowDual, SwitchPane,
 };
@@ -17,7 +17,7 @@ use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::operations::domain::entities::transfer_request::TransferRequest;
 
 impl BrowserView {
-    fn dual_frame(pane: Entity<PaneView>, focused: bool) -> Div {
+    pub(super) fn dual_frame(pane: Entity<PaneView>, focused: bool) -> Div {
         div()
             .flex()
             .flex_col()
@@ -60,13 +60,8 @@ impl BrowserView {
         } else if main.focus_handle(cx).contains_focused(window, cx) {
             self.dual.focused = false;
         }
-        div()
-            .size_full()
-            .flex()
-            .gap(px(DUAL_GAP))
-            .child(Self::dual_frame(main, !self.dual.focused))
-            .child(Self::dual_frame(partner, self.dual.focused))
-            .into_any_element()
+        let focused = self.dual.focused;
+        self.dual_split([(main, !focused), (partner, focused)], cx)
     }
 
     fn other_pane(&self) -> Option<Entity<PaneView>> {

@@ -7,6 +7,7 @@ pub mod bulk_rename_state;
 pub mod column_drag;
 pub mod column_state;
 pub mod confirm_state;
+pub mod divider_drag;
 pub mod drop_request;
 pub mod dual_pane;
 pub mod filter_model;

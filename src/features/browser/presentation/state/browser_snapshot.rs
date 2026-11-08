@@ -8,6 +8,7 @@ pub struct BrowserSnapshot {
     pub active: usize,
     pub options: ViewOptions,
     pub preview_open: bool,
+    pub dual_split: u16,
     pub restore_tabs: bool,
     pub folder_views: FolderViews,
 }

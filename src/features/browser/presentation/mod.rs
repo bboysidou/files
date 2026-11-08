@@ -10,6 +10,7 @@ pub mod browser_create;
 pub mod browser_dismiss;
 pub mod browser_drop;
 pub mod browser_dual;
+pub mod browser_dual_split;
 pub mod browser_extract;
 pub mod browser_folder_views;
 pub mod browser_jobs;

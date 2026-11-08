@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use gpui::{App, Context, Focusable, Window};
 
+use crate::core::constants::settings::PERMILLE;
 use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
 
 use crate::features::browser::presentation::browser_view::BrowserView;
@@ -51,6 +52,7 @@ impl BrowserView {
             active: self.active,
             options: self.options,
             preview_open: self.column.open,
+            dual_split: (self.dual.split * PERMILLE).round() as u16,
             restore_tabs: self.settings.restore_tabs,
             folder_views: self.settings.folder_views.clone(),
         }
