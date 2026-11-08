@@ -95,7 +95,7 @@ impl Rail {
                     id: DEVICE_ID,
                     icon: Icon::Usb,
                     label: device.label.clone(),
-                    mounted: device.mounted,
+                    trailing: device.mounted.then_some(Icon::Eject),
                     active: device.active,
                     cursor: self.cursor == Some(RailStop::Device(index)),
                     motion: self.motion,
@@ -119,7 +119,7 @@ impl Rail {
                 id: NETWORK_ID,
                 icon: Icon::Network,
                 label: mount.label.clone(),
-                mounted: mount.mounted,
+                trailing: trailing_icon(mount),
                 active: mount.active,
                 cursor: self.cursor == Some(RailStop::Network(index)),
                 motion: self.motion,
@@ -213,6 +213,13 @@ impl RenderOnce for Rail {
         })
         .into_any_element()
     }
+}
+
+fn trailing_icon(item: &DeviceItem) -> Option<Icon> {
+    if item.mounted {
+        return Some(Icon::Eject);
+    }
+    item.saved.then_some(Icon::Close)
 }
 
 fn place_drop(on_drop: IndexPathsHandler, index: usize) -> PathsHandler {

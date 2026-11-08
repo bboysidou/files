@@ -22,7 +22,7 @@ pub struct RailDeviceItem {
     pub id: &'static str,
     pub icon: Icon,
     pub label: SharedString,
-    pub mounted: bool,
+    pub trailing: Option<Icon>,
     pub active: bool,
     pub cursor: bool,
     pub motion: RailMotion,
@@ -62,9 +62,9 @@ impl RenderOnce for RailDeviceItem {
             .h(px(NAV_HEIGHT))
             .child(glyph)
             .child(RailLabel::new("device-label", self.label, self.motion))
-            .when(self.mounted, |item| {
+            .when_some(self.trailing, |item, icon| {
                 item.child(
-                    IconButton::new(("eject", index), Icon::Eject)
+                    IconButton::new(("trailing", index), icon)
                         .radius(CONTROL_RADIUS)
                         .on_click(self.on_eject),
                 )

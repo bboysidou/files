@@ -90,6 +90,7 @@ actions!(
         PasteLink,
         BulkNextField,
         LoginNextField,
+        ConnectServer,
         CompressZip,
         CompressTarGz,
         BrowseArchive,

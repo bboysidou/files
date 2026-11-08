@@ -9,6 +9,7 @@ actions!(
         RailPrevious,
         RailOpen,
         RailLeave,
+        RailEject,
         NewWindow,
         DetachTab
     ]

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use gpui::Task;
+use gpui::{Subscription, Task};
 
 use crate::features::network::domain::entities::network_mount::NetworkMount;
 use crate::features::network::domain::repositories::network_mounter::NetworkMounter;
@@ -11,4 +11,21 @@ pub struct NetworkRail {
     pub mounter: Arc<dyn NetworkMounter>,
     pub seen: Option<PlaceTarget>,
     pub task: Option<Task<()>>,
+    pub unmount_task: Option<Task<()>>,
+    pub saved: Vec<String>,
+    pub events: Option<Subscription>,
+}
+
+impl NetworkRail {
+    pub fn new(mounter: Arc<dyn NetworkMounter>) -> Self {
+        Self {
+            mounts: Vec::new(),
+            mounter,
+            seen: None,
+            task: None,
+            unmount_task: None,
+            saved: Vec::new(),
+            events: None,
+        }
+    }
 }

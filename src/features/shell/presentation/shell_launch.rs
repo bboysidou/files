@@ -23,6 +23,7 @@ impl ShellView {
         cx: &mut Context<Self>,
     ) {
         self.refresh_devices(cx);
+        self.watch_servers(cx);
         self.watch_devices(cx);
         if self.role == WindowRole::Primary {
             cx.background_executor()

@@ -24,7 +24,9 @@ Early development. Working today:
   `ftp://`, `dav://` or `user@host:/path`), mounted with `gio mount` (gvfs; each protocol needs its
   gvfs backend). A server that asks for a login opens a user/password dialog (plus domain for
   `smb://`); the password is passed to gio once and never saved. Mounted shares are listed under
-  Network in the sidebar, with a button to disconnect
+  Network in the sidebar, with a button to disconnect. A server you connect to is remembered
+  there (in `settings.toml`, never its password): click it (or `Ctrl+0`, then `Enter`) to connect
+  again, `×` or `x` forgets it. `Ctrl+K` opens the path bar with `sftp://` ready to type a server
 - Context menu on right click or `m`, and a searchable keymap sheet (`?`)
 - Seven colour tags stored in the `user.xdg.tags` attribute (the one Dolphin reads); `tag:red` in
   search, or a click on a sidebar dot, lists every tagged file under Home
@@ -167,12 +169,13 @@ the active preset.
 | `z` / `Ctrl+Shift+Z` | Undo / redo |
 | `Space` | Quick Look: `h` `l` / `←` `→` previous / next file, `j` `k` / `↓` `↑` scroll or turn PDF pages, `+` `−` zoom |
 | `Ctrl+N` / `Ctrl+Alt+N` | New window on the current folder / move the current tab to a new window |
+| `Ctrl+K` | Connect to a server (path bar prefilled with `sftp://`) |
 | `F3` | Show or hide the preview column |
 | `Shift+J` `Shift+K` | Next / previous page of a PDF in the preview column |
 | `Ctrl+1` `Ctrl+2` `Ctrl+3` `Ctrl+4` | List, columns, grid, dual pane |
 | `Tab` / `F6` / `Shift+F6` | Dual pane: other side / copy there / move there |
 | `m` / right click | Context menu |
-| `Ctrl+0` | Move between the sidebar and the file list; in the sidebar `j` `k` move, `Enter` opens a place or drive, or searches a tag, `Esc` goes back |
+| `Ctrl+0` | Move between the sidebar and the file list; in the sidebar `j` `k` move, `Enter` opens a place, drive or server, or searches a tag, `x` ejects a drive, disconnects or forgets a server, `Esc` goes back |
 | `,` / `Ctrl+,` | Settings |
 | `Ctrl+Shift+C` | Copy path |
 | `?` | Keyboard shortcuts |

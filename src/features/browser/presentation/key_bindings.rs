@@ -102,6 +102,7 @@ fn tab_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("f6", CopyToOtherPane, pane),
         KeyBinding::new("shift-f6", MoveToOtherPane, pane),
         KeyBinding::new("ctrl-l", EditPath, browser),
+        KeyBinding::new("ctrl-k", ConnectServer, browser),
         KeyBinding::new("ctrl-f", StartSearch, browser),
         KeyBinding::new("ctrl-shift-c", CopyPath, browser),
         KeyBinding::new("ctrl-,", ShowSettings, browser),

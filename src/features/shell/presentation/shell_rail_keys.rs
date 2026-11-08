@@ -3,7 +3,7 @@ use gpui::{Context, Div, Focusable, InteractiveElement, Window};
 use crate::core::enums::tags::tag_color::TagColor;
 use crate::features::places::domain::entities::place::PlaceSection;
 use crate::features::shell::presentation::actions::{
-    FocusRail, RailLeave, RailNext, RailOpen, RailPrevious,
+    FocusRail, RailEject, RailLeave, RailNext, RailOpen, RailPrevious,
 };
 use crate::features::shell::presentation::shell_view::ShellView;
 use crate::features::shell::presentation::state::rail_stop::RailStop;
@@ -20,6 +20,7 @@ impl ShellView {
                 cx.listener(|this, _: &RailOpen, window, cx| this.open_rail_stop(window, cx)),
             )
             .on_action(cx.listener(|this, _: &RailLeave, window, cx| this.leave_rail(window, cx)))
+            .on_action(cx.listener(|this, _: &RailEject, _, cx| this.eject_rail_stop(cx)))
     }
 
     fn rail_order(&self) -> Vec<RailStop> {
@@ -34,7 +35,7 @@ impl ShellView {
             );
             if section == PlaceSection::Devices {
                 order.extend((0..self.devices.len()).map(RailStop::Device));
-                order.extend((0..self.network.mounts.len()).map(RailStop::Network));
+                order.extend((0..self.network_entries().len()).map(RailStop::Network));
             }
         }
         order.extend((0..TagColor::ALL.len()).map(RailStop::Tag));
@@ -108,6 +109,14 @@ impl ShellView {
             }
         }
         self.leave_rail(window, cx);
+    }
+
+    fn eject_rail_stop(&mut self, cx: &mut Context<Self>) {
+        match self.rail_keys.cursor {
+            RailStop::Device(index) => self.eject_device(index, cx),
+            RailStop::Network(index) => self.network_trailing(index, cx),
+            RailStop::Place(_) | RailStop::Tag(_) => {}
+        }
     }
 
     fn leave_rail(&mut self, window: &mut Window, cx: &mut Context<Self>) {

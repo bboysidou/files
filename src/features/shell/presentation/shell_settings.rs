@@ -68,6 +68,7 @@ impl ShellView {
             restore_tabs: snapshot.restore_tabs,
             key_preset: snapshot.key_preset,
             folder_views: snapshot.folder_views.clone(),
+            servers: self.network.saved.clone(),
             view_mode: snapshot.options.view,
             columns: snapshot.options.columns,
             sidebar_open: self.rail.open,

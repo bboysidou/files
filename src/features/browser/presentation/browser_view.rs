@@ -11,6 +11,7 @@ use crate::features::browser::domain::entities::view_options::ViewOptions;
 use crate::features::browser::presentation::components::sheet::Sheet;
 use crate::features::browser::presentation::key_bindings::BROWSER_CONTEXT;
 use crate::features::browser::presentation::pane_view::PaneView;
+use crate::features::browser::presentation::state::browser_event::BrowserEvent;
 use crate::features::browser::presentation::state::browser_parts::{
     ColumnSlot, Jobs, QuickLookSlot, Toasts,
 };
@@ -185,6 +186,7 @@ impl BrowserView {
                 PaneEvent::BulkRenameRequested(paths) => {
                     this.open_bulk_rename(paths.clone(), window, cx)
                 }
+                PaneEvent::Connected(uri) => cx.emit(BrowserEvent::ServerConnected(uri.clone())),
                 PaneEvent::Picked(_) | PaneEvent::PickCancelled => {}
             },
         );
@@ -265,3 +267,5 @@ impl Focusable for BrowserView {
         self.active_pane().focus_handle(cx)
     }
 }
+
+impl gpui::EventEmitter<BrowserEvent> for BrowserView {}

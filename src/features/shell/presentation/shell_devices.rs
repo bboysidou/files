@@ -17,7 +17,7 @@ use crate::global_components::handlers::IndexHandler;
 impl ShellView {
     pub(super) fn refresh_devices(&mut self, cx: &mut Context<Self>) {
         let repository = self.device_repository.clone();
-        self.device_task = Some(cx.spawn(async move |this, cx| {
+        self.device_list_task = Some(cx.spawn(async move |this, cx| {
             let devices = cx
                 .background_executor()
                 .spawn(async move { repository.list() })
@@ -57,6 +57,7 @@ impl ShellView {
             .map(|device| DeviceItem {
                 label: SharedString::from(device.label.clone()),
                 mounted: device.mount.is_some(),
+                saved: false,
                 active: device
                     .mount
                     .as_ref()
@@ -102,7 +103,7 @@ impl ShellView {
         }));
     }
 
-    fn eject_device(&mut self, index: usize, cx: &mut Context<Self>) {
+    pub(super) fn eject_device(&mut self, index: usize, cx: &mut Context<Self>) {
         let Some(device) = self.devices.get(index).cloned() else {
             return;
         };

@@ -5,6 +5,7 @@ use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::network::domain::entities::network_credentials::NetworkCredentials;
 use crate::features::network::domain::entities::network_mount_error::NetworkMountError;
+use crate::features::network::domain::usecases::uri_with_user::uri_with_user;
 use crate::features::places::domain::entities::place::PlaceTarget;
 
 impl PaneView {
@@ -18,6 +19,10 @@ impl PaneView {
             t!("network.connecting", uri = uri).to_string(),
         ));
         let mounter = self.setup.network.clone();
+        let saved = uri_with_user(
+            &uri,
+            credentials.as_ref().map_or("", |given| given.user.as_str()),
+        );
         cx.spawn(async move |this, cx| {
             let target = uri.clone();
             let mounted = cx
@@ -25,7 +30,10 @@ impl PaneView {
                 .spawn(async move { mounter.mount(&target, credentials.as_ref()) })
                 .await;
             let _ = this.update(cx, |this, cx| match mounted {
-                Ok(path) => this.navigate(PlaceTarget::Directory(path), cx),
+                Ok(path) => {
+                    cx.emit(PaneEvent::Connected(saved));
+                    this.navigate(PlaceTarget::Directory(path), cx)
+                }
                 Err(NetworkMountError::NeedsCredentials) => {
                     cx.emit(PaneEvent::CredentialsRequested {
                         uri,

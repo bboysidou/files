@@ -19,4 +19,5 @@ pub enum PaneEvent {
     BulkRenameRequested(Vec<PathBuf>),
     Navigated(PathBuf),
     CredentialsRequested { uri: String, rejected: bool },
+    Connected(String),
 }

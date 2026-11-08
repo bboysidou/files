@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use std::rc::Rc;
 
 use gpui::{Context, SharedString};
@@ -35,52 +36,64 @@ impl ShellView {
     }
 
     pub(super) fn network_items(&self, location: &PlaceTarget) -> Vec<DeviceItem> {
-        self.network
-            .mounts
-            .iter()
-            .map(|mount| DeviceItem {
-                label: SharedString::from(mount.label.clone()),
-                mounted: true,
-                active: matches!(location, PlaceTarget::Directory(path) if path.starts_with(&mount.path)),
+        self.network_entries()
+            .into_iter()
+            .map(|entry| DeviceItem {
+                active: matches!((location, &entry.mount), (PlaceTarget::Directory(path), Some(mount)) if path.starts_with(mount)),
+                label: SharedString::from(entry.label),
+                mounted: entry.mount.is_some(),
+                saved: entry.uri.is_some(),
             })
             .collect()
     }
 
     pub(super) fn open_network(&mut self, index: usize, cx: &mut Context<Self>) {
-        let Some(mount) = self.network.mounts.get(index) else {
+        let Some(entry) = self.network_entries().into_iter().nth(index) else {
             return;
         };
-        let target = PlaceTarget::Directory(mount.path.clone());
-        self.browser
-            .update(cx, |browser, cx| browser.navigate(target, cx));
+        match (entry.mount, entry.uri) {
+            (Some(mount), _) => {
+                let target = PlaceTarget::Directory(mount);
+                self.browser
+                    .update(cx, |browser, cx| browser.navigate(target, cx));
+            }
+            (None, Some(uri)) => self
+                .browser
+                .update(cx, |browser, cx| browser.connect_server(uri, cx)),
+            (None, None) => {}
+        }
     }
 
-    fn unmount_network(&mut self, index: usize, cx: &mut Context<Self>) {
-        let Some(mount) = self.network.mounts.get(index).cloned() else {
+    pub(super) fn network_trailing(&mut self, index: usize, cx: &mut Context<Self>) {
+        let Some(entry) = self.network_entries().into_iter().nth(index) else {
             return;
         };
-        let inside = matches!(self.browser.read(cx).location(cx), PlaceTarget::Directory(path) if path.starts_with(&mount.path));
+        match (entry.mount, entry.uri) {
+            (Some(mount), _) => self.unmount_network(entry.label, mount, cx),
+            (None, Some(uri)) => self.forget_server(&uri, cx),
+            (None, None) => {}
+        }
+    }
+
+    fn unmount_network(&mut self, label: String, mount: PathBuf, cx: &mut Context<Self>) {
+        let inside = matches!(self.browser.read(cx).location(cx), PlaceTarget::Directory(path) if path.starts_with(&mount));
         if inside {
             let home = self.home_target.clone();
             self.browser
                 .update(cx, |browser, cx| browser.navigate(home, cx));
         }
         let mounter = self.network.mounter.clone();
-        self.network.task = Some(cx.spawn(async move |this, cx| {
-            let path = mount.path.clone();
+        self.network.unmount_task = Some(cx.spawn(async move |this, cx| {
             let unmounted = cx
                 .background_executor()
-                .spawn(async move { mounter.unmount(&path) })
+                .spawn(async move { mounter.unmount(&mount) })
                 .await;
             let _ = this.update(cx, |this, cx| {
                 let message = match unmounted {
-                    Ok(()) => t!("network.unmounted", label = mount.label).to_string(),
-                    Err(reason) => t!(
-                        "network.unmount_failed",
-                        label = mount.label,
-                        reason = reason
-                    )
-                    .to_string(),
+                    Ok(()) => t!("network.unmounted", label = label).to_string(),
+                    Err(reason) => {
+                        t!("network.unmount_failed", label = label, reason = reason).to_string()
+                    }
                 };
                 this.report(message, cx);
                 this.refresh_network(cx);
@@ -89,14 +102,14 @@ impl ShellView {
     }
 
     pub(super) fn network_handlers(cx: &mut Context<Self>) -> (IndexHandler, IndexHandler) {
-        let (open_view, unmount_view) = (cx.entity().downgrade(), cx.entity().downgrade());
+        let (open_view, trailing_view) = (cx.entity().downgrade(), cx.entity().downgrade());
         let on_open: IndexHandler = Rc::new(move |index, _, cx| {
             let _ = open_view.update(cx, |this, cx| this.open_network(index, cx));
         });
-        let on_unmount: IndexHandler = Rc::new(move |index, _, cx| {
+        let on_trailing: IndexHandler = Rc::new(move |index, _, cx| {
             cx.stop_propagation();
-            let _ = unmount_view.update(cx, |this, cx| this.unmount_network(index, cx));
+            let _ = trailing_view.update(cx, |this, cx| this.network_trailing(index, cx));
         });
-        (on_open, on_unmount)
+        (on_open, on_trailing)
     }
 }
