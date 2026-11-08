@@ -1,4 +1,5 @@
 pub mod file_entry;
+pub mod folder_views;
 pub mod list_columns;
 pub mod list_error;
 pub mod navigation_history;

@@ -31,7 +31,6 @@ use crate::features::browser::presentation::state::toast_model::ToastModel;
 use crate::features::operations::domain::entities::clipboard::Clipboard;
 use crate::features::operations::domain::entities::file_operation::FileOperation;
 use crate::features::operations::domain::entities::operation_history::OperationHistory;
-use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::global_components::text_field::text_field_view::TextField;
 
 pub struct BrowserView {
@@ -114,7 +113,7 @@ impl BrowserView {
             bulk: None,
             archive_task: None,
             properties: None,
-            settings: SettingsSheet::closed(cx.focus_handle(), restore.restore_tabs),
+            settings: SettingsSheet::closed(cx.focus_handle(), &restore),
             keymap_open: false,
             keymap_focus: cx.focus_handle(),
             keymap_field,
@@ -152,6 +151,7 @@ impl BrowserView {
     }
 
     pub(super) fn set_view(&mut self, view: ViewMode, cx: &mut Context<Self>) {
+        self.remember_view(view, cx);
         if view != self.options.view {
             self.apply_view_options(
                 ViewOptions {
@@ -170,20 +170,6 @@ impl BrowserView {
                 .update(cx, |pane, cx| pane.set_view_options(options, cx));
         }
         cx.notify();
-    }
-
-    pub fn notify_message(&mut self, message: String, cx: &mut Context<Self>) {
-        self.show_toast(message, false, cx);
-    }
-
-    pub fn location(&self, cx: &App) -> PlaceTarget {
-        self.active_pane().read(cx).location().clone()
-    }
-
-    pub fn navigate(&mut self, target: PlaceTarget, cx: &mut Context<Self>) {
-        self.active_pane()
-            .clone()
-            .update(cx, |pane, cx| pane.navigate(target, cx));
     }
 
     pub(super) fn open_pane(
@@ -215,6 +201,7 @@ impl BrowserView {
                         this.restore_from_trash(entries.clone(), cx)
                     }
                     PaneEvent::DropRequested(request) => this.drop_files(request.clone(), cx),
+                    PaneEvent::Navigated(folder) => this.recall_folder_view(folder, cx),
                     PaneEvent::BulkRenameRequested(paths) => {
                         this.open_bulk_rename(paths.clone(), window, cx)
                     }

@@ -28,6 +28,7 @@ Early development. Working today:
 - Trash view: Enter restores, Delete deletes permanently after a confirmation, Empty Trash in the menu
 - Settings panel (sliders button, `,` or `Ctrl+,`): hidden files and whether they sort last, sort
   key and direction, view, preview column, and whether to reopen the last session or start in Home
+- Optional per-folder view memory (settings): a folder opens in the view last chosen there
 - Remembers hidden files, sort order, the sidebar, the preview column, the view mode and your open tabs
 - Rename several items at once (`r` with a selection): find and replace, or a new name with `{n}`
   numbering, live preview with clashes in red, one undo for the whole batch

@@ -9,6 +9,20 @@ use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::places::domain::entities::place::PlaceTarget;
 
 impl BrowserView {
+    pub fn notify_message(&mut self, message: String, cx: &mut Context<Self>) {
+        self.show_toast(message, false, cx);
+    }
+
+    pub fn location(&self, cx: &App) -> PlaceTarget {
+        self.active_pane().read(cx).location().clone()
+    }
+
+    pub fn navigate(&mut self, target: PlaceTarget, cx: &mut Context<Self>) {
+        self.active_pane()
+            .clone()
+            .update(cx, |pane, cx| pane.navigate(target, cx));
+    }
+
     pub(super) fn restore_tabs(
         &mut self,
         (tabs, active): (Vec<TabSnapshot>, usize),
@@ -38,6 +52,7 @@ impl BrowserView {
             options: self.options,
             preview_open: self.column_open,
             restore_tabs: self.settings.restore_tabs,
+            folder_views: self.settings.folder_views.clone(),
         }
     }
 

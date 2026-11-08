@@ -17,4 +17,5 @@ pub enum PaneEvent {
     PickCancelled,
     DropRequested(DropRequest),
     BulkRenameRequested(Vec<PathBuf>),
+    Navigated(PathBuf),
 }

@@ -43,6 +43,9 @@ impl PaneView {
         self.reset_filter(cx);
         self.selection = Selection::default();
         self.entries.clear();
+        if let PlaceTarget::Directory(folder) = &self.location {
+            cx.emit(PaneEvent::Navigated(folder.clone()));
+        }
         self.load(cx);
     }
 

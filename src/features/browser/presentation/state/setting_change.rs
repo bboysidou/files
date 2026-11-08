@@ -11,4 +11,5 @@ pub enum SettingChange {
     PreviewColumn,
     RestoreTabs(bool),
     Column(SortKey, bool),
+    FolderViews(bool),
 }

@@ -23,6 +23,7 @@ impl ShellView {
             tabs,
             preview_open: settings.preview_open,
             restore_tabs: settings.restore_tabs,
+            folder_views: settings.folder_views.clone(),
             options: ViewOptions {
                 show_hidden: settings.show_hidden,
                 sort: SortOrder {
@@ -44,6 +45,7 @@ impl ShellView {
             sort_ascending: snapshot.options.sort.ascending,
             hidden_last: snapshot.options.sort.hidden_last,
             restore_tabs: snapshot.restore_tabs,
+            folder_views: snapshot.folder_views.clone(),
             view_mode: snapshot.options.view,
             columns: snapshot.options.columns,
             sidebar_open: self.rail.open,

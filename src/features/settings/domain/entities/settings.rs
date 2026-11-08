@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::core::enums::browser::sort_key::SortKey;
 use crate::core::enums::view::view_mode::ViewMode;
+use crate::features::browser::domain::entities::folder_views::FolderViews;
 use crate::features::browser::domain::entities::list_columns::ListColumns;
 
 #[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
@@ -42,6 +43,7 @@ pub struct Settings {
     pub restore_tabs: bool,
     pub view_mode: ViewMode,
     pub columns: ListColumns,
+    pub folder_views: FolderViews,
     pub sidebar_open: bool,
     pub preview_open: bool,
     pub active_tab: usize,
@@ -58,6 +60,7 @@ impl Default for Settings {
             restore_tabs: true,
             view_mode: ViewMode::List,
             columns: ListColumns::default(),
+            folder_views: FolderViews::default(),
             sidebar_open: true,
             preview_open: true,
             active_tab: 0,
