@@ -9,8 +9,9 @@ use crate::core::constants::preview::{
 use crate::core::helpers::files::tree_size::tree_size;
 use crate::core::helpers::process::sandbox_access::SandboxAccess;
 use crate::core::helpers::process::sandboxed_command::sandboxed_command;
-use crate::features::archives::data::datasources::bsdtar_runner::{listed_total, run_verbose};
+use crate::features::archives::data::datasources::bsdtar_runner::{file_size, run_verbose};
 use crate::features::archives::domain::entities::archive_error::ArchiveError;
+use crate::features::archives::domain::entities::archive_watch::ArchiveWatch;
 use crate::features::archives::domain::repositories::archive_tool::ArchiveTool;
 use crate::features::operations::domain::repositories::progress_sink::ProgressSink;
 use crate::features::operations::domain::usecases::unique_target::unique_target;
@@ -47,7 +48,20 @@ impl ArchiveTool for BsdtarArchiveTool {
             .arg(ARCHIVE_DESTINATION_FLAG)
             .arg(parent)
             .args(names);
-        let outcome = run_verbose(command, parent, sink);
+        let outcome = run_verbose(
+            command,
+            ArchiveWatch::Writing {
+                root: parent.to_path_buf(),
+                sources: sources
+                    .iter()
+                    .filter_map(|source| fs::canonicalize(source).ok())
+                    .collect(),
+                archive: fs::canonicalize(parent)
+                    .unwrap_or_else(|_| parent.to_path_buf())
+                    .join(archive.file_name().unwrap_or_default()),
+            },
+            sink,
+        );
         if outcome.is_err() {
             let _ = fs::remove_file(archive);
         }
@@ -60,7 +74,7 @@ impl ArchiveTool for BsdtarArchiveTool {
         destination: &Path,
         sink: &dyn ProgressSink,
     ) -> Result<(), ArchiveError> {
-        sink.begin(listed_total(archive));
+        sink.begin(file_size(archive));
         fs::create_dir(destination).map_err(|error| ArchiveError::Failed(error.to_string()))?;
         let access = SandboxAccess {
             read: vec![archive.to_path_buf()],
@@ -72,7 +86,13 @@ impl ArchiveTool for BsdtarArchiveTool {
             .arg(archive)
             .arg(ARCHIVE_DESTINATION_FLAG)
             .arg(destination);
-        match run_verbose(command, destination, sink) {
+        match run_verbose(
+            command,
+            ArchiveWatch::Reading(
+                fs::canonicalize(archive).unwrap_or_else(|_| archive.to_path_buf()),
+            ),
+            sink,
+        ) {
             Ok(()) => flatten_single_folder(destination)
                 .map_err(|error| ArchiveError::Failed(error.to_string())),
             Err(error) => {
