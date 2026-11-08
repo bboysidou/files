@@ -12,6 +12,7 @@ pub mod miller_column;
 pub mod name_cell;
 pub mod nav_buttons;
 pub mod path_field;
+pub mod preview_archive;
 pub mod preview_column;
 pub mod preview_column_header;
 pub mod preview_folder;

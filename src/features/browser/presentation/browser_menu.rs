@@ -7,12 +7,13 @@ use gpui::{
 use rust_i18n::t;
 
 use crate::core::enums::assets::icon::Icon;
+use crate::core::helpers::files::is_archive::is_archive;
 use crate::core::theme::metrics::{
     MENU_EDGE_MARGIN, MENU_ITEM_HEIGHT, MENU_MIN_WIDTH, MENU_PAD, MENU_SEPARATOR_MARGIN,
 };
 use crate::features::browser::presentation::actions::{
-    CopyPath, CopySelection, CutSelection, EmptyTrash, NewFolder, OpenEntry, OpenTerminal,
-    OpenWith, PasteClipboard, QuickLook, RenameEntry, TrashSelection,
+    CopyPath, CopySelection, CutSelection, EmptyTrash, ExtractHere, NewFolder, OpenEntry,
+    OpenTerminal, OpenWith, PasteClipboard, QuickLook, RenameEntry, TrashSelection,
 };
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::key_bindings::MENU_CONTEXT;
@@ -35,6 +36,25 @@ fn entry(label: &str, icon: Icon, shortcut: &'static str, action: Box<dyn Action
         danger: false,
         separated: false,
     }
+}
+
+fn folder_entries(has_directory: bool, archive: bool, has_entry: bool) -> [MenuEntry; 4] {
+    let new_folder = entry(
+        "menu.new_folder",
+        Icon::NewFolder,
+        "Ctrl+Shift+N",
+        Box::new(NewFolder),
+    );
+    let terminal = entry("menu.terminal", Icon::Terminal, "S", Box::new(OpenTerminal));
+    let extract = entry("menu.extract", Icon::Open, "e", Box::new(ExtractHere));
+    let mut trash = entry("menu.trash", Icon::Trash, "dd", Box::new(TrashSelection));
+    (trash.danger, trash.separated) = (true, true);
+    [
+        gated(new_folder, has_directory),
+        gated(terminal, has_directory),
+        gated(extract, archive),
+        gated(trash, has_entry),
+    ]
 }
 
 fn gated(mut item: MenuEntry, enabled: bool) -> MenuEntry {
@@ -62,27 +82,19 @@ impl BrowserView {
         let pane = self.active_pane().read(cx);
         let (has_entry, has_directory) =
             (pane.current_entry().is_some(), pane.directory().is_some());
+        let archive = pane.current_entry().is_some_and(|entry| is_archive(&entry));
         let mut copy = entry("menu.copy", Icon::Copy, "y", Box::new(CopySelection));
         copy.separated = true;
         let mut rename = entry("menu.rename", Icon::Edit, "r", Box::new(RenameEntry));
         rename.separated = true;
-        let mut trash = entry("menu.trash", Icon::Trash, "dd", Box::new(TrashSelection));
-        (trash.danger, trash.separated) = (true, true);
         let paste = entry("menu.paste", Icon::Paste, "p", Box::new(PasteClipboard));
-        let new_folder = entry(
-            "menu.new_folder",
-            Icon::NewFolder,
-            "Ctrl+Shift+N",
-            Box::new(NewFolder),
-        );
-        let terminal = entry("menu.terminal", Icon::Terminal, "S", Box::new(OpenTerminal));
         let copy_path = entry(
             "menu.copy_path",
             Icon::Document,
             "Ctrl+Shift+C",
             Box::new(CopyPath),
         );
-        vec![
+        let mut entries = vec![
             gated(
                 entry("menu.open", Icon::Open, "Enter", Box::new(OpenEntry)),
                 has_entry,
@@ -103,10 +115,9 @@ impl BrowserView {
             gated(paste, has_directory),
             gated(copy_path, has_entry),
             gated(rename, has_entry),
-            gated(new_folder, has_directory),
-            gated(terminal, has_directory),
-            gated(trash, has_entry),
-        ]
+        ];
+        entries.extend(folder_entries(has_directory, archive, has_entry));
+        entries
     }
 
     pub(super) fn open_menu(

@@ -83,6 +83,7 @@ fn operation_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("f2", RenameEntry, context),
         KeyBinding::new("ctrl-shift-n", NewFolder, context),
         KeyBinding::new("o", OpenWith, context),
+        KeyBinding::new("e", ExtractHere, context),
         KeyBinding::new("shift-s", OpenTerminal, context),
         KeyBinding::new("z", Undo, context),
         KeyBinding::new("ctrl-z", Undo, context),

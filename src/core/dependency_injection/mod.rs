@@ -1,4 +1,5 @@
 pub mod applications;
+pub mod archives;
 pub mod browser;
 pub mod browser_setup;
 pub mod devices;

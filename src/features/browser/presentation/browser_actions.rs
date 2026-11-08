@@ -6,9 +6,9 @@ use crate::features::browser::presentation::actions::{
     ActivateTab1, ActivateTab2, ActivateTab3, ActivateTab4, ActivateTab5, ActivateTab6,
     ActivateTab7, ActivateTab8, ActivateTab9, CloseKeymap, CloseMenu, CloseSettings, CloseTab,
     ConfirmAccept, ConfirmCancel, CopyPath, CopySelection, CutSelection, EditPath, EmptyTrash,
-    MenuConfirm, MenuNext, MenuPrevious, NewFolder, NewTab, NextTab, OpenTerminal, OpenWith,
-    PasteClipboard, PreviousTab, QuickLook, Redo, ShowColumns, ShowGrid, ShowKeymap, ShowList,
-    ShowSettings, StartSearch, TogglePreview, TrashSelection, Undo,
+    ExtractHere, MenuConfirm, MenuNext, MenuPrevious, NewFolder, NewTab, NextTab, OpenTerminal,
+    OpenWith, PasteClipboard, PreviousTab, QuickLook, Redo, ShowColumns, ShowGrid, ShowKeymap,
+    ShowList, ShowSettings, StartSearch, TogglePreview, TrashSelection, Undo,
 };
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
@@ -40,6 +40,7 @@ impl BrowserView {
             )
             .on_action(cx.listener(|this, _: &OpenWith, window, cx| this.open_with(window, cx)))
             .on_action(cx.listener(|this, _: &OpenTerminal, _, cx| this.open_terminal(cx)))
+            .on_action(cx.listener(|this, _: &ExtractHere, _, cx| this.extract_here(cx)))
             .on_action(cx.listener(|this, _: &EmptyTrash, window, cx| {
                 this.ask(ConfirmState::EmptyTrash, window, cx)
             }))

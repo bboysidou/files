@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use crate::features::browser::domain::entities::file_entry::FileEntry;
+use crate::features::preview::domain::entities::archive_member::ArchiveMember;
 use crate::features::preview::domain::entities::markdown_block::MarkdownBlock;
 use crate::features::preview::domain::entities::text_line::TextLine;
 
@@ -22,6 +23,11 @@ pub enum PreviewContent {
         page: PathBuf,
         dimensions: Option<(usize, usize)>,
         pages: Option<usize>,
+    },
+    Archive {
+        members: Vec<ArchiveMember>,
+        total: usize,
+        capped: bool,
     },
     Folder {
         entries: Vec<FileEntry>,

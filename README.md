@@ -32,6 +32,9 @@ Early development. Working today:
   existing names asks to keep both, skip or replace (replaced items go to the Trash)
 - Quick Look for images, folders, source code with syntax colour, rendered Markdown and the first
   page of a PDF (`pdftoppm`, from poppler) (`Space`)
+- Archives (zip, tar.gz/xz/zst/bz2, 7z, rar, iso, cpio, jar): Quick Look and the preview column
+  list what is inside, `e` extracts next to the archive into a folder named after it (one top-level
+  folder is not nested twice). Uses `bsdtar` from libarchive, which refuses `..` and absolute paths
 - Preview column beside the list that follows the cursor (`F3`)
 - Columns view (`Ctrl+2`): the parent folder on the left, the open folder in the middle, the
   folder under the cursor on the right; click a side column to move there
@@ -99,6 +102,7 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 | `Enter` `l` `→` | Open |
 | `o` | Open with another app |
 | `S` | Terminal in this folder |
+| `e` | Extract an archive here |
 | `h` `←` `Backspace` | Parent folder |
 | `Alt+←` / `Alt+→` | Back / forward |
 | `t` / `w` | New / close tab |

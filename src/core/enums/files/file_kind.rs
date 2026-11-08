@@ -40,7 +40,8 @@ impl FileKind {
             | "dart" => FileKind::Source,
             "toml" | "json" | "conf" | "lock" | "yaml" | "yml" | "ini" => FileKind::Config,
             "txt" | "log" => FileKind::Text,
-            "gz" | "zip" | "zst" | "7z" | "xz" | "tar" | "bz2" | "rar" => FileKind::Archive,
+            "gz" | "zip" | "zst" | "7z" | "xz" | "tar" | "bz2" | "rar" | "tgz" | "tbz2" | "txz"
+            | "tzst" | "cpio" | "jar" => FileKind::Archive,
             "iso" | "img" => FileKind::DiskImage,
             "ods" | "csv" | "xlsx" | "xls" => FileKind::Spreadsheet,
             _ => FileKind::Other,

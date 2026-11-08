@@ -80,6 +80,7 @@ actions!(
         OpenWith,
         OpenTerminal,
         ShowSettings,
+        ExtractHere,
         CloseSettings,
     ]
 );

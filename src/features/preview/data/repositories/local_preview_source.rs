@@ -7,11 +7,13 @@ use crate::core::constants::preview::{
     MARKDOWN_EXTENSIONS, PDF_EXTENSION, PREVIEW_FOLDER_LIMIT, PREVIEW_MAX_LINES,
     PREVIEW_SNIFF_BYTES, PREVIEW_TAB, PREVIEW_TEXT_MAX_BYTES,
 };
+use crate::core::helpers::files::is_archive::is_archive;
 use crate::core::helpers::files::is_image::is_image;
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::domain::entities::sort_order::SortOrder;
 use crate::features::browser::domain::repositories::directory_repository::DirectoryRepository;
 use crate::features::browser::domain::usecases::arrange_entries::arrange_entries;
+use crate::features::preview::data::datasources::archive_lister::list_archive;
 use crate::features::preview::data::datasources::markdown_parser::parse_markdown;
 use crate::features::preview::data::datasources::pdf_renderer::PdfRenderer;
 use crate::features::preview::data::datasources::syntax_highlighter::SyntaxHighlighter;
@@ -145,6 +147,8 @@ impl PreviewSource for LocalPreviewSource {
             self.folder(&entry.path)
         } else if is_image(entry.extension.as_deref()) {
             Self::image(&entry.path)
+        } else if is_archive(entry) {
+            list_archive(&entry.path).unwrap_or(PreviewContent::Unsupported)
         } else if is_pdf(entry.extension.as_deref()) {
             self.pdf(&entry.path)
         } else {

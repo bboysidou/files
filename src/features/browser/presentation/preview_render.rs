@@ -12,6 +12,7 @@ use crate::core::helpers::format::size_text::size_text;
 use crate::core::helpers::time::relative_time::relative_time;
 use crate::core::theme::metrics::QUICK_LOOK_STAGE_PAD;
 use crate::features::browser::presentation::browser_view::BrowserView;
+use crate::features::browser::presentation::components::preview_archive::PreviewArchive;
 use crate::features::browser::presentation::components::preview_folder::PreviewFolder;
 use crate::features::browser::presentation::components::preview_image::PreviewImage;
 use crate::features::browser::presentation::components::preview_line::PreviewLine;
@@ -56,14 +57,19 @@ impl BrowserView {
                 blocks: blocks.clone(),
             }
             .into_any_element(),
-            Some(PreviewContent::Folder { entries, total }) => div()
-                .size_full()
-                .p(px(QUICK_LOOK_STAGE_PAD))
-                .child(PreviewFolder {
-                    entries: entries.clone(),
-                    total: *total,
-                })
-                .into_any_element(),
+            Some(PreviewContent::Archive {
+                members,
+                total,
+                capped,
+            }) => padded(PreviewArchive {
+                members: members.clone(),
+                total: *total,
+                capped: *capped,
+            }),
+            Some(PreviewContent::Folder { entries, total }) => padded(PreviewFolder {
+                entries: entries.clone(),
+                total: *total,
+            }),
             Some(notice) => Self::preview_notice(notice, state),
         }
     }
@@ -172,4 +178,12 @@ impl BrowserView {
             _ => None,
         }
     }
+}
+
+fn padded(child: impl IntoElement) -> AnyElement {
+    div()
+        .size_full()
+        .p(px(QUICK_LOOK_STAGE_PAD))
+        .child(child)
+        .into_any_element()
 }
