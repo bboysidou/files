@@ -1,52 +1,37 @@
-use gpui::{
-    App, Bounds, Context, Window, WindowBounds, WindowOptions, div, prelude::*, px, rgb, size,
-};
+mod core;
+mod features;
+mod global_components;
 
-const APP_ID: &str = "files";
-const FONT_FAMILY: &str = "JetBrains Mono";
-const WINDOW_WIDTH: f32 = 1280.0;
-const WINDOW_HEIGHT: f32 = 800.0;
-const FRAME_WIDTH: f32 = 8.0;
-const SHEET_RADIUS: f32 = 20.0;
-const FRAME_COLOR: u32 = 0x000000;
-const SHEET_COLOR: u32 = 0x0A0A0A;
-const TEXT_COLOR: u32 = 0xE5E5E5;
+use gpui::{App, AppContext, Bounds, Focusable, KeyBinding, WindowBounds, WindowOptions, px, size};
 
-struct Shell;
+use crate::core::assets::embedded_assets::EmbeddedAssets;
+use crate::core::constants::app::{APP_ID, WINDOW_HEIGHT, WINDOW_WIDTH};
+use crate::core::constants::keymap::TOGGLE_RAIL_KEYS;
+use crate::core::helpers::i18n::system_locale::system_locale;
+use crate::features::places::data::repositories::xdg_places_repository::XdgPlacesRepository;
+use crate::features::shell::presentation::actions::ToggleRail;
+use crate::features::shell::presentation::shell_view::ShellView;
 
-impl Render for Shell {
-    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
-        div()
-            .size_full()
-            .bg(rgb(FRAME_COLOR))
-            .p(px(FRAME_WIDTH))
-            .font_family(FONT_FAMILY)
-            .text_color(rgb(TEXT_COLOR))
-            .child(
-                div()
-                    .size_full()
-                    .bg(rgb(SHEET_COLOR))
-                    .rounded(px(SHEET_RADIUS))
-                    .flex()
-                    .items_center()
-                    .justify_center()
-                    .child(APP_ID),
-            )
-    }
-}
+rust_i18n::i18n!("locales", fallback = "en");
 
 fn main() {
-    gpui_platform::application().run(|cx: &mut App| {
-        let bounds = Bounds::centered(None, size(px(WINDOW_WIDTH), px(WINDOW_HEIGHT)), cx);
-        cx.open_window(
-            WindowOptions {
+    rust_i18n::set_locale(&system_locale());
+    gpui_platform::application()
+        .with_assets(EmbeddedAssets)
+        .run(|cx: &mut App| {
+            cx.bind_keys([KeyBinding::new(TOGGLE_RAIL_KEYS, ToggleRail, None)]);
+            let bounds = Bounds::centered(None, size(px(WINDOW_WIDTH), px(WINDOW_HEIGHT)), cx);
+            let options = WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(bounds)),
                 app_id: Some(APP_ID.into()),
                 ..Default::default()
-            },
-            |_, cx| cx.new(|_| Shell),
-        )
-        .expect("failed to open main window");
-        cx.activate(true);
-    });
+            };
+            cx.open_window(options, |window, cx| {
+                let view = cx.new(|cx| ShellView::new(&XdgPlacesRepository, cx));
+                window.focus(&view.focus_handle(cx), cx);
+                view
+            })
+            .expect("failed to open main window");
+            cx.activate(true);
+        });
 }

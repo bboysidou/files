@@ -4,5 +4,13 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+anyhow = "1.0.104"
+dirs = "7.0.0"
 gpui-pre = "0.3.11"
 gpui-pre-platform = { version = "0.3.11", features = ["font-kit", "wayland", "x11"] }
+rust-i18n = "4.2.4"
+
+[lints.clippy]
+too_many_lines = "warn"
+too_many_arguments = "warn"
+cognitive_complexity = "warn"

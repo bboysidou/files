@@ -1,0 +1,77 @@
+pub const FRAME_GAP: f32 = 8.0;
+pub const SHEET_RADIUS: f32 = 20.0;
+
+pub const TEXT_BASE: f32 = 13.0;
+pub const TEXT_SMALL: f32 = 12.0;
+pub const TEXT_STATUS: f32 = 11.0;
+pub const TEXT_TINY: f32 = 10.0;
+pub const TEXT_BRAND: f32 = 16.0;
+
+pub const ICON_SIZE: f32 = 16.0;
+pub const ICON_SIZE_SMALL: f32 = 12.0;
+pub const ICON_BUTTON_SIZE: f32 = 32.0;
+pub const CONTROL_RADIUS: f32 = 10.0;
+pub const KBD_RADIUS: f32 = 6.0;
+pub const KBD_PAD_X: f32 = 6.0;
+pub const KBD_PAD_Y: f32 = 2.0;
+
+pub const RAIL_WIDTH: f32 = 244.0;
+pub const RAIL_COLLAPSED_WIDTH: f32 = 60.0;
+pub const RAIL_PAD_X: f32 = 10.0;
+pub const RAIL_PAD_TOP: f32 = 14.0;
+pub const RAIL_PAD_BOTTOM: f32 = 10.0;
+pub const RAIL_ITEM_COLLAPSED: f32 = 40.0;
+pub const RAIL_LABEL_SLIDE: f32 = 8.0;
+pub const RAIL_SECTION_GAP_TOP: f32 = 18.0;
+pub const RAIL_SECTION_GAP_BOTTOM: f32 = 6.0;
+pub const RAIL_DIVIDER_WIDTH: f32 = 28.0;
+pub const RAIL_DIVIDER_MARGIN: f32 = 12.0;
+pub const NAV_HEIGHT: f32 = 36.0;
+pub const NAV_PAD_X: f32 = 12.0;
+pub const NAV_GAP: f32 = 12.0;
+pub const BRAND_MARK: f32 = 30.0;
+pub const BRAND_MARK_RADIUS: f32 = 9.0;
+pub const BRAND_GAP: f32 = 10.0;
+pub const BRAND_PAD_X: f32 = 6.0;
+pub const BRAND_PAD_BOTTOM: f32 = 16.0;
+pub const BRAND_COLLAPSED_PAD_BOTTOM: f32 = 12.0;
+pub const BRAND_TOGGLE_RADIUS: f32 = 8.0;
+pub const SEARCH_HEIGHT: f32 = 38.0;
+pub const SEARCH_PAD_LEFT: f32 = 12.0;
+pub const SEARCH_PAD_RIGHT: f32 = 10.0;
+pub const SEARCH_GAP: f32 = 10.0;
+pub const TAG_DOT: f32 = 16.0;
+pub const TAG_GAP: f32 = 8.0;
+pub const TAG_PAD_Y: f32 = 4.0;
+
+pub const TABS_GAP: f32 = 4.0;
+pub const TABS_PAD_TOP: f32 = 10.0;
+pub const TABS_PAD_X: f32 = 14.0;
+pub const TAB_HEIGHT: f32 = 34.0;
+pub const TAB_PAD_LEFT: f32 = 16.0;
+pub const TAB_PAD_RIGHT: f32 = 8.0;
+pub const TAB_GAP: f32 = 8.0;
+pub const TAB_RADIUS: f32 = 12.0;
+pub const TAB_INDICATOR: f32 = 3.0;
+pub const TAB_CLOSE_SIZE: f32 = 20.0;
+pub const TAB_CLOSE_RADIUS: f32 = 6.0;
+pub const NEW_TAB_OFFSET: f32 = 4.0;
+
+pub const TOOLBAR_GAP: f32 = 8.0;
+pub const TOOLBAR_PAD_X: f32 = 16.0;
+pub const TOOLBAR_PAD_Y: f32 = 12.0;
+pub const CRUMBS_HEIGHT: f32 = 36.0;
+pub const CRUMBS_GAP: f32 = 4.0;
+pub const CRUMBS_PAD_LEFT: f32 = 12.0;
+pub const CRUMBS_PAD_RIGHT: f32 = 6.0;
+pub const SEGMENTED_GAP: f32 = 2.0;
+pub const SEGMENTED_PAD: f32 = 3.0;
+
+pub const BODY_PAD_X: f32 = 16.0;
+pub const BODY_PAD_BOTTOM: f32 = 12.0;
+pub const STATUS_GAP: f32 = 16.0;
+pub const STATUS_PAD_X: f32 = 18.0;
+pub const STATUS_PAD_Y: f32 = 9.0;
+pub const CRUMB_PAD_X: f32 = 3.0;
+pub const CRUMB_PAD_Y: f32 = 2.0;
+pub const CRUMB_RADIUS: f32 = 5.0;

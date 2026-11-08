@@ -1,0 +1,17 @@
+pub const FRAME: u32 = 0x000000;
+pub const SHEET: u32 = 0x0A0A0A;
+pub const CARD: u32 = 0x1A1A1A;
+pub const CARD_SUNKEN: u32 = 0x141414;
+pub const LINE: u32 = 0x262626;
+pub const LINE_STRONG: u32 = 0x2E2E2E;
+pub const DIVIDER: u32 = 0x222222;
+pub const KBD_BORDER: u32 = 0x333333;
+pub const CRUMB_SEPARATOR: u32 = 0x4A4A4A;
+pub const FG: u32 = 0xD4D4D4;
+pub const FG_BRIGHT: u32 = 0xFFFFFF;
+pub const FG_NAV: u32 = 0xC8C8C8;
+pub const FG_SOFT: u32 = 0xA0A0A0;
+pub const FG_MUTED: u32 = 0x8C8C8C;
+pub const FG_DIM: u32 = 0x5A5A5A;
+pub const ACCENT: u32 = 0x1793D0;
+pub const ON_ACCENT: u32 = 0x000000;
