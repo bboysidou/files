@@ -13,6 +13,10 @@ use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::places::domain::entities::place::PlaceTarget;
 
 impl PaneView {
+    pub fn has_history(&self) -> bool {
+        self.history.can_go_back() || self.history.can_go_forward()
+    }
+
     pub fn navigate(&mut self, target: PlaceTarget, cx: &mut Context<Self>) {
         if target == self.location {
             return;

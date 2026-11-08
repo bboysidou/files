@@ -53,6 +53,16 @@ impl BrowserView {
         self.activate(self.tabs.len() - 1, window, cx);
     }
 
+    pub fn drop_start_placeholder(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.settings.restore_tabs || self.tabs.len() != 2 {
+            return;
+        }
+        let first = self.tabs[0].pane.read(cx);
+        if *first.location() == self.setup.home_target && !first.has_history() {
+            self.close_tab(0, window, cx);
+        }
+    }
+
     pub(super) fn close_active(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.close_tab(self.active, window, cx);
     }

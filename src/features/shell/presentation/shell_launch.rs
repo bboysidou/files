@@ -20,6 +20,8 @@ impl ShellView {
         self.watch_devices(cx);
         self.serve_launches(window, cx);
         self.handle_launch(launch, window, cx);
+        self.browser
+            .update(cx, |browser, cx| browser.drop_start_placeholder(window, cx));
     }
 
     fn serve_launches(&mut self, window: &mut Window, cx: &mut Context<Self>) {
