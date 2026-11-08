@@ -32,11 +32,12 @@ const VIEW_KEYS: [&str; 4] = [
     "settings.view.grid",
     "settings.view.dual",
 ];
-const SORT_KEYS: [&str; 4] = [
+const SORT_KEYS: [&str; 5] = [
     "settings.sort.name",
     "settings.sort.size",
     "settings.sort.kind",
     "settings.sort.modified",
+    "settings.sort.extension",
 ];
 const START_KEYS: [&str; 2] = ["settings.start.last", "settings.start.home"];
 

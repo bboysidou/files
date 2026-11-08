@@ -64,6 +64,8 @@ fn selection_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("escape", Dismiss, context),
         KeyBinding::new("v", ToggleMark, context),
         KeyBinding::new("ctrl-a", SelectAllEntries, context),
+        KeyBinding::new("shift-v", InvertSelection, context),
+        KeyBinding::new("s", MeasureFolders, context),
         KeyBinding::new("shift-down", ExtendDown, context),
         KeyBinding::new("shift-up", ExtendUp, context),
     ]

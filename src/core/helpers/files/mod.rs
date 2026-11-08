@@ -1,5 +1,6 @@
 pub mod archive_stem;
 pub mod cache_name;
+pub mod device_tree_size;
 pub mod extension_badge;
 pub mod extension_color;
 pub mod file_uri;

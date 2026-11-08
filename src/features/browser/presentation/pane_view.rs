@@ -23,6 +23,7 @@ use crate::features::browser::presentation::key_bindings::{PANE_CONTEXT, PANE_GR
 use crate::features::browser::presentation::state::band_state::BandState;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::column_state::ColumnState;
+use crate::features::browser::presentation::state::folder_sizes::FolderSizes;
 use crate::features::browser::presentation::state::load_state::LoadState;
 use crate::features::browser::presentation::state::overview_state::OverviewState;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
@@ -67,6 +68,7 @@ pub struct PaneView {
     pub(super) columns_task: Option<Task<()>>,
     pub(super) grid_width: f32,
     pub(super) band: Option<BandState>,
+    pub(super) sizes: FolderSizes,
     pub(super) picker: bool,
     pub(super) thumbs: HashMap<PathBuf, ThumbEntry>,
     pub(super) thumb_queue: VecDeque<ThumbRequest>,
@@ -119,6 +121,7 @@ impl PaneView {
             columns_task: None,
             grid_width: 0.0,
             band: None,
+            sizes: FolderSizes::default(),
             picker: false,
             thumbs: HashMap::new(),
             thumb_queue: VecDeque::new(),
@@ -282,7 +285,8 @@ impl Render for PaneView {
             }),
         );
         let body = self.drop_zone(self.body(cx), cx);
-        Self::with_tag_actions(Self::with_actions(root, cx), cx).child(body)
+        Self::with_size_actions(Self::with_tag_actions(Self::with_actions(root, cx), cx), cx)
+            .child(body)
     }
 }
 

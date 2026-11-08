@@ -36,6 +36,12 @@ impl Selection {
         self.marked = marked.into_iter().collect();
     }
 
+    pub fn invert(&mut self, len: usize) {
+        self.marked = (0..len)
+            .filter(|index| !self.marked.contains(index))
+            .collect();
+    }
+
     pub fn mark_all(&mut self, len: usize) {
         self.marked = (0..len).collect();
     }

@@ -44,6 +44,15 @@ fn compare_by(left: &FileEntry, right: &FileEntry, key: SortKey) -> Ordering {
         SortKey::Name => by_name(),
         SortKey::Size => magnitude(left).cmp(&magnitude(right)).then_with(by_name),
         SortKey::Modified => left.modified.cmp(&right.modified).then_with(by_name),
+        SortKey::Extension => natural_compare(
+            &left.extension.as_deref().unwrap_or_default().to_lowercase(),
+            &right
+                .extension
+                .as_deref()
+                .unwrap_or_default()
+                .to_lowercase(),
+        )
+        .then_with(by_name),
         SortKey::Kind => natural_compare(&t!(left.kind.label_key()), &t!(right.kind.label_key()))
             .then_with(by_name),
     }
@@ -51,7 +60,9 @@ fn compare_by(left: &FileEntry, right: &FileEntry, key: SortKey) -> Ordering {
 
 fn magnitude(entry: &FileEntry) -> u64 {
     if entry.is_dir {
-        entry.child_count.unwrap_or_default() as u64
+        entry
+            .size
+            .unwrap_or(entry.child_count.unwrap_or_default() as u64)
     } else {
         entry.size.unwrap_or_default()
     }

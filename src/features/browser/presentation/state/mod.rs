@@ -8,6 +8,7 @@ pub mod confirm_state;
 pub mod drop_request;
 pub mod dual_pane;
 pub mod filter_model;
+pub mod folder_sizes;
 pub mod handlers;
 pub mod job_card_model;
 pub mod job_state;

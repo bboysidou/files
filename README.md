@@ -123,6 +123,8 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 | `T` then `1`–`7` / `T` `0` | Toggle a colour tag / clear colour tags |
 | `:` / `Ctrl+L` | Type a path |
 | `v` / `Ctrl+A` / `Shift+↓↑` | Select / select all / extend |
+| `V` | Invert the selection |
+| `s` | Measure folder sizes (marked folders, or every folder here; stays on one disk) |
 | `y` `x` `p` | Copy / cut / paste |
 | `r` `F2` | Rename |
 | `dd` `Delete` | Move to Trash |

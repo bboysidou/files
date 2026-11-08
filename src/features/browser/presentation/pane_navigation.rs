@@ -105,7 +105,12 @@ impl PaneView {
         let previous_cursor = self.selection.cursor();
         self.entries = match &self.search {
             Some(search) => search.results.clone(),
-            None => arrange_entries(raw, self.sort, self.show_hidden, &self.filter),
+            None => arrange_entries(
+                &self.with_folder_sizes(raw),
+                self.sort,
+                self.show_hidden,
+                &self.filter,
+            ),
         };
         let cursor = focus
             .and_then(|focus| self.entries.iter().position(|entry| entry.path == focus))

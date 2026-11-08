@@ -88,6 +88,8 @@ actions!(
         CompressZip,
         CompressTarGz,
         BrowseArchive,
+        InvertSelection,
+        MeasureFolders,
         CloseSettings,
     ]
 );
