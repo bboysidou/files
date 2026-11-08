@@ -41,6 +41,7 @@ impl BrowserView {
             on_select,
             on_close,
             on_move,
+            on_tear: Self::tear_handler(cx),
             on_new,
         }
     }

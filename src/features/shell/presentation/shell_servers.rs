@@ -24,6 +24,7 @@ impl ShellView {
                 this.remember_server(server, replaces, cx)
             }
             BrowserEvent::ServerRenamed(server) => this.rename_server(server, cx),
+            BrowserEvent::TabDetached(tab) => Self::open_detached(tab.clone(), cx),
         }));
     }
 

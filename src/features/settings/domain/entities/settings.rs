@@ -36,6 +36,13 @@ pub struct SavedTabState {
     pub forward: Vec<SavedStop>,
 }
 
+#[derive(Clone, PartialEq, Eq, Debug, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct SavedWindow {
+    pub active_tab: usize,
+    pub tabs: Vec<SavedTabState>,
+}
+
 #[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Settings {
@@ -54,6 +61,7 @@ pub struct Settings {
     pub dual_split: u16,
     pub active_tab: usize,
     pub tabs: Vec<SavedTabState>,
+    pub windows: Vec<SavedWindow>,
 }
 
 impl Default for Settings {
@@ -74,6 +82,7 @@ impl Default for Settings {
             dual_split: DUAL_SPLIT_DEFAULT_PERMILLE,
             active_tab: 0,
             tabs: Vec::new(),
+            windows: Vec::new(),
         }
     }
 }

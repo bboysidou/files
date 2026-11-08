@@ -8,5 +8,6 @@ pub struct TabStripModel {
     pub on_select: IndexHandler,
     pub on_close: IndexHandler,
     pub on_move: IndexPairHandler,
+    pub on_tear: IndexHandler,
     pub on_new: ClickHandler,
 }

@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -32,6 +31,7 @@ use crate::features::settings::domain::repositories::settings_repository::Settin
 use crate::features::shell::presentation::actions::ToggleRail;
 use crate::features::shell::presentation::components::rail::Rail;
 use crate::features::shell::presentation::state::network_rail::NetworkRail;
+use crate::features::shell::presentation::state::open_shells::{OpenShell, OpenShells};
 use crate::features::shell::presentation::state::rail_keys::RailKeys;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
 use crate::features::shell::presentation::state::rail_stop::RailStop;
@@ -54,8 +54,6 @@ pub struct ShellView {
     pub(super) device_list_task: Option<Task<()>>,
     pub(super) device_watch: Option<Task<()>>,
     pub(super) network: NetworkRail,
-    pub(super) bus: Option<Box<dyn Any>>,
-    pub(super) launch_task: Option<Task<()>>,
     pub(super) role: WindowRole,
     _browser_changes: Subscription,
     _quit: Subscription,
@@ -73,7 +71,7 @@ impl ShellView {
         let home_target = Self::start_target(&places, home.as_ref());
         let settings_repository = settings_repository();
         let saved = settings_repository.load();
-        let restore = Self::starting_snapshot(&saved, start.role);
+        let restore = Self::starting_snapshot(&saved, start.role, start.tabs.clone());
         let setup = browser_setup(places.clone(), home, home_target.clone());
         let browser = cx.new(|cx| BrowserView::new(setup, restore, window, cx));
         let browser_changes = cx.observe(&browser, |this, _, cx| {
@@ -86,6 +84,7 @@ impl ShellView {
             this.flush(cx);
             async {}
         });
+        cx.on_release(|_, cx| forget_shell(cx)).detach();
         let mut shell = Self {
             places,
             browser,
@@ -105,13 +104,11 @@ impl ShellView {
             device_list_task: None,
             device_watch: None,
             network: NetworkRail::new(network_mounter(), mount_watcher()),
-            bus: None,
-            launch_task: None,
             role: start.role,
             _browser_changes: browser_changes,
             _quit: quit,
         };
-        shell.start(start.launch, window, cx);
+        shell.start((start.launch, start.tabs.is_some()), window, cx);
         shell
     }
 
@@ -250,5 +247,20 @@ impl Render for ShellView {
 impl Focusable for ShellView {
     fn focus_handle(&self, cx: &App) -> FocusHandle {
         self.browser.read(cx).focus_handle(cx)
+    }
+}
+
+fn forget_shell(cx: &mut App) {
+    if let Some(shells) = cx.try_global::<OpenShells>() {
+        let live: Vec<OpenShell> = shells
+            .0
+            .iter()
+            .filter(|shell| shell.view.upgrade().is_some())
+            .map(|shell| OpenShell {
+                view: shell.view.clone(),
+                window: shell.window,
+            })
+            .collect();
+        cx.set_global(OpenShells(live));
     }
 }

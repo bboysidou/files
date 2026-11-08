@@ -5,6 +5,7 @@ use gpui::{
 
 use crate::core::constants::app::{APP_ID, WINDOW_HEIGHT, WINDOW_WIDTH};
 use crate::core::dependency_injection::places::places_repository;
+use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::integration::domain::entities::launch_request::LaunchRequest;
 use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::features::shell::presentation::actions::{DetachTab, NewWindow};
@@ -40,25 +41,29 @@ impl ShellView {
     }
 
     fn new_window(&mut self, detach: bool, window: &mut Window, cx: &mut Context<Self>) {
-        if detach && self.browser.read(cx).tab_count() < 2 {
-            return;
+        if detach {
+            return self
+                .browser
+                .update(cx, |browser, cx| browser.tear_active(window, cx));
         }
         let launch = match self.browser.read(cx).location(cx) {
             PlaceTarget::Directory(path) => LaunchRequest::Open(path),
             _ => LaunchRequest::Window,
         };
-        if detach {
-            self.browser
-                .update(cx, |browser, cx| browser.close_active(window, cx));
-        }
-        cx.defer(move |cx| {
-            open_shell_window(
-                ShellStart {
-                    launch,
-                    role: WindowRole::Extra,
-                },
-                cx,
-            )
-        });
+        let start = ShellStart {
+            launch,
+            role: WindowRole::Extra,
+            tabs: None,
+        };
+        cx.defer(move |cx| open_shell_window(start, cx));
+    }
+
+    pub(super) fn open_detached(tab: TabSnapshot, cx: &mut Context<Self>) {
+        let start = ShellStart {
+            launch: LaunchRequest::Window,
+            role: WindowRole::Extra,
+            tabs: Some((vec![tab], 0)),
+        };
+        cx.defer(move |cx| open_shell_window(start, cx));
     }
 }

@@ -17,6 +17,7 @@ use crate::features::integration::domain::entities::launch_request::LaunchReques
 use crate::features::integration::domain::usecases::parse_launch::parse_launch;
 use crate::features::picker::presentation::portal_host::serve_portal;
 use crate::features::shell::presentation::app_key_bindings::bind_app_keys;
+use crate::features::shell::presentation::shell_service::serve_launches;
 use crate::features::shell::presentation::shell_windows::open_shell_window;
 use crate::features::shell::presentation::state::shell_start::{ShellStart, WindowRole};
 
@@ -67,10 +68,12 @@ fn main() {
             if launch == LaunchRequest::Portal {
                 serve_portal(cx);
             } else {
+                serve_launches(cx);
                 open_shell_window(
                     ShellStart {
                         launch,
                         role: WindowRole::Primary,
+                        tabs: None,
                     },
                     cx,
                 );

@@ -20,6 +20,7 @@ pub struct SheetTab {
     pub on_select: IndexHandler,
     pub on_close: IndexHandler,
     pub on_move: IndexPairHandler,
+    pub on_tear: IndexHandler,
 }
 
 impl RenderOnce for SheetTab {
@@ -56,7 +57,7 @@ impl RenderOnce for SheetTab {
             .on_mouse_down(MouseButton::Middle, move |_, window, cx| {
                 close_middle(index, window, cx)
             });
-        let tab = tab_drag(tab, (index, self.title.clone()), on_move);
+        let tab = tab_drag(tab, (index, self.title.clone()), (on_move, self.on_tear));
         let tab = if self.active {
             tab.bg(rgb(CARD))
                 .text_color(rgb(FG_BRIGHT))
@@ -72,11 +73,15 @@ impl RenderOnce for SheetTab {
 fn tab_drag(
     tab: Stateful<Div>,
     (index, title): (usize, SharedString),
-    on_move: IndexPairHandler,
+    (on_move, on_tear): (IndexPairHandler, IndexHandler),
 ) -> Stateful<Div> {
     tab.on_drag(DraggedTab { index }, move |_, _, _, cx| {
         let label = title.clone();
         cx.new(|_| DragPreview { label })
+    })
+    .external_drag_payload(move |dragged: &DraggedTab, window, cx| {
+        on_tear(dragged.index, window, cx);
+        None
     })
     .drag_over::<DraggedTab>(|style, _, _, _| style.bg(rgb(CARD)))
     .on_drop(move |dragged: &DraggedTab, window, cx| on_move((dragged.index, index), window, cx))

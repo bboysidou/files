@@ -81,10 +81,6 @@ impl BrowserView {
         }
     }
 
-    pub fn tab_count(&self) -> usize {
-        self.tabs.len()
-    }
-
     pub fn close_active(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.close_tab(self.active, window, cx);
     }

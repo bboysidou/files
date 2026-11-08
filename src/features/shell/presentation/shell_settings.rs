@@ -1,23 +1,34 @@
 use std::time::Duration;
 
-use gpui::{App, Context};
+use gpui::{App, Context, EntityId};
 
 use crate::core::constants::settings::SETTINGS_SAVE_DEBOUNCE_MS;
 use crate::features::browser::domain::entities::sort_order::SortOrder;
 use crate::features::browser::domain::entities::view_options::ViewOptions;
 use crate::features::browser::presentation::state::active_key_preset::ActiveKeyPreset;
 use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
-use crate::features::settings::domain::entities::settings::Settings;
+use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
+use crate::features::settings::domain::entities::settings::{SavedWindow, Settings};
 use crate::features::shell::presentation::app_key_bindings::bind_app_keys;
 use crate::features::shell::presentation::shell_view::ShellView;
+use crate::features::shell::presentation::state::open_shells::OpenShells;
 use crate::features::shell::presentation::state::saved_tab_mapping::{restored_tab, saved_tab};
 use crate::features::shell::presentation::state::shell_start::WindowRole;
 
 impl ShellView {
-    pub(super) fn starting_snapshot(saved: &Settings, role: WindowRole) -> BrowserSnapshot {
+    pub(super) fn starting_snapshot(
+        saved: &Settings,
+        role: WindowRole,
+        tabs: Option<(Vec<TabSnapshot>, usize)>,
+    ) -> BrowserSnapshot {
         let mut restore = Self::restored_snapshot(saved);
-        if role == WindowRole::Extra {
-            restore.tabs.clear();
+        match tabs {
+            Some((tabs, active)) => {
+                restore.active = active.min(tabs.len().saturating_sub(1));
+                restore.tabs = tabs;
+            }
+            None if role == WindowRole::Extra => restore.tabs.clear(),
+            None => {}
         }
         restore
     }
@@ -76,35 +87,104 @@ impl ShellView {
             dual_split: snapshot.dual_split,
             active_tab: snapshot.active,
             tabs: snapshot.tabs.iter().map(saved_tab).collect(),
+            windows: Vec::new(),
+        }
+    }
+
+    fn saved_window(&self, cx: &App) -> SavedWindow {
+        let snapshot = self.browser.read(cx).snapshot(cx);
+        SavedWindow {
+            active_tab: snapshot.active,
+            tabs: snapshot.tabs.iter().map(saved_tab).collect(),
+        }
+    }
+
+    fn session_settings(&self, me: EntityId, cx: &App) -> Settings {
+        let mut settings = self.current_settings(cx);
+        let mut windows: Vec<SavedWindow> = cx
+            .try_global::<OpenShells>()
+            .map(|shells| {
+                shells
+                    .0
+                    .iter()
+                    .filter_map(|shell| match shell.view.upgrade() {
+                        Some(view) if view.entity_id() == me => Some(self.saved_window(cx)),
+                        Some(view) => Some(view.read(cx).saved_window(cx)),
+                        None => None,
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        if windows.is_empty() {
+            windows.push(self.saved_window(cx));
+        }
+        let first = windows.remove(0);
+        settings.tabs = first.tabs;
+        settings.active_tab = first.active_tab;
+        settings.windows = windows;
+        settings
+    }
+
+    fn share_prefs(&self, cx: &mut Context<Self>) {
+        let prefs = self.browser.read(cx).snapshot(cx);
+        let me = cx.entity_id();
+        let others: Vec<_> = cx
+            .try_global::<OpenShells>()
+            .map(|shells| {
+                shells
+                    .0
+                    .iter()
+                    .filter_map(|shell| shell.view.upgrade())
+                    .collect()
+            })
+            .unwrap_or_default();
+        for other in others.into_iter().filter(|view| view.entity_id() != me) {
+            other.update(cx, |other, cx| {
+                other
+                    .browser
+                    .update(cx, |browser, cx| browser.apply_prefs(&prefs, cx))
+            });
         }
     }
 
     pub(super) fn persist(&mut self, cx: &mut Context<Self>) {
-        if self.role == WindowRole::Extra {
-            return;
-        }
-        let settings = self.current_settings(cx);
+        let settings = self.session_settings(cx.entity_id(), cx);
         if settings == self.saved {
             return;
         }
-        self.saved = settings.clone();
+        if Self::prefs_of(&settings) != Self::prefs_of(&self.saved) {
+            self.share_prefs(cx);
+        }
+        self.saved = settings;
         let repository = self.settings_repository.clone();
-        self.save_task = Some(cx.spawn(async move |_, cx| {
+        self.save_task = Some(cx.spawn(async move |this, cx| {
             cx.background_executor()
                 .timer(Duration::from_millis(SETTINGS_SAVE_DEBOUNCE_MS))
                 .await;
+            let Ok(settings) =
+                this.update(cx, |this, cx| this.session_settings(cx.entity_id(), cx))
+            else {
+                return;
+            };
             cx.background_executor()
                 .spawn(async move { repository.save(&settings) })
                 .await;
         }));
     }
 
-    pub(super) fn flush(&mut self, cx: &mut Context<Self>) {
-        if self.role == WindowRole::Extra {
-            return;
+    fn prefs_of(settings: &Settings) -> Settings {
+        Settings {
+            tabs: Vec::new(),
+            active_tab: 0,
+            windows: Vec::new(),
+            sidebar_open: true,
+            ..settings.clone()
         }
+    }
+
+    pub(super) fn flush(&mut self, cx: &mut Context<Self>) {
         self.save_task = None;
-        let settings = self.current_settings(cx);
+        let settings = self.session_settings(cx.entity_id(), cx);
         self.settings_repository.save(&settings);
         self.saved = settings;
     }
