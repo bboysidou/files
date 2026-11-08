@@ -19,6 +19,8 @@ const GROUP: &str = "rail-device";
 #[derive(IntoElement)]
 pub struct RailDeviceItem {
     pub index: usize,
+    pub id: &'static str,
+    pub icon: Icon,
     pub label: SharedString,
     pub mounted: bool,
     pub active: bool,
@@ -33,7 +35,7 @@ impl RenderOnce for RailDeviceItem {
         let (index, on_select) = (self.index, self.on_select);
         let color = if self.active { ON_ACCENT } else { FG_NAV };
         let item = div()
-            .id(("device", index))
+            .id((self.id, index))
             .group(GROUP)
             .flex()
             .flex_shrink_0()
@@ -51,7 +53,7 @@ impl RenderOnce for RailDeviceItem {
         } else {
             item.hover(|style| style.bg(rgb(CARD)).text_color(rgb(FG_BRIGHT)))
         };
-        let glyph = IconGlyph::new(Icon::Usb, color)
+        let glyph = IconGlyph::new(self.icon, color)
             .group_hover(GROUP, if self.active { ON_ACCENT } else { FG_BRIGHT });
         if !self.motion.open {
             return item.size(px(RAIL_ITEM_COLLAPSED)).child(glyph);

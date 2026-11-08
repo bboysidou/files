@@ -24,7 +24,7 @@ impl TextField {
     fn layout_matches(&self) -> bool {
         self.last_layout
             .as_ref()
-            .is_some_and(|layout| layout.text.as_ref() == self.content)
+            .is_some_and(|layout| layout.text.as_ref() == self.shown_text())
     }
 }
 
@@ -114,11 +114,11 @@ impl EntityInputHandler for TextField {
         let range = self.range_from_utf16(&range_utf16);
         Some(Bounds::from_corners(
             point(
-                bounds.left() + layout.x_for_index(range.start),
+                bounds.left() + layout.x_for_index(self.shown_offset(range.start)),
                 bounds.top(),
             ),
             point(
-                bounds.left() + layout.x_for_index(range.end),
+                bounds.left() + layout.x_for_index(self.shown_offset(range.end)),
                 bounds.bottom(),
             ),
         ))
@@ -134,7 +134,7 @@ impl EntityInputHandler for TextField {
             return None;
         }
         let local = self.last_bounds?.localize(&position)?;
-        let index = self.last_layout.as_ref()?.closest_index_for_x(local.x);
+        let index = self.content_offset(self.last_layout.as_ref()?.closest_index_for_x(local.x));
         Some(to_utf16_offset(&self.content, index))
     }
 }

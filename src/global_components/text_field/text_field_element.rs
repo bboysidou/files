@@ -55,7 +55,7 @@ impl TextFieldElement {
         field: &TextField,
         bounds: Bounds<Pixels>,
     ) -> (PaintQuad, Option<PaintQuad>) {
-        let x = |index: usize| bounds.left() + line.x_for_index(index);
+        let x = |index: usize| bounds.left() + line.x_for_index(field.shown_offset(index));
         let height = bounds.bottom() - bounds.top();
         let cursor = fill(
             Bounds::new(
@@ -125,7 +125,7 @@ impl Element for TextFieldElement {
         let (text, color): (SharedString, Hsla) = if empty {
             (field.placeholder.clone(), rgb(FG_DIM).into())
         } else {
-            (field.content.clone().into(), style.color)
+            (field.shown_text().into(), style.color)
         };
         let base = TextRun {
             len: text.len(),
@@ -135,8 +135,15 @@ impl Element for TextFieldElement {
             underline: None,
             strikethrough: None,
         };
-        let marked = if empty { None } else { field.marked.as_ref() };
-        let runs = Self::runs(base, text.len(), marked);
+        let marked = if empty {
+            None
+        } else {
+            field
+                .marked
+                .as_ref()
+                .map(|range| field.shown_offset(range.start)..field.shown_offset(range.end))
+        };
+        let runs = Self::runs(base, text.len(), marked.as_ref());
         let font_size = style.font_size.to_pixels(window.rem_size());
         let line = window
             .text_system()

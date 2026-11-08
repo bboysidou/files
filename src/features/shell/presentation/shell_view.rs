@@ -13,6 +13,7 @@ use crate::core::constants::paths::PATH_SEPARATOR;
 use crate::core::dependency_injection::browser::directory_watcher;
 use crate::core::dependency_injection::browser_setup::browser_setup;
 use crate::core::dependency_injection::devices::device_repository;
+use crate::core::dependency_injection::network::network_mounter;
 use crate::core::dependency_injection::settings::settings_repository;
 use crate::core::enums::places::place_kind::PlaceKind;
 use crate::core::enums::tags::tag_color::TagColor;
@@ -30,6 +31,7 @@ use crate::features::settings::domain::entities::settings::Settings;
 use crate::features::settings::domain::repositories::settings_repository::SettingsRepository;
 use crate::features::shell::presentation::actions::ToggleRail;
 use crate::features::shell::presentation::components::rail::Rail;
+use crate::features::shell::presentation::state::network_rail::NetworkRail;
 use crate::features::shell::presentation::state::rail_keys::RailKeys;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
 use crate::features::shell::presentation::state::rail_stop::RailStop;
@@ -49,6 +51,7 @@ pub struct ShellView {
     pub(super) directory_watcher: Arc<dyn DirectoryWatcher>,
     pub(super) device_task: Option<Task<()>>,
     pub(super) device_watch: Option<Task<()>>,
+    pub(super) network: NetworkRail,
     pub(super) bus: Option<Box<dyn Any>>,
     pub(super) launch_task: Option<Task<()>>,
     _browser_changes: Subscription,
@@ -72,6 +75,7 @@ impl ShellView {
         let browser = cx.new(|cx| BrowserView::new(setup, restore, window, cx));
         let browser_changes = cx.observe(&browser, |this, _, cx| {
             this.persist(cx);
+            this.note_location(cx);
             cx.notify();
         });
         let quit = cx.on_app_quit(|this, cx| {
@@ -95,6 +99,12 @@ impl ShellView {
             directory_watcher: directory_watcher(),
             device_task: None,
             device_watch: None,
+            network: NetworkRail {
+                mounts: Vec::new(),
+                mounter: network_mounter(),
+                seen: None,
+                task: None,
+            },
             bus: None,
             launch_task: None,
             _browser_changes: browser_changes,
@@ -189,6 +199,7 @@ impl Render for ShellView {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let (on_toggle, on_select) = Self::handlers(cx);
         let (on_device, on_eject) = Self::device_handlers(cx);
+        let (on_network, on_unmount) = Self::network_handlers(cx);
         let (on_cancel_job, on_search, on_tag) = self.browser_handlers();
         let location = self.browser.read(cx).location(cx);
         let active = self
@@ -221,6 +232,9 @@ impl Render for ShellView {
                 devices: self.device_items(&location),
                 on_device,
                 on_eject,
+                network: self.network_items(&location),
+                on_network,
+                on_unmount,
                 job: self.browser.read(cx).job_card(),
                 on_cancel_job,
                 on_tag,

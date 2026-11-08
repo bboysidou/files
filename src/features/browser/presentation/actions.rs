@@ -87,6 +87,7 @@ actions!(
         Duplicate,
         PasteLink,
         BulkNextField,
+        LoginNextField,
         CompressZip,
         CompressTarGz,
         BrowseArchive,

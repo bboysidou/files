@@ -2,5 +2,6 @@
 pub enum RailStop {
     Place(usize),
     Device(usize),
+    Network(usize),
     Tag(usize),
 }

@@ -34,6 +34,7 @@ impl ShellView {
             );
             if section == PlaceSection::Devices {
                 order.extend((0..self.devices.len()).map(RailStop::Device));
+                order.extend((0..self.network.mounts.len()).map(RailStop::Network));
             }
         }
         order.extend((0..TagColor::ALL.len()).map(RailStop::Tag));
@@ -55,6 +56,13 @@ impl ShellView {
             .position(|item| item.active)
         {
             return RailStop::Device(index);
+        }
+        if let Some(index) = self
+            .network_items(&location)
+            .iter()
+            .position(|item| item.active)
+        {
+            return RailStop::Network(index);
         }
         self.rail_order()
             .first()
@@ -89,6 +97,7 @@ impl ShellView {
         match self.rail_keys.cursor {
             RailStop::Place(index) => self.select_place(index, cx),
             RailStop::Device(index) => self.open_device(index, cx),
+            RailStop::Network(index) => self.open_network(index, cx),
             RailStop::Tag(index) => {
                 let Some(tag) = TagColor::ALL.get(index).copied() else {
                     return;

@@ -21,7 +21,9 @@ Early development. Working today:
   first matching line. Typing again cancels the running scan
 - Type a path to jump there (`:` or `Ctrl+L`, `~` for home); network locations work too (`sftp://`, `smb://`,
   `ftp://`, `dav://` or `user@host:/path`), mounted with `gio mount` (gvfs; each protocol needs its
-  gvfs backend)
+  gvfs backend). A server that asks for a login opens a user/password dialog (plus domain for
+  `smb://`); the password is passed to gio once and never saved. Mounted shares are listed under
+  Network in the sidebar, with a button to disconnect
 - Context menu on right click or `m`, and a searchable keymap sheet (`?`)
 - Seven colour tags stored in the `user.xdg.tags` attribute (the one Dolphin reads); `tag:red` in
   search, or a click on a sidebar dot, lists every tagged file under Home

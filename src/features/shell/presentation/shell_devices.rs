@@ -65,7 +65,7 @@ impl ShellView {
             .collect()
     }
 
-    fn report(&mut self, message: String, cx: &mut Context<Self>) {
+    pub(super) fn report(&mut self, message: String, cx: &mut Context<Self>) {
         self.browser
             .update(cx, |browser, cx| browser.notify_message(message, cx));
     }

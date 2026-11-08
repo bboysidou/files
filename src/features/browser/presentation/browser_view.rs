@@ -20,6 +20,9 @@ use crate::features::browser::presentation::state::bulk_rename_state::BulkRename
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
 use crate::features::browser::presentation::state::dual_pane::DualPane;
 use crate::features::browser::presentation::state::menu_state::MenuState;
+use crate::features::browser::presentation::state::network_login_state::{
+    NetworkLoginRequest, NetworkLoginState,
+};
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::pane_start::PaneStart;
 use crate::features::browser::presentation::state::properties_state::PropertiesState;
@@ -46,6 +49,7 @@ pub struct BrowserView {
     pub(super) open_with_task: Option<Task<()>>,
     pub(super) settings: SettingsSheet,
     pub(super) bulk: Option<BulkRenameState>,
+    pub(super) network_login: Option<NetworkLoginState>,
     pub(super) properties: Option<PropertiesState>,
     pub(super) keymap_open: bool,
     pub(super) keymap_focus: FocusHandle,
@@ -82,6 +86,7 @@ impl BrowserView {
             menu_focus: cx.focus_handle(),
             open_with_task: None,
             bulk: None,
+            network_login: None,
             properties: None,
             settings: SettingsSheet::closed(cx.focus_handle(), &restore),
             keymap_open: false,
@@ -155,26 +160,34 @@ impl BrowserView {
             this.sync_preview_column(cx);
             cx.notify();
         });
-        let events =
-            cx.subscribe_in(
-                &pane,
-                window,
-                |this, _, event: &PaneEvent, window, cx| match event {
-                    PaneEvent::RenameRequested(transfer) => this.rename(transfer.clone(), cx),
-                    PaneEvent::ViewOptionsChanged(options) => this.apply_view_options(*options, cx),
-                    PaneEvent::Message(message) => this.show_toast(message.clone(), false, cx),
-                    PaneEvent::ContextMenu(position) => this.open_menu(*position, window, cx),
-                    PaneEvent::RestoreRequested(entries) => {
-                        this.restore_from_trash(entries.clone(), cx)
-                    }
-                    PaneEvent::DropRequested(request) => this.drop_files(request.clone(), cx),
-                    PaneEvent::Navigated(folder) => this.recall_folder_view(folder, cx),
-                    PaneEvent::BulkRenameRequested(paths) => {
-                        this.open_bulk_rename(paths.clone(), window, cx)
-                    }
-                    PaneEvent::Picked(_) | PaneEvent::PickCancelled => {}
-                },
-            );
+        let events = cx.subscribe_in(
+            &pane,
+            window,
+            |this, pane, event: &PaneEvent, window, cx| match event {
+                PaneEvent::RenameRequested(transfer) => this.rename(transfer.clone(), cx),
+                PaneEvent::ViewOptionsChanged(options) => this.apply_view_options(*options, cx),
+                PaneEvent::Message(message) => this.show_toast(message.clone(), false, cx),
+                PaneEvent::ContextMenu(position) => this.open_menu(*position, window, cx),
+                PaneEvent::RestoreRequested(entries) => {
+                    this.restore_from_trash(entries.clone(), cx)
+                }
+                PaneEvent::DropRequested(request) => this.drop_files(request.clone(), cx),
+                PaneEvent::Navigated(folder) => this.recall_folder_view(folder, cx),
+                PaneEvent::CredentialsRequested { uri, rejected } => this.open_network_login(
+                    NetworkLoginRequest {
+                        pane: pane.downgrade(),
+                        uri: uri.clone(),
+                        rejected: *rejected,
+                    },
+                    window,
+                    cx,
+                ),
+                PaneEvent::BulkRenameRequested(paths) => {
+                    this.open_bulk_rename(paths.clone(), window, cx)
+                }
+                PaneEvent::Picked(_) | PaneEvent::PickCancelled => {}
+            },
+        );
         Tab {
             pane,
             _changes: changes,
@@ -205,6 +218,7 @@ impl Render for BrowserView {
             self.keymap_overlay(window, cx),
             self.settings_overlay(window, cx),
             self.bulk_overlay(window, cx),
+            self.network_login_overlay(window, cx),
             self.properties_overlay(window, cx),
         ];
         let confirm = self.confirm_overlay(window, cx);

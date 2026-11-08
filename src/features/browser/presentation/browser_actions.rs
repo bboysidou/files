@@ -14,7 +14,7 @@ use crate::features::browser::presentation::actions::{
 };
 use crate::features::browser::presentation::actions::{BrowseArchive, CompressTarGz, CompressZip};
 use crate::features::browser::presentation::actions::{
-    BulkNextField, Duplicate, NewFile, PasteLink,
+    BulkNextField, Duplicate, LoginNextField, NewFile, PasteLink,
 };
 use crate::features::browser::presentation::actions::{CloseProperties, ShowProperties};
 use crate::features::browser::presentation::actions::{
@@ -122,6 +122,11 @@ impl BrowserView {
             .on_action(
                 cx.listener(|this, _: &BulkNextField, window, cx| {
                     this.switch_bulk_field(window, cx)
+                }),
+            )
+            .on_action(
+                cx.listener(|this, _: &LoginNextField, window, cx| {
+                    this.next_login_field(window, cx)
                 }),
             )
             .on_action(cx.listener(|this, _: &Duplicate, _, cx| this.duplicate(cx)))

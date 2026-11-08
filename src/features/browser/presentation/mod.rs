@@ -15,6 +15,7 @@ pub mod browser_folder_views;
 pub mod browser_jobs;
 pub mod browser_keymap;
 pub mod browser_menu;
+pub mod browser_network_login;
 pub mod browser_operations;
 pub mod browser_preview;
 pub mod browser_properties;

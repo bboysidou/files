@@ -46,7 +46,9 @@ impl TextField {
 
     pub(super) fn index_for_x(&self, x: Pixels) -> usize {
         match (&self.last_layout, &self.last_bounds) {
-            (Some(layout), Some(bounds)) => layout.closest_index_for_x(x - bounds.left()),
+            (Some(layout), Some(bounds)) => {
+                self.content_offset(layout.closest_index_for_x(x - bounds.left()))
+            }
             _ => self.content.len(),
         }
     }
@@ -124,7 +126,7 @@ impl TextField {
     }
 
     pub(super) fn copy(&mut self, cx: &mut Context<Self>) {
-        if !self.selected.is_empty() {
+        if !self.selected.is_empty() && !self.masked {
             let text = self.content[self.selected.clone()].to_string();
             cx.write_to_clipboard(ClipboardItem::new_string(text));
         }

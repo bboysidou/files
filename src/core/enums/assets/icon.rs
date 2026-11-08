@@ -50,6 +50,7 @@ icons! {
     Keys => "keys",
     List => "list",
     Music => "music",
+    Network => "network",
     NewFolder => "newfolder",
     Open => "open",
     Overview => "overview",

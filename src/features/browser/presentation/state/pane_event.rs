@@ -18,4 +18,5 @@ pub enum PaneEvent {
     DropRequested(DropRequest),
     BulkRenameRequested(Vec<PathBuf>),
     Navigated(PathBuf),
+    CredentialsRequested { uri: String, rejected: bool },
 }

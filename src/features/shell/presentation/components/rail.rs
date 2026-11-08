@@ -6,6 +6,7 @@ use gpui::{
     AnimationExt, AnyElement, App, ElementId, IntoElement, RenderOnce, Window, div, prelude::*, px,
 };
 
+use crate::core::enums::assets::icon::Icon;
 use crate::core::helpers::motion::lerp::lerp;
 use crate::core::theme::metrics::{JOB_SECTION_PAD_TOP, RAIL_PAD_BOTTOM, RAIL_PAD_TOP, RAIL_PAD_X};
 use crate::features::browser::presentation::state::job_card_model::JobCardModel;
@@ -25,6 +26,9 @@ use crate::global_components::handlers::{
 };
 
 const TAGS_SECTION_KEY: &str = "rail.section.tags";
+const DEVICE_ID: &str = "device";
+const NETWORK_ID: &str = "network";
+const NETWORK_SECTION_KEY: &str = "rail.section.network";
 pub const RAIL_CONTEXT: &str = "Rail";
 
 #[derive(IntoElement)]
@@ -39,6 +43,9 @@ pub struct Rail {
     pub devices: Vec<DeviceItem>,
     pub on_device: IndexHandler,
     pub on_eject: IndexHandler,
+    pub network: Vec<DeviceItem>,
+    pub on_network: IndexHandler,
+    pub on_unmount: IndexHandler,
     pub job: Option<JobCardModel>,
     pub on_cancel_job: ClickHandler,
     pub on_tag: IndexHandler,
@@ -85,6 +92,8 @@ impl Rail {
                 let on_eject = self.on_eject.clone();
                 RailDeviceItem {
                     index,
+                    id: DEVICE_ID,
+                    icon: Icon::Usb,
                     label: device.label.clone(),
                     mounted: device.mounted,
                     active: device.active,
@@ -96,6 +105,30 @@ impl Rail {
                 .into_any_element()
             })
             .collect()
+    }
+
+    fn network_section(&self) -> Vec<AnyElement> {
+        if self.network.is_empty() {
+            return Vec::new();
+        }
+        let label = RailSectionLabel::new(NETWORK_SECTION_KEY, self.motion).into_any_element();
+        let items = self.network.iter().enumerate().map(|(index, mount)| {
+            let on_unmount = self.on_unmount.clone();
+            RailDeviceItem {
+                index,
+                id: NETWORK_ID,
+                icon: Icon::Network,
+                label: mount.label.clone(),
+                mounted: mount.mounted,
+                active: mount.active,
+                cursor: self.cursor == Some(RailStop::Network(index)),
+                motion: self.motion,
+                on_select: self.on_network.clone(),
+                on_eject: Rc::new(move |window, cx| on_unmount(index, window, cx)),
+            }
+            .into_any_element()
+        });
+        iter::once(label).chain(items).collect()
     }
 }
 
@@ -138,6 +171,7 @@ impl RenderOnce for Rail {
         let sections: Vec<AnyElement> = PlaceSection::ALL
             .iter()
             .flat_map(|section| self.section(*section))
+            .chain(self.network_section())
             .chain(self.tags_section())
             .collect();
         let content = div()

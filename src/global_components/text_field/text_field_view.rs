@@ -27,6 +27,7 @@ pub struct TextField {
     pub(super) last_layout: Option<ShapedLine>,
     pub(super) last_bounds: Option<Bounds<Pixels>>,
     pub(super) focus_handle: FocusHandle,
+    pub(super) masked: bool,
 }
 
 impl EventEmitter<TextFieldEvent> for TextField {}
@@ -42,6 +43,7 @@ impl TextField {
             last_layout: None,
             last_bounds: None,
             focus_handle: cx.focus_handle(),
+            masked: false,
         }
     }
 

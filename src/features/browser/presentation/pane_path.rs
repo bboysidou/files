@@ -54,7 +54,7 @@ impl PaneView {
             return;
         }
         if let Some(uri) = network_uri(&typed) {
-            return self.connect_network(uri, cx);
+            return self.connect_network(uri, None, cx);
         }
         match self.resolve_typed(&typed).filter(|path| Path::is_dir(path)) {
             Some(path) => self.navigate(PlaceTarget::Directory(path), cx),

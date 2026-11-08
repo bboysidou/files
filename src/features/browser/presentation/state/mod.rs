@@ -17,6 +17,7 @@ pub mod job_state;
 pub mod keymap_rows;
 pub mod load_state;
 pub mod menu_state;
+pub mod network_login_state;
 pub mod operation_intent;
 pub mod overview_state;
 pub mod pane_event;

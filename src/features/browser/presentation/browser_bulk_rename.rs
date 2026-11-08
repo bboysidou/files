@@ -153,7 +153,7 @@ impl BrowserView {
             .collect()
     }
 
-    fn bulk_input(label: String, field: Entity<TextField>) -> AnyElement {
+    pub(super) fn dialog_input(label: String, field: Entity<TextField>) -> AnyElement {
         div()
             .flex()
             .flex_col()
@@ -199,11 +199,11 @@ impl BrowserView {
                         .text_color(rgb(FG_BRIGHT))
                         .child(title),
                 )
-                .child(Self::bulk_input(
+                .child(Self::dialog_input(
                     t!("bulk.find_label").to_string(),
                     bulk.find.clone(),
                 ))
-                .child(Self::bulk_input(
+                .child(Self::dialog_input(
                     t!("bulk.replace_label").to_string(),
                     bulk.replace.clone(),
                 ))

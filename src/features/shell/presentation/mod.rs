@@ -3,6 +3,7 @@ pub mod components;
 pub mod rail_key_bindings;
 pub mod shell_devices;
 pub mod shell_launch;
+pub mod shell_network;
 pub mod shell_rail_keys;
 pub mod shell_settings;
 pub mod shell_view;
