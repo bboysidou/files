@@ -34,3 +34,9 @@ pub const DF_ARGUMENTS: [&str; 12] = [
     "squashfs",
 ];
 pub const RECENT_FILES_NAME: &str = "recently-used.xbel";
+pub const USER_DATABASE: &str = "/etc/passwd";
+pub const GROUP_DATABASE: &str = "/etc/group";
+pub const ACCOUNT_FIELD_SEPARATOR: char = ':';
+pub const PERMISSION_BITS: u32 = 0o777;
+pub const PERMISSION_TOP_BIT: u32 = 0o400;
+pub const PERMISSION_COUNT: usize = 9;

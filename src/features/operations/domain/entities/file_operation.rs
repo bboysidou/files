@@ -16,6 +16,13 @@ impl Transfer {
 }
 
 #[derive(Clone, PartialEq, Eq, Debug)]
+pub struct ModeChange {
+    pub path: PathBuf,
+    pub from: u32,
+    pub to: u32,
+}
+
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum FileOperation {
     Copy(Vec<Transfer>),
     Move(Vec<Transfer>),
@@ -28,6 +35,7 @@ pub enum FileOperation {
     Compress(PathBuf),
     CreateFile(PathBuf),
     Link(Vec<Transfer>),
+    SetMode(ModeChange),
     Batch(Vec<FileOperation>),
 }
 
@@ -51,6 +59,11 @@ impl FileOperation {
             FileOperation::Extract(path)
             | FileOperation::Compress(path)
             | FileOperation::CreateFile(path) => FileOperation::Trash(vec![path.clone()]),
+            FileOperation::SetMode(change) => FileOperation::SetMode(ModeChange {
+                path: change.path.clone(),
+                from: change.to,
+                to: change.from,
+            }),
             FileOperation::Link(transfers) => FileOperation::Trash(
                 transfers
                     .iter()
@@ -74,7 +87,8 @@ impl FileOperation {
             | FileOperation::RemoveFolder(_)
             | FileOperation::Extract(_)
             | FileOperation::Compress(_)
-            | FileOperation::CreateFile(_) => 1,
+            | FileOperation::CreateFile(_)
+            | FileOperation::SetMode(_) => 1,
             FileOperation::Batch(steps) => steps.last().map_or(0, FileOperation::item_count),
         }
     }
@@ -92,6 +106,7 @@ impl FileOperation {
             | FileOperation::Extract(path)
             | FileOperation::Compress(path)
             | FileOperation::CreateFile(path) => Some(path.clone()),
+            FileOperation::SetMode(change) => Some(change.path.clone()),
             FileOperation::Trash(_) | FileOperation::RemoveFolder(_) => None,
             FileOperation::Batch(steps) => steps.last().and_then(FileOperation::landing_path),
         }

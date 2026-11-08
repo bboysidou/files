@@ -19,4 +19,5 @@ pub trait FileOperations: Send + Sync {
     fn remove_folder(&self, path: &Path) -> Result<(), OperationError>;
     fn create_file(&self, path: &Path) -> Result<(), OperationError>;
     fn link(&self, target: &Path, link: &Path) -> Result<(), OperationError>;
+    fn set_mode(&self, path: &Path, mode: u32) -> Result<(), OperationError>;
 }

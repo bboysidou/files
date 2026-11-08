@@ -7,6 +7,7 @@ use crate::core::dependency_injection::browser::{
 };
 use crate::core::dependency_injection::operations::{file_operations, system_clipboard, trash_bin};
 use crate::core::dependency_injection::preview::preview_source;
+use crate::core::dependency_injection::properties::properties_source;
 use crate::core::dependency_injection::search::{content_searcher, search_indexer};
 use crate::core::dependency_injection::thumbnails::thumbnail_store;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
@@ -23,6 +24,7 @@ pub fn browser_setup(
         thumbnails: thumbnail_store(),
         indexer: search_indexer(),
         content: content_searcher(),
+        properties: properties_source(),
         repository,
         launcher: file_launcher(),
         apps: app_catalog(),

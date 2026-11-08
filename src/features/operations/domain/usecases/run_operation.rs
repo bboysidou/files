@@ -43,6 +43,7 @@ pub fn run_operation(
         }
         FileOperation::CreateFolder(path) => files.create_folder(path)?,
         FileOperation::CreateFile(path) => files.create_file(path)?,
+        FileOperation::SetMode(change) => files.set_mode(&change.path, change.to)?,
         FileOperation::Link(transfers) => {
             for transfer in transfers {
                 files.link(&transfer.from, &transfer.to)?;

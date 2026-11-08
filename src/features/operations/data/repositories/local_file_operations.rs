@@ -1,6 +1,6 @@
 use std::fs::{self, File, OpenOptions};
 use std::io::{self, ErrorKind, Read, Write};
-use std::os::unix::fs::symlink;
+use std::os::unix::fs::{PermissionsExt, symlink};
 use std::path::{Path, PathBuf};
 
 use trash::TrashItem;
@@ -169,5 +169,10 @@ impl FileOperations for LocalFileOperations {
 
     fn link(&self, target: &Path, link: &Path) -> Result<(), OperationError> {
         symlink(target, link).map_err(|error| Self::error_of(&error))
+    }
+
+    fn set_mode(&self, path: &Path, mode: u32) -> Result<(), OperationError> {
+        fs::set_permissions(path, fs::Permissions::from_mode(mode))
+            .map_err(|error| Self::error_of(&error))
     }
 }

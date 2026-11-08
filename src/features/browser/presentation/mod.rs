@@ -15,6 +15,7 @@ pub mod browser_keymap;
 pub mod browser_menu;
 pub mod browser_operations;
 pub mod browser_preview;
+pub mod browser_properties;
 pub mod browser_quick_look;
 pub mod browser_settings;
 pub mod browser_tab_order;

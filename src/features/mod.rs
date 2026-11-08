@@ -8,6 +8,7 @@ pub mod overview;
 pub mod picker;
 pub mod places;
 pub mod preview;
+pub mod properties;
 pub mod search;
 pub mod settings;
 pub mod shell;

@@ -90,6 +90,8 @@ actions!(
         BrowseArchive,
         InvertSelection,
         MoveTabLeft,
+        ShowProperties,
+        CloseProperties,
         MoveTabRight,
         MeasureFolders,
         CloseSettings,

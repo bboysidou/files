@@ -12,6 +12,7 @@ pub const KEYMAP_CONTEXT: &str = "Keymap";
 pub const CONFIRM_CONTEXT: &str = "Confirm";
 pub const SETTINGS_CONTEXT: &str = "Settings";
 pub const BULK_CONTEXT: &str = "BulkRename";
+pub const PROPERTIES_CONTEXT: &str = "Properties";
 const PANE_KEYS: &str = "Pane && !TextField";
 
 pub fn browser_key_bindings() -> Vec<KeyBinding> {
@@ -89,6 +90,7 @@ fn operation_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("ctrl-d", Duplicate, context),
         KeyBinding::new("ctrl-shift-v", PasteLink, context),
         KeyBinding::new("o", OpenWith, context),
+        KeyBinding::new("i", ShowProperties, context),
         KeyBinding::new("e", ExtractHere, context),
         KeyBinding::new("c", CompressZip, context),
         KeyBinding::new("shift-b", BrowseArchive, context),
@@ -179,6 +181,7 @@ fn overlay_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("escape", CloseKeymap, keymap),
         KeyBinding::new("escape", CloseSettings, Some(SETTINGS_CONTEXT)),
         KeyBinding::new("tab", BulkNextField, Some(BULK_CONTEXT)),
+        KeyBinding::new("escape", CloseProperties, Some(PROPERTIES_CONTEXT)),
         KeyBinding::new("enter", ConfirmAccept, Some(CONFIRM_CONTEXT)),
         KeyBinding::new("escape", ConfirmCancel, Some(CONFIRM_CONTEXT)),
     ]

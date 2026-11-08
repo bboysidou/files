@@ -15,6 +15,7 @@ use crate::features::browser::presentation::actions::{BrowseArchive, CompressTar
 use crate::features::browser::presentation::actions::{
     BulkNextField, Duplicate, NewFile, PasteLink,
 };
+use crate::features::browser::presentation::actions::{CloseProperties, ShowProperties};
 use crate::features::browser::presentation::actions::{MoveTabLeft, MoveTabRight};
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
@@ -22,6 +23,7 @@ use crate::features::browser::presentation::state::confirm_state::ConfirmState;
 impl BrowserView {
     pub(super) fn with_actions(element: Div, cx: &mut Context<Self>) -> Div {
         let element = Self::with_overlay_actions(element, cx);
+        let element = Self::with_file_actions(element, cx);
         Self::with_tab_actions(Self::with_operation_actions(element, cx), cx)
     }
 
@@ -75,7 +77,34 @@ impl BrowserView {
                 }),
             )
             .on_action(cx.listener(|this, _: &NewFolder, _, cx| this.new_folder(cx)))
+            .on_action(cx.listener(|this, _: &Undo, _, cx| this.undo(cx)))
+            .on_action(
+                cx.listener(|this, _: &StartSearch, window, cx| this.start_search(window, cx)),
+            )
+            .on_action(cx.listener(|this, _: &EditPath, window, cx| this.edit_path(window, cx)))
+            .on_action(cx.listener(|this, _: &ShowList, _, cx| this.set_view(ViewMode::List, cx)))
+            .on_action(cx.listener(|this, _: &ShowGrid, _, cx| this.set_view(ViewMode::Grid, cx)))
+            .on_action(
+                cx.listener(|this, _: &ShowColumns, _, cx| this.set_view(ViewMode::Columns, cx)),
+            )
+            .on_action(cx.listener(|this, _: &TogglePreview, _, cx| this.toggle_preview_column(cx)))
+            .on_action(
+                cx.listener(|this, _: &QuickLook, window, cx| this.open_quick_look(window, cx)),
+            )
+            .on_action(cx.listener(|this, _: &Redo, _, cx| this.redo(cx)))
+    }
+
+    fn with_file_actions(element: Div, cx: &mut Context<Self>) -> Div {
+        element
             .on_action(cx.listener(|this, _: &NewFile, _, cx| this.new_file(cx)))
+            .on_action(
+                cx.listener(|this, _: &ShowProperties, window, cx| {
+                    this.open_properties(window, cx)
+                }),
+            )
+            .on_action(cx.listener(|this, _: &CloseProperties, window, cx| {
+                this.close_properties(window, cx)
+            }))
             .on_action(
                 cx.listener(|this, _: &BrowseArchive, window, cx| this.browse_archive(window, cx)),
             )
@@ -92,21 +121,6 @@ impl BrowserView {
             )
             .on_action(cx.listener(|this, _: &Duplicate, _, cx| this.duplicate(cx)))
             .on_action(cx.listener(|this, _: &PasteLink, _, cx| this.paste_links(cx)))
-            .on_action(cx.listener(|this, _: &Undo, _, cx| this.undo(cx)))
-            .on_action(
-                cx.listener(|this, _: &StartSearch, window, cx| this.start_search(window, cx)),
-            )
-            .on_action(cx.listener(|this, _: &EditPath, window, cx| this.edit_path(window, cx)))
-            .on_action(cx.listener(|this, _: &ShowList, _, cx| this.set_view(ViewMode::List, cx)))
-            .on_action(cx.listener(|this, _: &ShowGrid, _, cx| this.set_view(ViewMode::Grid, cx)))
-            .on_action(
-                cx.listener(|this, _: &ShowColumns, _, cx| this.set_view(ViewMode::Columns, cx)),
-            )
-            .on_action(cx.listener(|this, _: &TogglePreview, _, cx| this.toggle_preview_column(cx)))
-            .on_action(
-                cx.listener(|this, _: &QuickLook, window, cx| this.open_quick_look(window, cx)),
-            )
-            .on_action(cx.listener(|this, _: &Redo, _, cx| this.redo(cx)))
     }
 
     fn with_tab_actions(element: Div, cx: &mut Context<Self>) -> Div {

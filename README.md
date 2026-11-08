@@ -112,6 +112,7 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 | `gg` / `G` | First / last row |
 | `Enter` `l` `→` | Open |
 | `o` | Open with another app |
+| `i` | Properties: kind, location, size, dates, owner, permissions (`1`–`9` toggle, undoable) |
 | `S` | Terminal in this folder |
 | `e` | Extract an archive here |
 | `h` `←` `Backspace` | Parent folder |

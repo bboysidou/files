@@ -23,6 +23,7 @@ use crate::features::browser::presentation::state::operation_intent::OperationIn
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::pane_start::PaneStart;
 use crate::features::browser::presentation::state::preview_state::PreviewState;
+use crate::features::browser::presentation::state::properties_state::PropertiesState;
 use crate::features::browser::presentation::state::settings_sheet::SettingsSheet;
 use crate::features::browser::presentation::state::tab::Tab;
 use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
@@ -61,6 +62,7 @@ pub struct BrowserView {
     pub(super) settings: SettingsSheet,
     pub(super) bulk: Option<BulkRenameState>,
     pub(super) archive_task: Option<Task<()>>,
+    pub(super) properties: Option<PropertiesState>,
     pub(super) keymap_open: bool,
     pub(super) keymap_focus: FocusHandle,
     pub(super) keymap_field: Entity<TextField>,
@@ -111,6 +113,7 @@ impl BrowserView {
             open_with_task: None,
             bulk: None,
             archive_task: None,
+            properties: None,
             settings: SettingsSheet::closed(cx.focus_handle(), restore.restore_tabs),
             keymap_open: false,
             keymap_focus: cx.focus_handle(),
@@ -248,6 +251,7 @@ impl Render for BrowserView {
             self.keymap_overlay(window, cx),
             self.settings_overlay(window, cx),
             self.bulk_overlay(window, cx),
+            self.properties_overlay(window, cx),
         ];
         let confirm = self.confirm_overlay(window, cx);
         let pane = self.active_pane().clone();

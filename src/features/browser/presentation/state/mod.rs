@@ -23,6 +23,7 @@ pub mod pane_start;
 pub mod preview_state;
 pub mod preview_surface;
 pub mod preview_ticket;
+pub mod properties_state;
 pub mod row_click;
 pub mod search_state;
 pub mod setting_change;

@@ -267,6 +267,7 @@ fn named_step(operation: &FileOperation) -> Option<(&'static str, &PathBuf)> {
         FileOperation::Extract(path) => Some(("archive.extracted", path)),
         FileOperation::Compress(path) => Some(("archive.compressed", path)),
         FileOperation::CreateFile(path) => Some(("op.created_file", path)),
+        FileOperation::SetMode(change) => Some(("op.mode_changed", &change.path)),
         _ => None,
     }
 }
