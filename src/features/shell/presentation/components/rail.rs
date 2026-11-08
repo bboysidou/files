@@ -1,6 +1,7 @@
 use std::iter;
 use std::rc::Rc;
 
+use gpui::FocusHandle;
 use gpui::{
     AnimationExt, AnyElement, App, ElementId, IntoElement, RenderOnce, Window, div, prelude::*, px,
 };
@@ -23,6 +24,7 @@ use crate::global_components::handlers::{
 };
 
 const TAGS_SECTION_KEY: &str = "rail.section.tags";
+pub const RAIL_CONTEXT: &str = "Rail";
 
 #[derive(IntoElement)]
 pub struct Rail {
@@ -39,6 +41,8 @@ pub struct Rail {
     pub job: Option<JobCardModel>,
     pub on_cancel_job: ClickHandler,
     pub on_tag: IndexHandler,
+    pub focus: FocusHandle,
+    pub cursor: Option<usize>,
 }
 
 impl Rail {
@@ -54,6 +58,7 @@ impl Rail {
                     index,
                     kind: place.kind,
                     active: Some(index) == self.active,
+                    cursor: Some(index) == self.cursor,
                     motion: self.motion,
                     on_select: self.on_select.clone(),
                     on_drop: matches!(place.target, PlaceTarget::Directory(_))
@@ -143,6 +148,8 @@ impl RenderOnce for Rail {
             });
         let rail = div()
             .id("rail")
+            .track_focus(&self.focus)
+            .key_context(RAIL_CONTEXT)
             .flex_shrink_0()
             .h_full()
             .w(px(motion.width()))

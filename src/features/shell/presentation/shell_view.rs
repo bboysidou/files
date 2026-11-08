@@ -30,13 +30,15 @@ use crate::features::settings::domain::entities::settings::Settings;
 use crate::features::settings::domain::repositories::settings_repository::SettingsRepository;
 use crate::features::shell::presentation::actions::ToggleRail;
 use crate::features::shell::presentation::components::rail::Rail;
+use crate::features::shell::presentation::state::rail_keys::RailKeys;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
 use crate::global_components::handlers::{ClickHandler, IndexHandler, IndexPathsHandler};
 
 pub struct ShellView {
-    places: Vec<Place>,
+    pub(super) places: Vec<Place>,
     pub(super) browser: Entity<BrowserView>,
     pub(super) rail: RailMotion,
+    pub(super) rail_keys: RailKeys,
     pub(super) settings_repository: Arc<dyn SettingsRepository>,
     pub(super) saved: Settings,
     pub(super) save_task: Option<Task<()>>,
@@ -79,6 +81,10 @@ impl ShellView {
             places,
             browser,
             rail: RailMotion::starting(saved.sidebar_open),
+            rail_keys: RailKeys {
+                focus: cx.focus_handle(),
+                cursor: 0,
+            },
             settings_repository,
             saved,
             save_task: None,
@@ -116,7 +122,7 @@ impl ShellView {
         cx.notify();
     }
 
-    fn select_place(&mut self, index: usize, cx: &mut Context<Self>) {
+    pub(super) fn select_place(&mut self, index: usize, cx: &mut Context<Self>) {
         let Some(target) = self.places.get(index).map(|place| place.target.clone()) else {
             return;
         };
@@ -179,7 +185,7 @@ impl ShellView {
 }
 
 impl Render for ShellView {
-    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let (on_toggle, on_select) = Self::handlers(cx);
         let (on_device, on_eject) = Self::device_handlers(cx);
         let (on_cancel_job, on_search, on_tag) = self.browser_handlers();
@@ -188,7 +194,12 @@ impl Render for ShellView {
             .places
             .iter()
             .position(|place| place.target == location);
-        div()
+        let rail_cursor = self
+            .rail_keys
+            .focus
+            .is_focused(window)
+            .then_some(self.rail_keys.cursor);
+        Self::with_rail_actions(div(), cx)
             .on_action(cx.listener(|this, _: &ToggleRail, _, cx| this.toggle_rail(cx)))
             .size_full()
             .flex()
@@ -212,6 +223,8 @@ impl Render for ShellView {
                 job: self.browser.read(cx).job_card(),
                 on_cancel_job,
                 on_tag,
+                focus: self.rail_keys.focus.clone(),
+                cursor: rail_cursor,
             })
             .child(self.browser.clone())
     }

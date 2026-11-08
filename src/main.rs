@@ -20,6 +20,7 @@ use crate::features::integration::domain::entities::launch_request::LaunchReques
 use crate::features::integration::domain::usecases::parse_launch::parse_launch;
 use crate::features::picker::presentation::portal_host::serve_portal;
 use crate::features::shell::presentation::actions::ToggleRail;
+use crate::features::shell::presentation::rail_key_bindings::rail_key_bindings;
 use crate::features::shell::presentation::shell_view::ShellView;
 use crate::global_components::text_field::text_field_actions::text_field_key_bindings;
 
@@ -47,6 +48,7 @@ fn run_default(enable: bool) {
 fn bind_keys(cx: &mut App) {
     let _ = cx.text_system().add_fonts(embedded_fonts());
     cx.bind_keys([KeyBinding::new(TOGGLE_RAIL_KEYS, ToggleRail, None)]);
+    cx.bind_keys(rail_key_bindings());
     cx.bind_keys(browser_key_bindings());
     cx.bind_keys(text_field_key_bindings());
 }
