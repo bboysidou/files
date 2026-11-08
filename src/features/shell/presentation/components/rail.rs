@@ -35,6 +35,7 @@ pub struct Rail {
     pub on_eject: IndexHandler,
     pub job: Option<JobCardModel>,
     pub on_cancel_job: ClickHandler,
+    pub on_tag: IndexHandler,
 }
 
 impl Rail {
@@ -131,7 +132,10 @@ impl RenderOnce for Rail {
             })
             .children(sections)
             .child(RailSectionLabel::new(TAGS_SECTION_KEY, motion))
-            .child(RailTags { open: motion.open });
+            .child(RailTags {
+                open: motion.open,
+                on_select: self.on_tag,
+            });
         let rail = div()
             .id("rail")
             .flex_shrink_0()

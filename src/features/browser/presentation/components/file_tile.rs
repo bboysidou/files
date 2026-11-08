@@ -7,6 +7,7 @@ use gpui::{
 
 use crate::core::enums::assets::icon::Icon;
 use crate::core::theme::colors::{ACCENT, CARD, FG, ROW_HOVER, SELECTION_ALPHA, TRANSPARENT};
+use crate::core::theme::metrics::ENTRY_TAG_GAP;
 use crate::core::theme::metrics::{
     CARD_RADIUS, CUT_OPACITY, TEXT_STATUS, TILE_FOLDER_ICON, TILE_INNER_GAP, TILE_NAME_HEIGHT,
     TILE_PAD, TILE_THUMB_RADIUS,
@@ -15,6 +16,7 @@ use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::components::entry_icon::EntryIcon;
 use crate::global_components::handlers::{IndexClickHandler, IndexPointHandler};
 use crate::global_components::icon_glyph::IconGlyph;
+use crate::global_components::tag_dots::TagDots;
 
 #[derive(IntoElement)]
 pub struct FileTile {
@@ -94,6 +96,13 @@ impl RenderOnce for FileTile {
             .text_ellipsis()
             .text_size(px(TEXT_STATUS))
             .text_color(rgb(FG))
+            .gap(px(ENTRY_TAG_GAP))
+            .items_center()
+            .when(!self.entry.tags.is_empty(), |name| {
+                name.child(TagDots {
+                    tags: self.entry.tags.clone(),
+                })
+            })
             .child(self.entry.name.clone());
         let tile = div()
             .id(("tile", index))

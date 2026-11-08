@@ -20,6 +20,7 @@ pub fn browser_key_bindings() -> Vec<KeyBinding> {
     bindings.extend(tab_bindings());
     bindings.extend(quick_look_bindings());
     bindings.extend(overlay_bindings());
+    bindings.extend(tag_bindings());
     bindings
 }
 
@@ -155,5 +156,19 @@ fn overlay_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("escape", CloseKeymap, keymap),
         KeyBinding::new("enter", ConfirmAccept, Some(CONFIRM_CONTEXT)),
         KeyBinding::new("escape", ConfirmCancel, Some(CONFIRM_CONTEXT)),
+    ]
+}
+
+fn tag_bindings() -> Vec<KeyBinding> {
+    let context = Some(PANE_KEYS);
+    vec![
+        KeyBinding::new("shift-t 1", TagRed, context),
+        KeyBinding::new("shift-t 2", TagOrange, context),
+        KeyBinding::new("shift-t 3", TagYellow, context),
+        KeyBinding::new("shift-t 4", TagGreen, context),
+        KeyBinding::new("shift-t 5", TagBlue, context),
+        KeyBinding::new("shift-t 6", TagPurple, context),
+        KeyBinding::new("shift-t 7", TagGrey, context),
+        KeyBinding::new("shift-t 0", ClearTags, context),
     ]
 }

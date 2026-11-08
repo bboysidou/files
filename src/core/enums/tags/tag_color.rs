@@ -31,4 +31,29 @@ impl TagColor {
             TagColor::Grey => 0xA0A0A0,
         }
     }
+
+    pub fn name(self) -> &'static str {
+        match self {
+            TagColor::Red => "Red",
+            TagColor::Orange => "Orange",
+            TagColor::Yellow => "Yellow",
+            TagColor::Green => "Green",
+            TagColor::Blue => "Blue",
+            TagColor::Purple => "Purple",
+            TagColor::Grey => "Grey",
+        }
+    }
+
+    pub fn from_names(names: &[String]) -> Vec<TagColor> {
+        Self::ALL
+            .into_iter()
+            .filter(|tag| names.iter().any(|name| Self::from_name(name) == Some(*tag)))
+            .collect()
+    }
+
+    pub fn from_name(name: &str) -> Option<TagColor> {
+        Self::ALL
+            .into_iter()
+            .find(|tag| tag.name().eq_ignore_ascii_case(name.trim()))
+    }
 }

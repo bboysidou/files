@@ -18,6 +18,8 @@ Early development. Working today:
 - Filter the current folder as you type, or search every name below it (`f`)
 - Type a path to jump there (`:` or `Ctrl+L`, `~` for home)
 - Context menu on right click or `m`, and a searchable keymap sheet (`?`)
+- Seven colour tags stored in the `user.xdg.tags` attribute (the one Dolphin reads); `tag:red` in
+  search, or a click on a sidebar dot, lists every tagged file under Home
 - Folders refresh by themselves when files change on disk
 - USB drives in the sidebar: click to mount and open, eject button to unmount and power off (udisks2)
 - Trash view: Enter restores, Delete deletes permanently after a confirmation, Empty Trash in the menu
@@ -83,6 +85,7 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 | `1`–`9`, `[` `]` | Go to a tab |
 | `/` / `Esc` | Filter this folder / clear the filter |
 | `f` / `Ctrl+F` | Search names below this folder |
+| `T` then `1`–`7` / `T` `0` | Toggle a colour tag / clear colour tags |
 | `:` / `Ctrl+L` | Type a path |
 | `v` / `Ctrl+A` / `Shift+↓↑` | Select / select all / extend |
 | `y` `x` `p` | Copy / cut / paste |

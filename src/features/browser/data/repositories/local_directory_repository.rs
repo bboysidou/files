@@ -4,6 +4,8 @@ use std::path::{Path, PathBuf};
 
 use crate::core::constants::files::{HIDDEN_PREFIX, TRASH_FILES_DIR};
 use crate::core::enums::files::file_kind::FileKind;
+use crate::core::enums::tags::tag_color::TagColor;
+use crate::core::helpers::files::xdg_tags::xdg_tags;
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::domain::entities::list_error::ListError;
 use crate::features::browser::domain::repositories::directory_repository::DirectoryRepository;
@@ -32,6 +34,7 @@ impl LocalDirectoryRepository {
             })
             .flatten();
         FileEntry {
+            tags: TagColor::from_names(&xdg_tags(&path)),
             kind: FileKind::classify(extension.as_deref(), is_dir),
             hidden: name.starts_with(HIDDEN_PREFIX),
             size: metadata.as_ref().filter(|_| !is_dir).map(Metadata::len),

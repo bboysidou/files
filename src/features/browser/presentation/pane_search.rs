@@ -7,10 +7,13 @@ use gpui::{Context, Focusable, Window};
 use rust_i18n::t;
 
 use crate::core::constants::search::{SEARCH_DEBOUNCE_MS, SEARCH_RESULT_LIMIT};
+use crate::core::dependency_injection::tags::tag_store;
+use crate::core::enums::tags::tag_color::TagColor;
 use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::filter_model::FilterModel;
 use crate::features::browser::presentation::state::search_state::SearchState;
-use crate::features::search::domain::usecases::rank_matches::rank_matches;
+use crate::features::search::domain::usecases::find_matches::find_matches;
+use crate::features::tags::domain::usecases::parse_tag_query::tag_query;
 use crate::global_components::handlers::ClickHandler;
 use crate::global_components::text_field::text_field_view::TextFieldEvent;
 
@@ -20,20 +23,41 @@ impl PaneView {
             let Some(root) = self.directory().or_else(|| self.setup.home.clone()) else {
                 return;
             };
-            self.reset_filter(cx);
-            self.search_field.update(cx, |field, cx| field.clear(cx));
-            self.search = Some(SearchState {
-                root: root.clone(),
-                query: String::new(),
-                index: None,
-                results: Vec::new(),
-                return_focus: self.current_entry_path(),
-            });
-            self.build_index(root, cx);
-            self.rearrange(cx);
+            self.begin_search(root, cx);
         }
         window.focus(&self.search_field.focus_handle(cx), cx);
         cx.notify();
+    }
+
+    pub fn search_tag(&mut self, tag: TagColor, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(home) = self.setup.home.clone() else {
+            return;
+        };
+        self.end_search(window, cx);
+        self.begin_search(home, cx);
+        let query = tag_query(tag);
+        self.search_field.update(cx, |field, cx| {
+            field.set_text(&query, query.len()..query.len(), cx)
+        });
+        if let Some(search) = self.search.as_mut() {
+            search.query = query;
+        }
+        window.focus(&self.search_field.focus_handle(cx), cx);
+        cx.notify();
+    }
+
+    fn begin_search(&mut self, root: PathBuf, cx: &mut Context<Self>) {
+        self.reset_filter(cx);
+        self.search_field.update(cx, |field, cx| field.clear(cx));
+        self.search = Some(SearchState {
+            root: root.clone(),
+            query: String::new(),
+            index: None,
+            results: Vec::new(),
+            return_focus: self.current_entry_path(),
+        });
+        self.build_index(root, cx);
+        self.rearrange(cx);
     }
 
     fn build_index(&mut self, root: PathBuf, cx: &mut Context<Self>) {
@@ -93,11 +117,13 @@ impl PaneView {
         };
         let repository = self.setup.repository.clone();
         let wanted = query.clone();
+        let store = tag_store();
         self.search_task = Some(cx.spawn(async move |this, cx| {
             let results = cx
                 .background_executor()
                 .spawn(async move {
-                    rank_matches(&index, &wanted, SEARCH_RESULT_LIMIT)
+                    let tags_of = |path: &std::path::Path| TagColor::from_names(&store.names(path));
+                    find_matches(&index, &wanted, SEARCH_RESULT_LIMIT, &tags_of)
                         .iter()
                         .filter_map(|path| repository.entry(path))
                         .collect::<Vec<_>>()

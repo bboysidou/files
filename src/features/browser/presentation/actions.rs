@@ -64,5 +64,13 @@ actions!(
         ActivateTab7,
         ActivateTab8,
         ActivateTab9,
+        TagRed,
+        TagOrange,
+        TagYellow,
+        TagGreen,
+        TagBlue,
+        TagPurple,
+        TagGrey,
+        ClearTags,
     ]
 );

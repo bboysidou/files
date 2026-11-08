@@ -165,3 +165,5 @@ pub const JOB_CARD_GAP: f32 = 10.0;
 pub const JOB_BAR_HEIGHT: f32 = 6.0;
 pub const JOB_SECTION_PAD_TOP: f32 = 14.0;
 pub const INDETERMINATE_FRACTION: f32 = 0.0;
+pub const ENTRY_TAG_DOT: f32 = 8.0;
+pub const ENTRY_TAG_GAP: f32 = 3.0;

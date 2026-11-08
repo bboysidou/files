@@ -15,6 +15,7 @@ use crate::core::dependency_injection::browser_setup::browser_setup;
 use crate::core::dependency_injection::devices::device_repository;
 use crate::core::dependency_injection::settings::settings_repository;
 use crate::core::enums::places::place_kind::PlaceKind;
+use crate::core::enums::tags::tag_color::TagColor;
 use crate::core::theme::colors::{FG, FRAME};
 use crate::core::theme::metrics::{FRAME_GAP, TEXT_BASE};
 use crate::features::browser::domain::repositories::directory_watcher::DirectoryWatcher;
@@ -135,18 +136,32 @@ impl ShellView {
     }
 }
 
-impl Render for ShellView {
-    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let (on_toggle, on_select) = Self::handlers(cx);
-        let (on_device, on_eject) = Self::device_handlers(cx);
+impl ShellView {
+    fn browser_handlers(&self) -> (ClickHandler, ClickHandler, IndexHandler) {
         let job_browser = self.browser.downgrade();
         let on_cancel_job: ClickHandler = Rc::new(move |_, cx| {
             let _ = job_browser.update(cx, |browser, _| browser.cancel_job());
         });
-        let browser = self.browser.downgrade();
+        let search_browser = self.browser.downgrade();
         let on_search: ClickHandler = Rc::new(move |window, cx| {
-            let _ = browser.update(cx, |browser, cx| browser.start_search(window, cx));
+            let _ = search_browser.update(cx, |browser, cx| browser.start_search(window, cx));
         });
+        let browser = self.browser.downgrade();
+        let on_tag: IndexHandler = Rc::new(move |index, window, cx| {
+            let Some(tag) = TagColor::ALL.get(index).copied() else {
+                return;
+            };
+            let _ = browser.update(cx, |browser, cx| browser.search_tag(tag, window, cx));
+        });
+        (on_cancel_job, on_search, on_tag)
+    }
+}
+
+impl Render for ShellView {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let (on_toggle, on_select) = Self::handlers(cx);
+        let (on_device, on_eject) = Self::device_handlers(cx);
+        let (on_cancel_job, on_search, on_tag) = self.browser_handlers();
         let location = self.browser.read(cx).location(cx);
         let active = self
             .places
@@ -174,6 +189,7 @@ impl Render for ShellView {
                 on_eject,
                 job: self.browser.read(cx).job_card(),
                 on_cancel_job,
+                on_tag,
             })
             .child(self.browser.clone())
     }

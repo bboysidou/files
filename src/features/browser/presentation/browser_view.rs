@@ -8,6 +8,7 @@ use gpui::{
 
 use rust_i18n::t;
 
+use crate::core::enums::tags::tag_color::TagColor;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::view_options::ViewOptions;
 use crate::features::browser::presentation::components::sheet::Sheet;
@@ -144,6 +145,12 @@ impl BrowserView {
         self.active_pane()
             .clone()
             .update(cx, |pane, cx| pane.start_search(window, cx));
+    }
+
+    pub fn search_tag(&mut self, tag: TagColor, window: &mut Window, cx: &mut Context<Self>) {
+        self.active_pane()
+            .clone()
+            .update(cx, |pane, cx| pane.search_tag(tag, window, cx));
     }
 
     pub(super) fn edit_path(&mut self, window: &mut Window, cx: &mut Context<Self>) {

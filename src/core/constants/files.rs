@@ -14,3 +14,5 @@ pub const WATCH_DEBOUNCE_MS: u64 = 250;
 pub const TRASH_INFO_DIR: &str = "info";
 pub const TRASH_INFO_EXTENSION: &str = "trashinfo";
 pub const COPY_BUFFER_BYTES: usize = 1024 * 1024;
+pub const XDG_TAGS_ATTRIBUTE: &str = "user.xdg.tags";
+pub const XDG_TAGS_SEPARATOR: char = ',';

@@ -23,6 +23,7 @@ pub mod pane_path;
 pub mod pane_rename;
 pub mod pane_search;
 pub mod pane_selection;
+pub mod pane_tags;
 pub mod pane_thumbnails;
 pub mod pane_view;
 pub mod pane_watch;

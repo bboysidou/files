@@ -12,6 +12,7 @@ use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::components::file_badge::FileBadge;
 use crate::features::browser::presentation::components::rename_box::RenameBox;
 use crate::global_components::icon_glyph::IconGlyph;
+use crate::global_components::tag_dots::TagDots;
 use crate::global_components::text_field::text_field_view::TextField;
 
 #[derive(IntoElement)]
@@ -42,6 +43,9 @@ impl RenderOnce for NameCell {
             .gap(px(LIST_NAME_GAP))
             .px(px(LIST_CELL_PAD_X))
             .text_size(px(TEXT_BASE));
+        let dots = (!self.entry.tags.is_empty()).then(|| TagDots {
+            tags: self.entry.tags.clone(),
+        });
         let label: AnyElement = match self.rename {
             Some(field) => RenameBox { field }.into_any_element(),
             None => div()
@@ -58,6 +62,7 @@ impl RenderOnce for NameCell {
                 .text_color(rgb(FG_BRIGHT))
                 .child(IconGlyph::new(Icon::Folder, ACCENT).size(FOLDER_ICON))
                 .child(label)
+                .children(dots)
                 .children(context);
         }
         let badge = FileBadge {
@@ -67,6 +72,7 @@ impl RenderOnce for NameCell {
         cell.text_color(rgb(FG))
             .child(badge)
             .child(label)
+            .children(dots)
             .children(context)
     }
 }
