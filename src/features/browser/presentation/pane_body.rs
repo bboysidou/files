@@ -3,7 +3,7 @@ use std::rc::Rc;
 use std::time::SystemTime;
 
 use gpui::{
-    AnyElement, Context, IntoElement, ParentElement, Styled, UniformList, div, px, uniform_list,
+    AnyElement, Context, IntoElement, ParentElement, Styled, UniformList, div, uniform_list,
 };
 use rust_i18n::t;
 
@@ -92,9 +92,11 @@ impl PaneView {
         });
         let rows = self.entry_list(cx);
         div()
+            .relative()
             .size_full()
             .flex()
             .flex_col()
+            .child(Self::width_probe(cx))
             .child(ListHeader {
                 sort: self.sort,
                 on_sort,
@@ -140,7 +142,7 @@ impl PaneView {
     }
 
     fn shown_columns(&self) -> Vec<(SortKey, u16)> {
-        let available = self.scroll.0.borrow().base_handle.bounds().size.width / px(1.0);
+        let available = self.body_width;
         let reserved = LIST_NAME_MIN_WIDTH + LIST_CELL_PAD_X * 2.0;
         self.list_columns.fitting(self.compact, available, reserved)
     }

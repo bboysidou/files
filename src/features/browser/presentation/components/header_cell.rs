@@ -6,9 +6,7 @@ use rust_i18n::t;
 
 use crate::core::enums::browser::sort_key::SortKey;
 use crate::core::theme::colors::{ACCENT, FG_BRIGHT};
-use crate::core::theme::metrics::{
-    COLUMN_GRIP_WIDTH, LIST_CELL_PAD_X, LIST_NAME_MIN_WIDTH, SORT_ARROW_GAP,
-};
+use crate::core::theme::metrics::{COLUMN_GRIP_WIDTH, LIST_CELL_PAD_X, SORT_ARROW_GAP};
 use crate::features::browser::domain::entities::sort_order::SortOrder;
 use crate::features::browser::presentation::state::column_drag::ColumnDrag;
 use crate::features::browser::presentation::state::handlers::SortHandler;
@@ -52,7 +50,7 @@ impl RenderOnce for HeaderCell {
                     .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
                     .on_drag(ColumnDrag { key }, |_, _, _, cx| cx.new(|_| EmptyView)),
             ),
-            None => cell.flex_1().min_w(px(LIST_NAME_MIN_WIDTH)),
+            None => cell.flex_1().min_w_0(),
         };
         let cell = if self.align_end {
             cell.justify_end()

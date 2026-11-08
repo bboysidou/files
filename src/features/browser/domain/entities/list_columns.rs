@@ -77,6 +77,9 @@ impl ListColumns {
     }
 
     pub fn fitting(&self, compact: bool, available: f32, reserved: f32) -> Vec<(SortKey, u16)> {
+        if available <= 0.0 {
+            return Vec::new();
+        }
         let mut shown = self.visible(compact);
         let total = |shown: &[(SortKey, u16)]| {
             reserved
@@ -86,7 +89,7 @@ impl ListColumns {
                     .sum::<f32>()
         };
         for key in Self::DROP_ORDER {
-            if available <= 0.0 || total(&shown) <= available {
+            if total(&shown) <= available {
                 break;
             }
             shown.retain(|(shown_key, _)| *shown_key != key);

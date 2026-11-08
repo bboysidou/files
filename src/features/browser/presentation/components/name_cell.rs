@@ -5,8 +5,7 @@ use crate::core::helpers::files::extension_badge::extension_badge;
 use crate::core::helpers::files::extension_color::extension_color;
 use crate::core::theme::colors::{ACCENT, FG, FG_BRIGHT, FG_MUTED};
 use crate::core::theme::metrics::{
-    CUT_OPACITY, FOLDER_ICON, LIST_CELL_PAD_X, LIST_NAME_GAP, LIST_NAME_MIN_WIDTH, TEXT_BASE,
-    TEXT_STATUS,
+    CUT_OPACITY, FOLDER_ICON, LIST_CELL_PAD_X, LIST_NAME_GAP, TEXT_BASE, TEXT_STATUS,
 };
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::components::file_badge::FileBadge;
@@ -38,7 +37,7 @@ impl RenderOnce for NameCell {
         let cell = div()
             .flex()
             .flex_1()
-            .min_w(px(LIST_NAME_MIN_WIDTH))
+            .min_w_0()
             .items_center()
             .gap(px(LIST_NAME_GAP))
             .px(px(LIST_CELL_PAD_X))

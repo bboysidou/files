@@ -15,7 +15,7 @@ const WIDTH_TOLERANCE: f32 = 0.5;
 
 impl PaneView {
     pub(super) fn layout(&self) -> GridLayout {
-        grid_layout(self.grid_width)
+        grid_layout(self.body_width)
     }
 
     pub(super) fn row_step(&self) -> isize {
@@ -32,23 +32,37 @@ impl PaneView {
         }
     }
 
-    pub(super) fn grid(&self, cx: &mut Context<Self>) -> AnyElement {
-        let rows = self.entries.len().div_ceil(self.layout().columns);
+    pub(super) fn width_probe(cx: &mut Context<Self>) -> AnyElement {
         let view = cx.entity().downgrade();
-        let probe = canvas(
+        canvas(
             move |bounds, _window, cx| {
                 let width = bounds.size.width / px(1.0);
-                let _ = view.update(cx, |this, cx| {
-                    if (this.grid_width - width).abs() > WIDTH_TOLERANCE {
-                        this.grid_width = width;
-                        cx.notify();
-                    }
-                });
+                let changed = view
+                    .update(cx, |this, _| {
+                        let changed = (this.body_width - width).abs() > WIDTH_TOLERANCE;
+                        if changed {
+                            this.body_width = width;
+                        }
+                        changed
+                    })
+                    .unwrap_or(false);
+                if changed {
+                    let view = view.clone();
+                    cx.defer(move |cx| {
+                        let _ = view.update(cx, |_, cx| cx.notify());
+                    });
+                }
             },
             |_, _, _, _| {},
         )
         .absolute()
-        .size_full();
+        .size_full()
+        .into_any_element()
+    }
+
+    pub(super) fn grid(&self, cx: &mut Context<Self>) -> AnyElement {
+        let rows = self.entries.len().div_ceil(self.layout().columns);
+        let probe = Self::width_probe(cx);
         let list = uniform_list(
             "grid-rows",
             rows,
