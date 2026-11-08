@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::preview::domain::entities::archive_member::ArchiveMember;
+use crate::features::preview::domain::entities::exif_fact::ExifFact;
 use crate::features::preview::domain::entities::markdown_block::MarkdownBlock;
 use crate::features::preview::domain::entities::media_facts::MediaFacts;
 use crate::features::preview::domain::entities::text_line::TextLine;
@@ -11,6 +12,7 @@ pub enum PreviewContent {
     Image {
         path: PathBuf,
         dimensions: Option<(usize, usize)>,
+        exif: Vec<ExifFact>,
     },
     Text {
         lines: Vec<TextLine>,

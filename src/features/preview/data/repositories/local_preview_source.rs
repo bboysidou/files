@@ -15,9 +15,11 @@ use crate::features::browser::domain::entities::sort_order::SortOrder;
 use crate::features::browser::domain::repositories::directory_repository::DirectoryRepository;
 use crate::features::browser::domain::usecases::arrange_entries::arrange_entries;
 use crate::features::preview::data::datasources::archive_lister::list_archive;
+use crate::features::preview::data::datasources::exif_reader::read_exif;
 use crate::features::preview::data::datasources::font_specimen::{font_family, font_specimen};
 use crate::features::preview::data::datasources::markdown_parser::parse_markdown;
 use crate::features::preview::data::datasources::media_probe::{probe_media, video_frame};
+use crate::features::preview::data::datasources::office_text::office_text;
 use crate::features::preview::data::datasources::pdf_renderer::PdfRenderer;
 use crate::features::preview::data::datasources::syntax_highlighter::SyntaxHighlighter;
 use crate::features::preview::domain::entities::preview_content::PreviewContent;
@@ -49,6 +51,7 @@ impl LocalPreviewSource {
         PreviewContent::Image {
             path: path.to_path_buf(),
             dimensions,
+            exif: read_exif(path),
         }
     }
 
@@ -159,6 +162,12 @@ impl PreviewSource for LocalPreviewSource {
                     family: font_family(&entry.path),
                 }
             })
+        } else if let Some(text) = entry
+            .extension
+            .as_deref()
+            .and_then(|extension| office_text(&entry.path, extension))
+        {
+            plain_text(&text)
         } else if is_archive(entry) {
             list_archive(&entry.path).unwrap_or(PreviewContent::Unsupported)
         } else if is_pdf(entry.extension.as_deref()) {
@@ -175,4 +184,25 @@ fn media(entry: &FileEntry) -> PreviewContent {
     };
     let frame = facts.video.as_ref().and_then(|_| video_frame(&entry.path));
     PreviewContent::Media { frame, facts }
+}
+
+fn plain_text(text: &str) -> PreviewContent {
+    let lines: Vec<TextLine> = text
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+        .take(PREVIEW_MAX_LINES + 1)
+        .map(|line| TextLine {
+            text: line.to_owned(),
+            runs: Vec::new(),
+        })
+        .collect();
+    if lines.is_empty() {
+        return PreviewContent::Empty;
+    }
+    let truncated = lines.len() > PREVIEW_MAX_LINES;
+    PreviewContent::Text {
+        lines: lines.into_iter().take(PREVIEW_MAX_LINES).collect(),
+        truncated,
+    }
 }

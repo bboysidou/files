@@ -35,7 +35,7 @@ impl FileKind {
             "mp4" | "mkv" | "webm" | "mov" | "avi" => FileKind::Video,
             "opus" | "flac" | "mp3" | "ogg" | "wav" | "m4a" => FileKind::Audio,
             "md" => FileKind::Markdown,
-            "odt" | "doc" | "docx" | "rtf" => FileKind::Document,
+            "odt" | "doc" | "docx" | "rtf" | "odp" | "pptx" => FileKind::Document,
             "pdf" => FileKind::Pdf,
             "rs" | "qml" | "lua" | "js" | "ts" | "tsx" | "sh" | "py" | "c" | "h" | "cpp" | "go"
             | "dart" => FileKind::Source,

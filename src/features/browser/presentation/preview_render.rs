@@ -150,6 +150,12 @@ impl BrowserView {
             ),
         ];
         facts.extend(state.content.as_ref().and_then(Self::content_fact));
+        if let Some(PreviewContent::Image { exif, .. }) = &state.content {
+            facts.extend(
+                exif.iter()
+                    .map(|fact| (t!(fact.label_key).to_string(), fact.value.clone())),
+            );
+        }
         facts
             .into_iter()
             .map(|(label, value)| (label.into(), value.into()))

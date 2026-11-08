@@ -60,6 +60,26 @@ pub const FONT_SPECIMEN_INK: &str = "#E8E8E8";
 pub const FC_SCAN_COMMAND: &str = "fc-scan";
 pub const FC_SCAN_FAMILY: [&str; 2] = ["--format", "%{family[0]}"];
 pub const PNG_EXTENSION: &str = "png";
+pub const EXIV2_COMMAND: &str = "exiv2";
+pub const EXIV2_PRINT: [&str; 2] = ["-q", "-Pkt"];
+pub const EXIV2_KEY_FLAG: &str = "-K";
+pub const EXIF_FIELDS: [(&str, &str); 7] = [
+    ("Exif.Image.Model", "exif.camera"),
+    ("Exif.Photo.LensModel", "exif.lens"),
+    ("Exif.Photo.DateTimeOriginal", "exif.taken"),
+    ("Exif.Photo.ExposureTime", "exif.exposure"),
+    ("Exif.Photo.FNumber", "exif.aperture"),
+    ("Exif.Photo.ISOSpeedRatings", "exif.iso"),
+    ("Exif.Photo.FocalLength", "exif.focal"),
+];
+pub const OFFICE_PARTS: [(&str, &str, &[&str]); 4] = [
+    ("docx", "word/document.xml", &["</w:p>"]),
+    ("odt", "content.xml", &["</text:p>", "</text:h>"]),
+    ("pptx", "ppt/slides/slide1.xml", &["</a:p>"]),
+    ("odp", "content.xml", &["</text:p>", "</text:h>"]),
+];
+pub const OFFICE_EXTRACT_ARGUMENTS: [&str; 3] = ["-x", "-O", "-f"];
+pub const OFFICE_MAX_BYTES: usize = 4 * 1024 * 1024;
 pub const MILLIS_PER_SECOND: f64 = 1000.0;
 pub const CACHE_MAX_AGE_SECS: u64 = 30 * 24 * 60 * 60;
 pub const CACHE_MAX_BYTES: u64 = 2 * 1024 * 1024 * 1024;
