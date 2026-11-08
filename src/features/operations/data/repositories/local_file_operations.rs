@@ -157,4 +157,17 @@ impl FileOperations for LocalFileOperations {
             Err(error) => Err(Self::error_of(&error)),
         }
     }
+
+    fn create_file(&self, path: &Path) -> Result<(), OperationError> {
+        OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(path)
+            .map(drop)
+            .map_err(|error| Self::error_of(&error))
+    }
+
+    fn link(&self, target: &Path, link: &Path) -> Result<(), OperationError> {
+        symlink(target, link).map_err(|error| Self::error_of(&error))
+    }
 }

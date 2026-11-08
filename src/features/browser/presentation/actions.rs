@@ -81,6 +81,9 @@ actions!(
         OpenTerminal,
         ShowSettings,
         ExtractHere,
+        NewFile,
+        Duplicate,
+        PasteLink,
         CloseSettings,
     ]
 );

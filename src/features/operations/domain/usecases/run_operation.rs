@@ -40,6 +40,12 @@ pub fn run_operation(
         FileOperation::Restore(paths) => files.restore(paths)?,
         FileOperation::Extract(path) => files.restore(std::slice::from_ref(path))?,
         FileOperation::CreateFolder(path) => files.create_folder(path)?,
+        FileOperation::CreateFile(path) => files.create_file(path)?,
+        FileOperation::Link(transfers) => {
+            for transfer in transfers {
+                files.link(&transfer.from, &transfer.to)?;
+            }
+        }
         FileOperation::RemoveFolder(path) => files.remove_folder(path)?,
         FileOperation::Batch(steps) => {
             for step in steps {

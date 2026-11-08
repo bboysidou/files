@@ -1,4 +1,4 @@
-pub const KEYMAP_ROWS: [(&str, &str); 30] = [
+pub const KEYMAP_ROWS: [(&str, &str); 33] = [
     ("keys.move", "j k · ↓ ↑"),
     ("keys.parent_open", "h l · ← →"),
     ("keys.open", "Enter"),
@@ -16,6 +16,9 @@ pub const KEYMAP_ROWS: [(&str, &str); 30] = [
     ("keys.trash", "dd · Delete"),
     ("keys.undo", "z · Ctrl+Z / Ctrl+Shift+Z"),
     ("keys.new_folder", "Ctrl+Shift+N"),
+    ("keys.new_file", "N"),
+    ("keys.duplicate", "Ctrl+D"),
+    ("keys.paste_link", "Ctrl+Shift+V"),
     ("keys.filter", "/"),
     ("keys.search", "f · Ctrl+F"),
     ("keys.path", ": · Ctrl+L"),

@@ -10,6 +10,7 @@ use crate::features::browser::presentation::actions::{
     OpenWith, PasteClipboard, PreviousTab, QuickLook, Redo, ShowColumns, ShowGrid, ShowKeymap,
     ShowList, ShowSettings, StartSearch, TogglePreview, TrashSelection, Undo,
 };
+use crate::features::browser::presentation::actions::{Duplicate, NewFile, PasteLink};
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
 
@@ -67,6 +68,9 @@ impl BrowserView {
                 }),
             )
             .on_action(cx.listener(|this, _: &NewFolder, _, cx| this.new_folder(cx)))
+            .on_action(cx.listener(|this, _: &NewFile, _, cx| this.new_file(cx)))
+            .on_action(cx.listener(|this, _: &Duplicate, _, cx| this.duplicate(cx)))
+            .on_action(cx.listener(|this, _: &PasteLink, _, cx| this.paste_links(cx)))
             .on_action(cx.listener(|this, _: &Undo, _, cx| this.undo(cx)))
             .on_action(
                 cx.listener(|this, _: &StartSearch, window, cx| this.start_search(window, cx)),

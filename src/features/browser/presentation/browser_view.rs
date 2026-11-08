@@ -6,8 +6,6 @@ use gpui::{
     UniformListScrollHandle, Window, div, prelude::*,
 };
 
-use rust_i18n::t;
-
 use crate::core::enums::tags::tag_color::TagColor;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::view_options::ViewOptions;
@@ -32,7 +30,7 @@ use crate::features::operations::domain::entities::clipboard::Clipboard;
 use crate::features::operations::domain::entities::file_operation::FileOperation;
 use crate::features::operations::domain::entities::operation_history::OperationHistory;
 use crate::features::places::domain::entities::place::PlaceTarget;
-use crate::global_components::text_field::text_field_view::{TextField, TextFieldEvent};
+use crate::global_components::text_field::text_field_view::TextField;
 
 pub struct BrowserView {
     pub(super) setup: Rc<BrowserSetup>,
@@ -164,18 +162,6 @@ impl BrowserView {
                 .update(cx, |pane, cx| pane.set_view_options(options, cx));
         }
         cx.notify();
-    }
-
-    fn create_keymap_field(
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) -> (Entity<TextField>, Subscription) {
-        let field = cx.new(|cx| TextField::new(t!("keys.placeholder").to_string(), cx));
-        let events = cx.subscribe_in(&field, window, |this, _, event, window, cx| match event {
-            TextFieldEvent::Changed => cx.notify(),
-            TextFieldEvent::Submitted | TextFieldEvent::Cancelled => this.close_keymap(window, cx),
-        });
-        (field, events)
     }
 
     pub fn notify_message(&mut self, message: String, cx: &mut Context<Self>) {

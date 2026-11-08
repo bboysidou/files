@@ -15,6 +15,7 @@ use crate::features::browser::presentation::actions::{
     CopyPath, CopySelection, CutSelection, EmptyTrash, ExtractHere, NewFolder, OpenEntry,
     OpenTerminal, OpenWith, PasteClipboard, QuickLook, RenameEntry, TrashSelection,
 };
+use crate::features::browser::presentation::actions::{Duplicate, NewFile};
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::key_bindings::MENU_CONTEXT;
 use crate::features::browser::presentation::state::menu_state::MenuState;
@@ -38,19 +39,23 @@ fn entry(label: &str, icon: Icon, shortcut: &'static str, action: Box<dyn Action
     }
 }
 
-fn folder_entries(has_directory: bool, archive: bool, has_entry: bool) -> [MenuEntry; 4] {
+fn folder_entries(has_directory: bool, archive: bool, has_entry: bool) -> [MenuEntry; 6] {
     let new_folder = entry(
         "menu.new_folder",
         Icon::NewFolder,
         "Ctrl+Shift+N",
         Box::new(NewFolder),
     );
+    let new_file = entry("menu.new_file", Icon::Document, "N", Box::new(NewFile));
+    let duplicate = entry("menu.duplicate", Icon::Copy, "Ctrl+D", Box::new(Duplicate));
     let terminal = entry("menu.terminal", Icon::Terminal, "S", Box::new(OpenTerminal));
     let extract = entry("menu.extract", Icon::Open, "e", Box::new(ExtractHere));
     let mut trash = entry("menu.trash", Icon::Trash, "dd", Box::new(TrashSelection));
     (trash.danger, trash.separated) = (true, true);
     [
         gated(new_folder, has_directory),
+        gated(new_file, has_directory),
+        gated(duplicate, has_entry),
         gated(terminal, has_directory),
         gated(extract, archive),
         gated(trash, has_entry),

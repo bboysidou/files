@@ -176,6 +176,7 @@ impl BrowserView {
             FileOperation::Move(_) => t!("op.moved", items = items),
             FileOperation::Trash(_) => t!("op.trashed", items = items),
             FileOperation::Restore(_) => t!("op.restored", items = items),
+            FileOperation::Link(_) => t!("op.linked", items = items),
             _ => Default::default(),
         }
         .to_string()
@@ -264,6 +265,7 @@ fn named_step(operation: &FileOperation) -> Option<(&'static str, &PathBuf)> {
         FileOperation::CreateFolder(path) => Some(("op.created_folder", path)),
         FileOperation::RemoveFolder(path) => Some(("op.removed_folder", path)),
         FileOperation::Extract(path) => Some(("archive.extracted", path)),
+        FileOperation::CreateFile(path) => Some(("op.created_file", path)),
         _ => None,
     }
 }

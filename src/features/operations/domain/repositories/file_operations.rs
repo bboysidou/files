@@ -17,4 +17,6 @@ pub trait FileOperations: Send + Sync {
     fn restore(&self, paths: &[PathBuf]) -> Result<(), OperationError>;
     fn create_folder(&self, path: &Path) -> Result<(), OperationError>;
     fn remove_folder(&self, path: &Path) -> Result<(), OperationError>;
+    fn create_file(&self, path: &Path) -> Result<(), OperationError>;
+    fn link(&self, target: &Path, link: &Path) -> Result<(), OperationError>;
 }

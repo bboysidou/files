@@ -1,8 +1,8 @@
 use std::rc::Rc;
 
 use gpui::{
-    AnchoredPositionMode, AnyElement, Context, Focusable, FontWeight, IntoElement, MouseButton,
-    Window, anchored, deferred, div, point, prelude::*, px, rgb,
+    AnchoredPositionMode, AnyElement, Context, Entity, Focusable, FontWeight, IntoElement,
+    MouseButton, Subscription, Window, anchored, deferred, div, point, prelude::*, px, rgb,
 };
 use rust_i18n::t;
 
@@ -20,11 +20,24 @@ use crate::features::browser::presentation::state::keymap_rows::KEYMAP_ROWS;
 use crate::global_components::handlers::ClickHandler;
 use crate::global_components::icon_glyph::IconGlyph;
 use crate::global_components::modal_scrim::ModalScrim;
+use crate::global_components::text_field::text_field_view::{TextField, TextFieldEvent};
 
 const KEYMAP_PRIORITY: usize = 1;
 const DOUBLE: f32 = 2.0;
 
 impl BrowserView {
+    pub(super) fn create_keymap_field(
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> (Entity<TextField>, Subscription) {
+        let field = cx.new(|cx| TextField::new(t!("keys.placeholder").to_string(), cx));
+        let events = cx.subscribe_in(&field, window, |this, _, event, window, cx| match event {
+            TextFieldEvent::Changed => cx.notify(),
+            TextFieldEvent::Submitted | TextFieldEvent::Cancelled => this.close_keymap(window, cx),
+        });
+        (field, events)
+    }
+
     pub(super) fn open_keymap(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.keymap_open = true;
         self.keymap_field.update(cx, |field, cx| field.clear(cx));
