@@ -19,3 +19,4 @@ pub const ROW_HOVER: u32 = 0x171717;
 pub const TRANSPARENT: u32 = 0x00000000;
 pub const SELECTION_ALPHA: u32 = 0x29;
 pub const BADGE_ALPHA: u32 = 0x24;
+pub const TEXT_SELECTION_ALPHA: u32 = 0x66;

@@ -1,23 +1,21 @@
 use gpui::KeyBinding;
 
-use crate::features::browser::presentation::actions::{
-    ActivateTab1, ActivateTab2, ActivateTab3, ActivateTab4, ActivateTab5, ActivateTab6,
-    ActivateTab7, ActivateTab8, ActivateTab9, ClearFilter, CloseTab, GoBack, GoForward, GoParent,
-    MoveDown, MoveUp, NewTab, NextTab, OpenEntry, OpenFilter, PreviousTab, Reload, SelectFirst,
-    SelectLast, ToggleHidden,
-};
+use crate::features::browser::presentation::actions::*;
 
 pub const BROWSER_CONTEXT: &str = "Browser";
 pub const PANE_CONTEXT: &str = "Pane";
+const PANE_KEYS: &str = "Pane && !TextField";
 
 pub fn browser_key_bindings() -> Vec<KeyBinding> {
-    let mut bindings = pane_bindings();
+    let mut bindings = navigation_bindings();
+    bindings.extend(selection_bindings());
+    bindings.extend(operation_bindings());
     bindings.extend(tab_bindings());
     bindings
 }
 
-fn pane_bindings() -> Vec<KeyBinding> {
-    let context = Some(PANE_CONTEXT);
+fn navigation_bindings() -> Vec<KeyBinding> {
+    let context = Some(PANE_KEYS);
     vec![
         KeyBinding::new("j", MoveDown, context),
         KeyBinding::new("down", MoveDown, context),
@@ -39,29 +37,61 @@ fn pane_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("ctrl-h", ToggleHidden, context),
         KeyBinding::new("f5", Reload, context),
         KeyBinding::new("/", OpenFilter, context),
-        KeyBinding::new("escape", ClearFilter, context),
-        KeyBinding::new("t", NewTab, context),
-        KeyBinding::new("w", CloseTab, context),
-        KeyBinding::new("]", NextTab, context),
-        KeyBinding::new("[", PreviousTab, context),
-        KeyBinding::new("1", ActivateTab1, context),
-        KeyBinding::new("2", ActivateTab2, context),
-        KeyBinding::new("3", ActivateTab3, context),
-        KeyBinding::new("4", ActivateTab4, context),
-        KeyBinding::new("5", ActivateTab5, context),
-        KeyBinding::new("6", ActivateTab6, context),
-        KeyBinding::new("7", ActivateTab7, context),
-        KeyBinding::new("8", ActivateTab8, context),
-        KeyBinding::new("9", ActivateTab9, context),
+    ]
+}
+
+fn selection_bindings() -> Vec<KeyBinding> {
+    let context = Some(PANE_KEYS);
+    vec![
+        KeyBinding::new("escape", Dismiss, context),
+        KeyBinding::new("v", ToggleMark, context),
+        KeyBinding::new("ctrl-a", SelectAllEntries, context),
+        KeyBinding::new("shift-down", ExtendDown, context),
+        KeyBinding::new("shift-up", ExtendUp, context),
+    ]
+}
+
+fn operation_bindings() -> Vec<KeyBinding> {
+    let context = Some(PANE_KEYS);
+    vec![
+        KeyBinding::new("y", CopySelection, context),
+        KeyBinding::new("ctrl-c", CopySelection, context),
+        KeyBinding::new("x", CutSelection, context),
+        KeyBinding::new("ctrl-x", CutSelection, context),
+        KeyBinding::new("p", PasteClipboard, context),
+        KeyBinding::new("ctrl-v", PasteClipboard, context),
+        KeyBinding::new("d d", TrashSelection, context),
+        KeyBinding::new("delete", TrashSelection, context),
+        KeyBinding::new("r", RenameEntry, context),
+        KeyBinding::new("f2", RenameEntry, context),
+        KeyBinding::new("ctrl-shift-n", NewFolder, context),
+        KeyBinding::new("z", Undo, context),
+        KeyBinding::new("ctrl-z", Undo, context),
+        KeyBinding::new("ctrl-shift-z", Redo, context),
+        KeyBinding::new("ctrl-y", Redo, context),
     ]
 }
 
 fn tab_bindings() -> Vec<KeyBinding> {
-    let context = Some(BROWSER_CONTEXT);
+    let pane = Some(PANE_KEYS);
+    let browser = Some(BROWSER_CONTEXT);
     vec![
-        KeyBinding::new("ctrl-t", NewTab, context),
-        KeyBinding::new("ctrl-w", CloseTab, context),
-        KeyBinding::new("ctrl-tab", NextTab, context),
-        KeyBinding::new("ctrl-shift-tab", PreviousTab, context),
+        KeyBinding::new("t", NewTab, pane),
+        KeyBinding::new("w", CloseTab, pane),
+        KeyBinding::new("]", NextTab, pane),
+        KeyBinding::new("[", PreviousTab, pane),
+        KeyBinding::new("1", ActivateTab1, pane),
+        KeyBinding::new("2", ActivateTab2, pane),
+        KeyBinding::new("3", ActivateTab3, pane),
+        KeyBinding::new("4", ActivateTab4, pane),
+        KeyBinding::new("5", ActivateTab5, pane),
+        KeyBinding::new("6", ActivateTab6, pane),
+        KeyBinding::new("7", ActivateTab7, pane),
+        KeyBinding::new("8", ActivateTab8, pane),
+        KeyBinding::new("9", ActivateTab9, pane),
+        KeyBinding::new("ctrl-t", NewTab, browser),
+        KeyBinding::new("ctrl-w", CloseTab, browser),
+        KeyBinding::new("ctrl-tab", NextTab, browser),
+        KeyBinding::new("ctrl-shift-tab", PreviousTab, browser),
     ]
 }

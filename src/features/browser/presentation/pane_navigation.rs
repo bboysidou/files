@@ -30,6 +30,7 @@ impl PaneView {
     ) {
         self.location = target;
         self.pending_focus = focus;
+        self.renaming = None;
         self.reset_filter(cx);
         self.selection = Selection::default();
         self.entries.clear();
@@ -87,11 +88,15 @@ impl PaneView {
             .pending_focus
             .take()
             .or_else(|| self.current_entry_path());
+        let previous_cursor = self.selection.cursor();
         self.entries = arrange_entries(raw, self.sort, self.show_hidden, &self.filter);
         let cursor = focus
             .and_then(|focus| self.entries.iter().position(|entry| entry.path == focus))
-            .unwrap_or_default();
+            .unwrap_or_else(|| previous_cursor.min(self.entries.len().saturating_sub(1)));
         self.selection = Selection::at(cursor);
+        if let Some(path) = self.pending_rename.take() {
+            self.begin_rename_of(path, cx);
+        }
         self.reveal(cx);
     }
 

@@ -6,6 +6,7 @@ pub mod filter_field;
 pub mod header_cell;
 pub mod list_header;
 pub mod name_cell;
+pub mod rename_box;
 pub mod sheet;
 pub mod sheet_tab;
 pub mod status_bar;

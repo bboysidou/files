@@ -16,6 +16,7 @@ Early development. Working today:
   kinds and relative dates
 - Tabs, back/forward/up history, clickable path crumbs
 - Filter the current folder as you type
+- Copy, cut, paste, rename, new folder and move to Trash, all with undo and redo
 - Opening files with your default applications (`xdg-open`)
 
 ## Build
@@ -38,6 +39,12 @@ Needs a recent stable Rust toolchain and the Wayland or X11 development librarie
 | `t` / `w` | New / close tab |
 | `1`–`9`, `[` `]` | Go to a tab |
 | `/` / `Esc` | Filter this folder / clear the filter |
+| `v` / `Ctrl+A` / `Shift+↓↑` | Select / select all / extend |
+| `y` `x` `p` | Copy / cut / paste |
+| `r` `F2` | Rename |
+| `dd` `Delete` | Move to Trash |
+| `Ctrl+Shift+N` | New folder |
+| `z` / `Ctrl+Shift+Z` | Undo / redo |
 | `Ctrl+H` | Show hidden files |
 | `F5` | Reload |
 | `Ctrl+B` | Collapse the sidebar |

@@ -9,6 +9,7 @@ use gpui::{
 use crate::core::constants::app::FONT_FAMILY;
 use crate::core::constants::paths::PATH_SEPARATOR;
 use crate::core::dependency_injection::browser::{directory_repository, file_launcher};
+use crate::core::dependency_injection::operations::file_operations;
 use crate::core::enums::places::place_kind::PlaceKind;
 use crate::core::theme::colors::{FG, FRAME};
 use crate::core::theme::metrics::{FRAME_GAP, TEXT_BASE};
@@ -40,6 +41,7 @@ impl ShellView {
         let setup = BrowserSetup {
             repository: directory_repository(),
             launcher: file_launcher(),
+            operations: file_operations(),
             places: places.clone(),
             home,
         };

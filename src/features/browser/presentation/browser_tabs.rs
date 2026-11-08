@@ -11,6 +11,7 @@ impl BrowserView {
         };
         let tab = self.open_pane(target, window, cx);
         self.tabs.push(tab);
+        self.sync_cut(cx);
         self.activate(self.tabs.len() - 1, window, cx);
     }
 

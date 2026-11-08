@@ -7,3 +7,6 @@ pub const SIZE_ONE_DECIMAL_BELOW: f64 = 10.0;
 pub const TRASH_FILES_DIR: &str = "Trash/files";
 pub const OPENER_COMMAND: &str = "xdg-open";
 pub const MISSING_VALUE: &str = "—";
+pub const DUPLICATE_FIRST_NUMBER: usize = 2;
+pub const FORBIDDEN_NAME_CHARS: [char; 2] = ['/', '\0'];
+pub const RESERVED_NAMES: [&str; 2] = [".", ".."];

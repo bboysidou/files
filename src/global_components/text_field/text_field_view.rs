@@ -49,6 +49,14 @@ impl TextField {
         &self.content
     }
 
+    pub fn set_text(&mut self, text: &str, selected: Range<usize>, cx: &mut Context<Self>) {
+        self.content = text.to_string();
+        self.selected = selected.start.min(text.len())..selected.end.min(text.len());
+        self.reversed = false;
+        self.marked = None;
+        cx.notify();
+    }
+
     pub fn clear(&mut self, cx: &mut Context<Self>) {
         self.content.clear();
         self.selected = 0..0;

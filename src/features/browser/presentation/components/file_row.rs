@@ -1,6 +1,8 @@
 use std::time::SystemTime;
 
-use gpui::{App, IntoElement, RenderOnce, SharedString, Window, div, prelude::*, px, rgb, rgba};
+use gpui::{
+    App, Entity, IntoElement, RenderOnce, SharedString, Window, div, prelude::*, px, rgb, rgba,
+};
 use rust_i18n::t;
 
 use crate::core::constants::files::MISSING_VALUE;
@@ -15,6 +17,7 @@ use crate::core::theme::metrics::{
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::components::name_cell::NameCell;
 use crate::global_components::handlers::IndexClickHandler;
+use crate::global_components::text_field::text_field_view::TextField;
 
 #[derive(IntoElement)]
 pub struct FileRow {
@@ -22,6 +25,8 @@ pub struct FileRow {
     pub entry: FileEntry,
     pub marked: bool,
     pub cursor: bool,
+    pub cut: bool,
+    pub rename: Option<Entity<TextField>>,
     pub now: SystemTime,
     pub on_click: IndexClickHandler,
 }
@@ -78,10 +83,14 @@ impl RenderOnce for FileRow {
             row.hover(|style| style.bg(rgb(ROW_HOVER)))
         };
         div().py(px(LIST_ROW_SPACING)).child(
-            row.child(NameCell { entry: self.entry })
-                .child(Self::cell(LIST_SIZE_WIDTH, size).flex().justify_end())
-                .child(Self::cell(LIST_KIND_WIDTH, kind))
-                .child(Self::cell(LIST_MODIFIED_WIDTH, modified)),
+            row.child(NameCell {
+                entry: self.entry,
+                cut: self.cut,
+                rename: self.rename,
+            })
+            .child(Self::cell(LIST_SIZE_WIDTH, size).flex().justify_end())
+            .child(Self::cell(LIST_KIND_WIDTH, kind))
+            .child(Self::cell(LIST_MODIFIED_WIDTH, modified)),
         )
     }
 }

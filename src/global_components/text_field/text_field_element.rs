@@ -5,7 +5,7 @@ use gpui::{
 };
 
 use super::text_field_view::TextField;
-use crate::core::theme::colors::{ACCENT, FG_DIM, SELECTION_ALPHA};
+use crate::core::theme::colors::{ACCENT, FG_DIM, TEXT_SELECTION_ALPHA};
 use crate::core::theme::metrics::TEXT_CURSOR_WIDTH;
 
 const UNDERLINE_THICKNESS: f32 = 1.0;
@@ -70,7 +70,7 @@ impl TextFieldElement {
                     point(x(field.selected.start), bounds.top()),
                     point(x(field.selected.end), bounds.bottom()),
                 ),
-                rgba((ACCENT << 8) | SELECTION_ALPHA),
+                rgba((ACCENT << 8) | TEXT_SELECTION_ALPHA),
             )
         });
         (cursor, selection)

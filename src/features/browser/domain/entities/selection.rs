@@ -28,6 +28,14 @@ impl Selection {
         self.marked.len()
     }
 
+    pub fn marked(&self) -> impl Iterator<Item = usize> + '_ {
+        self.marked.iter().copied()
+    }
+
+    pub fn mark_all(&mut self, len: usize) {
+        self.marked = (0..len).collect();
+    }
+
     pub fn move_to(&mut self, index: usize) {
         self.cursor = index;
         self.anchor = index;
