@@ -11,6 +11,7 @@ use crate::core::helpers::files::is_archive::is_archive;
 use crate::core::theme::metrics::{
     MENU_EDGE_MARGIN, MENU_ITEM_HEIGHT, MENU_MIN_WIDTH, MENU_PAD, MENU_SEPARATOR_MARGIN,
 };
+use crate::features::browser::presentation::actions::BrowseArchive;
 use crate::features::browser::presentation::actions::{
     CompressTarGz, CompressZip, Duplicate, NewFile,
 };
@@ -41,7 +42,7 @@ fn entry(label: &str, icon: Icon, shortcut: &'static str, action: Box<dyn Action
     }
 }
 
-fn folder_entries(has_directory: bool, archive: bool, has_entry: bool) -> [MenuEntry; 8] {
+fn folder_entries(has_directory: bool, archive: bool, has_entry: bool) -> [MenuEntry; 9] {
     let new_folder = entry(
         "menu.new_folder",
         Icon::NewFolder,
@@ -63,6 +64,12 @@ fn folder_entries(has_directory: bool, archive: bool, has_entry: bool) -> [MenuE
         "",
         Box::new(CompressTarGz),
     );
+    let browse = entry(
+        "menu.browse_archive",
+        Icon::Folder,
+        "B",
+        Box::new(BrowseArchive),
+    );
     let extract = entry("menu.extract", Icon::Open, "e", Box::new(ExtractHere));
     let mut trash = entry("menu.trash", Icon::Trash, "dd", Box::new(TrashSelection));
     (trash.danger, trash.separated) = (true, true);
@@ -72,6 +79,7 @@ fn folder_entries(has_directory: bool, archive: bool, has_entry: bool) -> [MenuE
         gated(duplicate, has_entry),
         gated(terminal, has_directory),
         gated(extract, archive),
+        gated(browse, archive),
         gated(zip, has_entry),
         gated(tar, has_entry),
         gated(trash, has_entry),

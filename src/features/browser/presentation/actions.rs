@@ -87,6 +87,7 @@ actions!(
         BulkNextField,
         CompressZip,
         CompressTarGz,
+        BrowseArchive,
         CloseSettings,
     ]
 );

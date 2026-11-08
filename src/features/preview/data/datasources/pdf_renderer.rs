@@ -1,12 +1,10 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use md5::{Digest, Md5};
-
 use crate::core::constants::preview::{
     PDFINFO_COMMAND, PDFINFO_PAGES, PDFTOPPM_COMMAND, PREVIEW_PDF_DIR, PREVIEW_PDF_SCALE,
 };
-use crate::core::helpers::files::file_uri::file_uri;
+use crate::core::helpers::files::cache_name::cache_name;
 use crate::core::helpers::process::sandbox_access::SandboxAccess;
 use crate::core::helpers::process::sandboxed_command::sandboxed_command;
 
@@ -16,10 +14,11 @@ pub struct PdfRenderer;
 
 impl PdfRenderer {
     fn target(path: &Path) -> Option<PathBuf> {
-        let modified = fs::metadata(path).and_then(|meta| meta.modified()).ok()?;
-        let stamp = format!("{}:{:?}", file_uri(path), modified);
-        let name = format!("{:x}", Md5::digest(stamp.as_bytes()));
-        Some(dirs::cache_dir()?.join(PREVIEW_PDF_DIR).join(name))
+        Some(
+            dirs::cache_dir()?
+                .join(PREVIEW_PDF_DIR)
+                .join(cache_name(path)?),
+        )
     }
 
     pub fn first_page(&self, path: &Path) -> Option<PathBuf> {

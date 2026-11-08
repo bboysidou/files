@@ -34,3 +34,4 @@ pub const MARKDOWN_BULLET: &str = "•";
 pub const MARKDOWN_TASK_DONE: &str = "[x]";
 pub const MARKDOWN_TASK_OPEN: &str = "[ ]";
 pub const MARKDOWN_CELL_SEPARATOR: &str = "  │  ";
+pub const ARCHIVE_BROWSE_DIR: &str = "files/archives";
