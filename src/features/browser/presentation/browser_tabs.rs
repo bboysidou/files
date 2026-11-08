@@ -1,12 +1,45 @@
 use std::path::PathBuf;
 
-use gpui::{Context, Focusable, Window};
+use gpui::{App, Context, Focusable, Window};
+
+use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
 
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::places::domain::entities::place::PlaceTarget;
 
 impl BrowserView {
+    pub(super) fn restore_tabs(
+        &mut self,
+        (tabs, active): (Vec<TabSnapshot>, usize),
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let targets = if tabs.is_empty() {
+            vec![TabSnapshot::fresh(self.setup.home_target.clone())]
+        } else {
+            tabs
+        };
+        for snapshot in targets {
+            let tab = self.open_pane(snapshot, window, cx);
+            self.tabs.push(tab);
+        }
+        self.active = active.min(self.tabs.len() - 1);
+    }
+
+    pub fn snapshot(&self, cx: &App) -> BrowserSnapshot {
+        BrowserSnapshot {
+            tabs: self
+                .tabs
+                .iter()
+                .map(|tab| tab.pane.read(cx).tab_snapshot())
+                .collect(),
+            active: self.active,
+            options: self.options,
+            preview_open: self.column_open,
+        }
+    }
+
     pub(super) fn new_tab(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let target = match self.location(cx) {
             PlaceTarget::Overview => self.setup.home_target.clone(),

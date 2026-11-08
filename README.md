@@ -33,6 +33,8 @@ Early development. Working today:
 - Preview column beside the list that follows the cursor (`F3`)
 - Columns view (`Ctrl+2`): the parent folder on the left, the open folder in the middle, the
   folder under the cursor on the right; click a side column to move there
+- Dual pane (`Ctrl+4`): two folders side by side, `Tab` moves between them, `F6` copies the
+  selection to the other side and `Shift+F6` moves it
 - Grid view with image thumbnails (`Ctrl+3`, back to the list with `Ctrl+1`), cached in the shared
   freedesktop thumbnail cache (`~/.cache/thumbnails`) that other file managers also use
 - Extension badges coloured from a hash of the extension, so every type gets a stable colour
@@ -98,7 +100,8 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 | `z` / `Ctrl+Shift+Z` | Undo / redo |
 | `Space` | Quick Look (`←` `→` next file, `+` `−` zoom) |
 | `F3` | Show or hide the preview column |
-| `Ctrl+1` / `Ctrl+2` / `Ctrl+3` | List / columns / grid view |
+| `Ctrl+1` `Ctrl+2` `Ctrl+3` `Ctrl+4` | List, columns, grid, dual pane |
+| `Tab` / `F6` / `Shift+F6` | Dual pane: other side / copy there / move there |
 | `m` / right click | Context menu |
 | `Ctrl+Shift+C` | Copy path |
 | `?` | Keyboard shortcuts |

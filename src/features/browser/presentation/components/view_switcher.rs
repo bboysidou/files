@@ -18,7 +18,6 @@ impl RenderOnce for ViewSwitcher {
             let (mode, on_select) = (*mode, self.on_select.clone());
             IconButton::new(("view", index), mode.icon())
                 .active(mode == self.active)
-                .disabled(!mode.is_available())
                 .on_click(std::rc::Rc::new(move |window, cx| {
                     on_select(mode, window, cx)
                 }))

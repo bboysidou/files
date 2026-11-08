@@ -179,3 +179,6 @@ pub const MARKDOWN_LINE_HEIGHT: f32 = 1.5;
 pub const MARKDOWN_HEADING_SIZES: [f32; 6] = [22.0, 19.0, 16.0, 14.0, 13.0, 13.0];
 pub const MILLER_COLUMN_WIDTH: f32 = 220.0;
 pub const MILLER_COLUMN_LIMIT: usize = 500;
+pub const DUAL_GAP: f32 = 8.0;
+pub const DUAL_PANE_PAD: f32 = 4.0;
+pub const DUAL_PANE_RADIUS: f32 = 10.0;

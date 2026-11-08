@@ -68,6 +68,10 @@ impl BrowserView {
             mode: clipboard.mode,
             policy: CollisionPolicy::KeepBoth,
         };
+        self.start_transfer(request, cx);
+    }
+
+    pub(super) fn start_transfer(&mut self, request: TransferRequest, cx: &mut Context<Self>) {
         let files = self.setup.operations.clone();
         let collisions = count_collisions(&request, &|path: &Path| files.exists(path));
         if collisions > 0 {

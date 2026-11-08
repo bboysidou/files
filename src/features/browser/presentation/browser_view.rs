@@ -17,6 +17,7 @@ use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
+use crate::features::browser::presentation::state::dual_pane::DualPane;
 use crate::features::browser::presentation::state::job_state::JobState;
 use crate::features::browser::presentation::state::menu_state::MenuState;
 use crate::features::browser::presentation::state::operation_intent::OperationIntent;
@@ -67,6 +68,7 @@ pub struct BrowserView {
     pub(super) job: Option<JobState>,
     pub(super) job_ticker: Option<Task<()>>,
     pub(super) queue: VecDeque<(FileOperation, OperationIntent)>,
+    pub(super) dual: DualPane,
 }
 
 impl BrowserView {
@@ -80,6 +82,7 @@ impl BrowserView {
         let mut view = Self {
             setup: Rc::new(setup),
             tabs: Vec::new(),
+            dual: DualPane::default(),
             active: 0,
             options: restore.options,
             clipboard: None,
@@ -113,32 +116,10 @@ impl BrowserView {
             job_ticker: None,
             queue: VecDeque::new(),
         };
-        let targets = if restore.tabs.is_empty() {
-            vec![TabSnapshot::fresh(view.setup.home_target.clone())]
-        } else {
-            restore.tabs
-        };
-        for snapshot in targets {
-            let tab = view.open_pane(snapshot, window, cx);
-            view.tabs.push(tab);
-        }
-        view.active = restore.active.min(view.tabs.len() - 1);
+        view.restore_tabs((restore.tabs, restore.active), window, cx);
         view.sync_preview_column(cx);
         view.sync_compact(cx);
         view
-    }
-
-    pub fn snapshot(&self, cx: &App) -> BrowserSnapshot {
-        BrowserSnapshot {
-            tabs: self
-                .tabs
-                .iter()
-                .map(|tab| tab.pane.read(cx).tab_snapshot())
-                .collect(),
-            active: self.active,
-            options: self.options,
-            preview_open: self.column_open,
-        }
     }
 
     pub fn start_search(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -160,7 +141,7 @@ impl BrowserView {
     }
 
     pub(super) fn set_view(&mut self, view: ViewMode, cx: &mut Context<Self>) {
-        if view.is_available() && view != self.options.view {
+        if view != self.options.view {
             self.apply_view_options(
                 ViewOptions {
                     view,
@@ -245,7 +226,12 @@ impl BrowserView {
     }
 
     pub(super) fn active_pane(&self) -> &Entity<PaneView> {
-        &self.tabs[self.active].pane
+        match &self.dual.partner {
+            Some(partner) if self.dual.focused && self.options.view == ViewMode::Dual => {
+                &partner.pane
+            }
+            _ => &self.tabs[self.active].pane,
+        }
     }
 }
 
@@ -255,6 +241,7 @@ impl Render for BrowserView {
             self.focus_confirm = false;
             window.focus(&self.confirm_focus, cx);
         }
+        let body = self.pane_body(window, cx);
         let quick_look = self.quick_look_overlay(window, cx);
         let menu = self.menu_overlay(window, cx);
         let keymap = self.keymap_overlay(window, cx);
@@ -275,11 +262,11 @@ impl Render for BrowserView {
             .h_full();
         let side = self.preview_column(cx);
         let (on_preview, on_keys, on_view) = Self::chrome_handlers(cx);
-        Self::with_actions(root, cx)
+        Self::with_dual_actions(Self::with_actions(root, cx), cx)
             .child(Sheet {
                 tabs: self.tab_strip_model(cx),
                 toolbar,
-                body: pane.into_any_element(),
+                body,
                 side,
                 preview_open: self.column_open,
                 on_preview,
