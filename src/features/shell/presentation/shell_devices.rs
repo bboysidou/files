@@ -58,6 +58,7 @@ impl ShellView {
                 label: SharedString::from(device.label.clone()),
                 mounted: device.mount.is_some(),
                 saved: false,
+                protocol: None,
                 active: device
                     .mount
                     .as_ref()

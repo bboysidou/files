@@ -43,6 +43,7 @@ impl ShellView {
                 label: SharedString::from(entry.label),
                 mounted: entry.mount.is_some(),
                 saved: entry.uri.is_some(),
+                protocol: entry.protocol,
             })
             .collect()
     }

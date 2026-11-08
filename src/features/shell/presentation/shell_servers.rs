@@ -1,5 +1,6 @@
 use gpui::{Context, Window};
 
+use crate::core::enums::network::network_protocol::NetworkProtocol;
 use crate::features::browser::presentation::state::browser_event::BrowserEvent;
 use crate::features::network::domain::usecases::server_key::server_key;
 use crate::features::network::domain::usecases::server_label::server_label;
@@ -32,6 +33,7 @@ impl ShellView {
                     .map(|mount| mount.path.clone());
                 Some(NetworkEntry {
                     label,
+                    protocol: NetworkProtocol::from_uri(uri),
                     uri: Some(uri.clone()),
                     mount,
                 })
@@ -50,6 +52,7 @@ impl ShellView {
                 label: mount.label.clone(),
                 uri: None,
                 mount: Some(mount.path.clone()),
+                protocol: mount.protocol,
             })
             .collect();
         entries.extend(unsaved);

@@ -216,3 +216,4 @@ pub const BAND_SCROLL_MAX_STEP: f32 = 24.0;
 pub const DUAL_SPLIT_DEFAULT: f32 = 0.5;
 pub const DUAL_SPLIT_MIN: f32 = 0.2;
 pub const DUAL_SPLIT_MAX: f32 = 0.8;
+pub const PROTOCOL_BADGE_PAD_X: f32 = 4.0;

@@ -26,7 +26,8 @@ Early development. Working today:
   `smb://`); the password is passed to gio once and never saved. Mounted shares are listed under
   Network in the sidebar, with a button to disconnect. A server you connect to is remembered
   there (in `settings.toml`, never its password): click it (or `Ctrl+0`, then `Enter`) to connect
-  again, `×` or `x` forgets it, the pencil or `e` edits its address (the new address replaces the
+  again, `×` or `x` forgets it, each entry carries a protocol badge (SFTP, FTP, FTPS, SMB, DAV, DAVS, NFS; red
+  for the unencrypted FTP, DAV and NFS), the pencil or `e` edits its address (the new address replaces the
   old one once it connects). `Ctrl+K` opens the path bar with `sftp://` ready to type a server
 - Context menu on right click or `m`, and a searchable keymap sheet (`?`)
 - Seven colour tags stored in the `user.xdg.tags` attribute (the one Dolphin reads); `tag:red` in

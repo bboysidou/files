@@ -1,12 +1,18 @@
 use gpui::{
-    App, FontWeight, IntoElement, RenderOnce, SharedString, Window, div, prelude::*, px, rgb,
+    App, Div, FontWeight, Hsla, IntoElement, RenderOnce, SharedString, Window, div, prelude::*, px,
+    rgb,
 };
 
 use crate::core::enums::assets::icon::Icon;
+use crate::core::enums::network::network_protocol::NetworkProtocol;
+use crate::core::helpers::files::extension_color::extension_color;
 use crate::core::helpers::theme::focus_ring::focus_ring;
-use crate::core::theme::colors::{ACCENT, CARD, FG_BRIGHT, FG_NAV, ON_ACCENT};
+use crate::core::theme::colors::{
+    ACCENT, BADGE_BACKGROUND_OPACITY, CARD, DANGER, FG_BRIGHT, FG_NAV, ON_ACCENT,
+};
 use crate::core::theme::metrics::{
-    CONTROL_RADIUS, NAV_GAP, NAV_HEIGHT, NAV_PAD_X, RAIL_ITEM_COLLAPSED,
+    BADGE_PAD_Y, BADGE_RADIUS, CONTROL_RADIUS, NAV_GAP, NAV_HEIGHT, NAV_PAD_X,
+    PROTOCOL_BADGE_PAD_X, RAIL_ITEM_COLLAPSED, TEXT_TINY,
 };
 use crate::features::shell::presentation::components::rail_label::RailLabel;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
@@ -23,6 +29,7 @@ pub struct RailDeviceItem {
     pub icon: Icon,
     pub label: SharedString,
     pub trailing: Option<Icon>,
+    pub protocol: Option<NetworkProtocol>,
     pub active: bool,
     pub cursor: bool,
     pub motion: RailMotion,
@@ -63,6 +70,9 @@ impl RenderOnce for RailDeviceItem {
             .h(px(NAV_HEIGHT))
             .child(glyph)
             .child(RailLabel::new("device-label", self.label, self.motion))
+            .when_some(self.protocol, |item, protocol| {
+                item.child(protocol_badge(protocol))
+            })
             .when_some(self.on_edit, |item, on_edit| {
                 item.child(
                     IconButton::new(("edit", index), Icon::Edit)
@@ -78,4 +88,22 @@ impl RenderOnce for RailDeviceItem {
                 )
             })
     }
+}
+
+fn protocol_badge(protocol: NetworkProtocol) -> Div {
+    let color: Hsla = if protocol.encrypted() {
+        extension_color(Some(protocol.badge()))
+    } else {
+        rgb(DANGER).into()
+    };
+    div()
+        .flex_shrink_0()
+        .px(px(PROTOCOL_BADGE_PAD_X))
+        .py(px(BADGE_PAD_Y))
+        .rounded(px(BADGE_RADIUS))
+        .bg(color.opacity(BADGE_BACKGROUND_OPACITY))
+        .text_color(color)
+        .text_size(px(TEXT_TINY))
+        .font_weight(FontWeight::SEMIBOLD)
+        .child(protocol.badge())
 }
