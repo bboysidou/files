@@ -13,3 +13,4 @@ pub const RESERVED_NAMES: [&str; 2] = [".", ".."];
 pub const WATCH_DEBOUNCE_MS: u64 = 250;
 pub const TRASH_INFO_DIR: &str = "info";
 pub const TRASH_INFO_EXTENSION: &str = "trashinfo";
+pub const COPY_BUFFER_BYTES: usize = 1024 * 1024;

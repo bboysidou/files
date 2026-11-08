@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::rc::Rc;
 
 use gpui::{
@@ -15,8 +16,9 @@ use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
-use crate::features::browser::presentation::state::handlers::ViewHandler;
+use crate::features::browser::presentation::state::job_state::JobState;
 use crate::features::browser::presentation::state::menu_state::MenuState;
+use crate::features::browser::presentation::state::operation_intent::OperationIntent;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::pane_start::PaneStart;
 use crate::features::browser::presentation::state::preview_state::PreviewState;
@@ -24,9 +26,9 @@ use crate::features::browser::presentation::state::tab::Tab;
 use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::browser::presentation::state::toast_model::ToastModel;
 use crate::features::operations::domain::entities::clipboard::Clipboard;
+use crate::features::operations::domain::entities::file_operation::FileOperation;
 use crate::features::operations::domain::entities::operation_history::OperationHistory;
 use crate::features::places::domain::entities::place::PlaceTarget;
-use crate::global_components::handlers::ClickHandler;
 use crate::global_components::text_field::text_field_view::{TextField, TextFieldEvent};
 
 pub struct BrowserView {
@@ -60,6 +62,10 @@ pub struct BrowserView {
     pub(super) confirm: Option<ConfirmState>,
     pub(super) confirm_focus: FocusHandle,
     pub(super) trash_task: Option<Task<()>>,
+    pub(super) focus_confirm: bool,
+    pub(super) job: Option<JobState>,
+    pub(super) job_ticker: Option<Task<()>>,
+    pub(super) queue: VecDeque<(FileOperation, OperationIntent)>,
 }
 
 impl BrowserView {
@@ -101,6 +107,10 @@ impl BrowserView {
             confirm: None,
             confirm_focus: cx.focus_handle(),
             trash_task: None,
+            focus_confirm: false,
+            job: None,
+            job_ticker: None,
+            queue: VecDeque::new(),
         };
         let targets = if restore.tabs.is_empty() {
             vec![TabSnapshot::fresh(view.setup.home_target.clone())]
@@ -233,6 +243,10 @@ impl BrowserView {
 
 impl Render for BrowserView {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        if self.focus_confirm {
+            self.focus_confirm = false;
+            window.focus(&self.confirm_focus, cx);
+        }
         let quick_look = self.quick_look_overlay(window, cx);
         let menu = self.menu_overlay(window, cx);
         let keymap = self.keymap_overlay(window, cx);
@@ -252,18 +266,7 @@ impl Render for BrowserView {
             .min_w_0()
             .h_full();
         let side = self.preview_column(cx);
-        let view = cx.entity().downgrade();
-        let on_preview: ClickHandler = Rc::new(move |_, cx| {
-            let _ = view.update(cx, |this, cx| this.toggle_preview_column(cx));
-        });
-        let keys_handle = cx.entity().downgrade();
-        let on_keys: ClickHandler = Rc::new(move |window, cx| {
-            let _ = keys_handle.update(cx, |this, cx| this.open_keymap(window, cx));
-        });
-        let view_handle = cx.entity().downgrade();
-        let on_view: ViewHandler = Rc::new(move |view, _, cx| {
-            let _ = view_handle.update(cx, |this, cx| this.set_view(view, cx));
-        });
+        let (on_preview, on_keys, on_view) = Self::chrome_handlers(cx);
         Self::with_actions(root, cx)
             .child(Sheet {
                 tabs: self.tab_strip_model(cx),

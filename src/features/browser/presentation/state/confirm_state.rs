@@ -1,7 +1,10 @@
 use std::path::PathBuf;
 
+use crate::features::operations::domain::entities::transfer_request::TransferRequest;
+
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum ConfirmState {
     Purge(Vec<PathBuf>),
     EmptyTrash,
+    Collision(TransferRequest, usize),
 }

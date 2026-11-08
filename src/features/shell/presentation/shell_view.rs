@@ -153,6 +153,10 @@ impl Render for ShellView {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let (on_toggle, on_select) = Self::handlers(cx);
         let (on_device, on_eject) = Self::device_handlers(cx);
+        let job_browser = self.browser.downgrade();
+        let on_cancel_job: ClickHandler = Rc::new(move |_, cx| {
+            let _ = job_browser.update(cx, |browser, _| browser.cancel_job());
+        });
         let browser = self.browser.downgrade();
         let on_search: ClickHandler = Rc::new(move |window, cx| {
             let _ = browser.update(cx, |browser, cx| browser.start_search(window, cx));
@@ -182,6 +186,8 @@ impl Render for ShellView {
                 devices: self.device_items(&location),
                 on_device,
                 on_eject,
+                job: self.browser.read(cx).job_card(),
+                on_cancel_job,
             })
             .child(self.browser.clone())
     }

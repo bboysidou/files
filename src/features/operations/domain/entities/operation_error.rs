@@ -5,6 +5,7 @@ pub enum OperationError {
     AlreadyExists,
     IntoItself,
     Failed,
+    Cancelled,
 }
 
 impl OperationError {
@@ -15,6 +16,7 @@ impl OperationError {
             OperationError::AlreadyExists => "op.error.exists",
             OperationError::IntoItself => "op.error.into_itself",
             OperationError::Failed => "op.error.failed",
+            OperationError::Cancelled => "op.error.cancelled",
         }
     }
 }

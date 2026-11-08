@@ -1,13 +1,15 @@
-use std::fs;
-use std::io::{self, ErrorKind};
+use std::fs::{self, File, OpenOptions};
+use std::io::{self, ErrorKind, Read, Write};
 use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
 
 use trash::TrashItem;
 use trash::os_limited;
 
+use crate::core::constants::files::COPY_BUFFER_BYTES;
 use crate::features::operations::domain::entities::operation_error::OperationError;
 use crate::features::operations::domain::repositories::file_operations::FileOperations;
+use crate::features::operations::domain::repositories::progress_sink::ProgressSink;
 
 pub struct LocalFileOperations;
 
@@ -17,22 +19,43 @@ impl LocalFileOperations {
             ErrorKind::NotFound => OperationError::NotFound,
             ErrorKind::PermissionDenied => OperationError::PermissionDenied,
             ErrorKind::AlreadyExists => OperationError::AlreadyExists,
+            ErrorKind::Interrupted => OperationError::Cancelled,
             _ => OperationError::Failed,
         }
     }
 
-    fn copy_tree(from: &Path, to: &Path) -> io::Result<()> {
+    fn copy_file(from: &Path, to: &Path, sink: &dyn ProgressSink) -> io::Result<()> {
+        let mut source = File::open(from)?;
+        let mut target = OpenOptions::new().write(true).create_new(true).open(to)?;
+        let mut buffer = vec![0_u8; COPY_BUFFER_BYTES];
+        loop {
+            if sink.is_cancelled() {
+                drop(target);
+                let _ = fs::remove_file(to);
+                return Err(io::Error::from(ErrorKind::Interrupted));
+            }
+            let read = source.read(&mut buffer)?;
+            if read == 0 {
+                break;
+            }
+            target.write_all(&buffer[..read])?;
+            sink.advance(read as u64);
+        }
+        fs::set_permissions(to, fs::metadata(from)?.permissions())
+    }
+
+    fn copy_tree(from: &Path, to: &Path, sink: &dyn ProgressSink) -> io::Result<()> {
         let metadata = fs::symlink_metadata(from)?;
         if metadata.file_type().is_symlink() {
             return symlink(fs::read_link(from)?, to);
         }
         if !metadata.is_dir() {
-            return fs::copy(from, to).map(|_| ());
+            return Self::copy_file(from, to, sink);
         }
         fs::create_dir(to)?;
         for item in fs::read_dir(from)? {
             let item = item?;
-            Self::copy_tree(&item.path(), &to.join(item.file_name()))?;
+            Self::copy_tree(&item.path(), &to.join(item.file_name()), sink)?;
         }
         Ok(())
     }
@@ -68,18 +91,42 @@ impl FileOperations for LocalFileOperations {
         fs::symlink_metadata(path).is_ok()
     }
 
-    fn copy(&self, from: &Path, to: &Path) -> Result<(), OperationError> {
+    fn copy(&self, from: &Path, to: &Path, sink: &dyn ProgressSink) -> Result<(), OperationError> {
         self.ensure_free(to)?;
-        Self::copy_tree(from, to).map_err(|error| Self::error_of(&error))
+        Self::copy_tree(from, to, sink).map_err(|error| Self::error_of(&error))
     }
 
-    fn move_path(&self, from: &Path, to: &Path) -> Result<(), OperationError> {
+    fn size_of(&self, path: &Path) -> u64 {
+        let Ok(metadata) = fs::symlink_metadata(path) else {
+            return 0;
+        };
+        if !metadata.is_dir() {
+            return metadata.len();
+        }
+        fs::read_dir(path)
+            .map(|items| {
+                items
+                    .filter_map(Result::ok)
+                    .map(|item| self.size_of(&item.path()))
+                    .sum()
+            })
+            .unwrap_or_default()
+    }
+
+    fn move_path(
+        &self,
+        from: &Path,
+        to: &Path,
+        sink: &dyn ProgressSink,
+    ) -> Result<(), OperationError> {
         self.ensure_free(to)?;
         match fs::rename(from, to) {
             Ok(()) => Ok(()),
-            Err(error) if error.kind() == ErrorKind::CrossesDevices => Self::copy_tree(from, to)
-                .and_then(|()| Self::remove_tree(from))
-                .map_err(|error| Self::error_of(&error)),
+            Err(error) if error.kind() == ErrorKind::CrossesDevices => {
+                Self::copy_tree(from, to, sink)
+                    .and_then(|()| Self::remove_tree(from))
+                    .map_err(|error| Self::error_of(&error))
+            }
             Err(error) => Err(Self::error_of(&error)),
         }
     }

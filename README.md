@@ -24,6 +24,8 @@ Early development. Working today:
 - Remembers hidden files, sort order, the sidebar, the preview column, the view mode and your open tabs
 - Copy, cut, paste, rename, new folder and move to Trash, all with undo and redo; copy and paste work
   with other file managers and apps through the system clipboard (Wayland)
+- Copies show live progress in the sidebar and can be cancelled; later operations queue; pasting over
+  existing names asks to keep both, skip or replace (replaced items go to the Trash)
 - Quick Look for images, any text file and folders (`Space`)
 - Preview column beside the list that follows the cursor (`F3`)
 - Grid view with image thumbnails (`Ctrl+3`, back to the list with `Ctrl+1`), cached in the shared

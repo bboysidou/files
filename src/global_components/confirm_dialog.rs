@@ -8,36 +8,16 @@ use crate::core::theme::metrics::{
     CONFIRM_GAP, CONFIRM_PAD, CONFIRM_WIDTH, QUICK_LOOK_RADIUS, TEXT_EMPTY_TITLE, TEXT_SMALL,
 };
 use crate::global_components::dialog_button::DialogButton;
-use crate::global_components::handlers::ClickHandler;
 
 #[derive(IntoElement)]
 pub struct ConfirmDialog {
     pub title: SharedString,
     pub body: SharedString,
-    pub cancel_label: SharedString,
-    pub confirm_label: SharedString,
-    pub on_cancel: ClickHandler,
-    pub on_confirm: ClickHandler,
+    pub buttons: Vec<DialogButton>,
 }
 
 impl RenderOnce for ConfirmDialog {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
-        let buttons = div()
-            .flex()
-            .justify_end()
-            .gap(px(CONFIRM_GAP))
-            .child(DialogButton {
-                id: "confirm-cancel",
-                label: self.cancel_label,
-                danger: false,
-                on_click: self.on_cancel,
-            })
-            .child(DialogButton {
-                id: "confirm-accept",
-                label: self.confirm_label,
-                danger: true,
-                on_click: self.on_confirm,
-            });
         div()
             .flex()
             .flex_col()
@@ -63,6 +43,12 @@ impl RenderOnce for ConfirmDialog {
                     .text_color(rgb(FG_SOFT))
                     .child(self.body),
             )
-            .child(buttons)
+            .child(
+                div()
+                    .flex()
+                    .justify_end()
+                    .gap(px(CONFIRM_GAP))
+                    .children(self.buttons),
+            )
     }
 }

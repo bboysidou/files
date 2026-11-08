@@ -7,6 +7,7 @@ use rust_i18n::t;
 
 use crate::core::constants::operations::TOAST_DURATION_MS;
 use crate::core::enums::operations::clipboard_mode::ClipboardMode;
+use crate::core::enums::operations::collision_policy::CollisionPolicy;
 use crate::core::helpers::format::item_count::item_count;
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
@@ -15,8 +16,10 @@ use crate::features::browser::presentation::state::toast_model::ToastModel;
 use crate::features::operations::domain::entities::clipboard::Clipboard;
 use crate::features::operations::domain::entities::file_operation::{FileOperation, Transfer};
 use crate::features::operations::domain::entities::operation_error::OperationError;
-use crate::features::operations::domain::usecases::plan_transfer::plan_transfer;
-use crate::features::operations::domain::usecases::run_operation::run_operation;
+use crate::features::operations::domain::entities::transfer_request::TransferRequest;
+use crate::features::operations::domain::usecases::plan_transfer::{
+    count_collisions, plan_transfer,
+};
 use crate::features::operations::domain::usecases::unique_target::unique_target;
 use crate::features::places::domain::entities::place::PlaceTarget;
 
@@ -56,15 +59,31 @@ impl BrowserView {
         let Some(clipboard) = external.or_else(|| self.clipboard.clone()) else {
             return self.show_toast(t!("op.clipboard_empty").to_string(), false, cx);
         };
-        let Some(directory) = self.active_pane().read(cx).directory() else {
+        let Some(destination) = self.active_pane().read(cx).directory() else {
             return self.show_toast(t!("op.cannot_paste_here").to_string(), false, cx);
         };
+        let request = TransferRequest {
+            sources: clipboard.paths,
+            destination,
+            mode: clipboard.mode,
+            policy: CollisionPolicy::KeepBoth,
+        };
         let files = self.setup.operations.clone();
-        let exists = |path: &Path| files.exists(path);
-        match plan_transfer(&clipboard.paths, &directory, clipboard.mode, &exists) {
+        let collisions = count_collisions(&request, &|path: &Path| files.exists(path));
+        if collisions > 0 {
+            self.confirm = Some(ConfirmState::Collision(request, collisions));
+            self.focus_confirm = true;
+            return cx.notify();
+        }
+        self.transfer(request, cx);
+    }
+
+    pub(super) fn transfer(&mut self, request: TransferRequest, cx: &mut Context<Self>) {
+        let files = self.setup.operations.clone();
+        match plan_transfer(&request, &|path: &Path| files.exists(path)) {
             Ok(operation) if operation.item_count() == 0 => {}
             Ok(operation) => {
-                if clipboard.mode == ClipboardMode::Cut {
+                if request.mode == ClipboardMode::Cut {
                     self.clipboard = None;
                     self.sync_cut(cx);
                     let system = self.setup.system_clipboard.clone();
@@ -113,8 +132,8 @@ impl BrowserView {
     }
 
     pub(super) fn undo(&mut self, cx: &mut Context<Self>) {
-        if self.is_busy(cx) {
-            return;
+        if self.job_running() {
+            return self.show_toast(t!("op.busy").to_string(), false, cx);
         }
         match self.history.take_undo() {
             Some(operation) => {
@@ -125,8 +144,8 @@ impl BrowserView {
     }
 
     pub(super) fn redo(&mut self, cx: &mut Context<Self>) {
-        if self.is_busy(cx) {
-            return;
+        if self.job_running() {
+            return self.show_toast(t!("op.busy").to_string(), false, cx);
         }
         match self.history.take_redo() {
             Some(operation) => {
@@ -136,82 +155,10 @@ impl BrowserView {
         }
     }
 
-    fn is_busy(&mut self, cx: &mut Context<Self>) -> bool {
-        let busy = self.operation_task.is_some();
-        if busy {
-            self.show_toast(t!("op.busy").to_string(), false, cx);
+    pub(super) fn describe(operation: &FileOperation) -> String {
+        if let FileOperation::Batch(steps) = operation {
+            return steps.last().map(Self::describe).unwrap_or_default();
         }
-        busy
-    }
-
-    pub(super) fn execute(
-        &mut self,
-        operation: FileOperation,
-        intent: OperationIntent,
-        cx: &mut Context<Self>,
-    ) {
-        if matches!(
-            intent,
-            OperationIntent::Fresh | OperationIntent::FreshThenRename
-        ) && self.is_busy(cx)
-        {
-            return;
-        }
-        let files = self.setup.operations.clone();
-        self.operation_task = Some(cx.spawn(async move |this, cx| {
-            let result = cx
-                .background_executor()
-                .spawn(async move { run_operation(operation, files.as_ref()) })
-                .await;
-            let _ = this.update(cx, |this, cx| this.finish(intent, result, cx));
-        }));
-    }
-
-    fn finish(
-        &mut self,
-        intent: OperationIntent,
-        result: Result<FileOperation, OperationError>,
-        cx: &mut Context<Self>,
-    ) {
-        self.operation_task = None;
-        let done = match result {
-            Ok(done) => done,
-            Err(error) => {
-                match intent {
-                    OperationIntent::Undo(operation) => self.history.push_undo(operation),
-                    OperationIntent::Redo(operation) => self.history.push_redo(operation),
-                    OperationIntent::Fresh | OperationIntent::FreshThenRename => {}
-                }
-                self.show_error(error, cx);
-                return self.reload_all(None, false, cx);
-            }
-        };
-        let rename = intent == OperationIntent::FreshThenRename;
-        let (message, can_undo, landing) = match intent {
-            OperationIntent::Fresh | OperationIntent::FreshThenRename => {
-                self.history.record(done.clone());
-                (Self::describe(&done), true, done.landing_path())
-            }
-            OperationIntent::Undo(original) => {
-                let message = t!("op.undid", what = Self::describe(&original)).to_string();
-                let landing = original.inverse().landing_path();
-                self.history.push_redo(original);
-                (message, false, landing)
-            }
-            OperationIntent::Redo(_) => {
-                self.history.push_undo(done.clone());
-                (
-                    t!("op.redid", what = Self::describe(&done)).to_string(),
-                    false,
-                    done.landing_path(),
-                )
-            }
-        };
-        self.show_toast(message, can_undo, cx);
-        self.reload_all(landing, rename, cx);
-    }
-
-    fn describe(operation: &FileOperation) -> String {
         let items = item_count(operation.item_count());
         let name_of = |path: &PathBuf| {
             path.file_name()
@@ -226,6 +173,7 @@ impl BrowserView {
             FileOperation::Restore(_) => t!("op.restored", items = items),
             FileOperation::CreateFolder(path) => t!("op.created_folder", name = name_of(path)),
             FileOperation::RemoveFolder(path) => t!("op.removed_folder", name = name_of(path)),
+            FileOperation::Batch(_) => Default::default(),
         }
         .to_string()
     }
@@ -234,7 +182,12 @@ impl BrowserView {
         self.reload_all(None, false, cx);
     }
 
-    fn reload_all(&mut self, landing: Option<PathBuf>, rename: bool, cx: &mut Context<Self>) {
+    pub(super) fn reload_all(
+        &mut self,
+        landing: Option<PathBuf>,
+        rename: bool,
+        cx: &mut Context<Self>,
+    ) {
         let active = self.active;
         for (index, tab) in self.tabs.iter().enumerate() {
             let focus = landing.clone().filter(|_| index == active);

@@ -3,6 +3,8 @@ pub mod browser_snapshot;
 pub mod confirm_state;
 pub mod filter_model;
 pub mod handlers;
+pub mod job_card_model;
+pub mod job_state;
 pub mod keymap_rows;
 pub mod load_state;
 pub mod menu_state;

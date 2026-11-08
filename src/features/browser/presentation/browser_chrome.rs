@@ -5,6 +5,7 @@ use rust_i18n::t;
 
 use crate::core::theme::metrics::TOAST_OFFSET;
 use crate::features::browser::presentation::browser_view::BrowserView;
+use crate::features::browser::presentation::state::handlers::ViewHandler;
 use crate::features::browser::presentation::state::tab_strip_model::TabStripModel;
 use crate::global_components::handlers::{ClickHandler, IndexHandler};
 use crate::global_components::toast::Toast;
@@ -61,5 +62,25 @@ impl BrowserView {
                 })
                 .into_any_element(),
         )
+    }
+
+    pub(super) fn chrome_handlers(
+        cx: &mut Context<Self>,
+    ) -> (ClickHandler, ClickHandler, ViewHandler) {
+        let (preview_view, keys_view, mode_view) = (
+            cx.entity().downgrade(),
+            cx.entity().downgrade(),
+            cx.entity().downgrade(),
+        );
+        let on_preview: ClickHandler = Rc::new(move |_, cx| {
+            let _ = preview_view.update(cx, |this, cx| this.toggle_preview_column(cx));
+        });
+        let on_keys: ClickHandler = Rc::new(move |window, cx| {
+            let _ = keys_view.update(cx, |this, cx| this.open_keymap(window, cx));
+        });
+        let on_view: ViewHandler = Rc::new(move |view, _, cx| {
+            let _ = mode_view.update(cx, |this, cx| this.set_view(view, cx));
+        });
+        (on_preview, on_keys, on_view)
     }
 }

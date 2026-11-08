@@ -1,6 +1,7 @@
 pub mod rail;
 pub mod rail_brand;
 pub mod rail_device_item;
+pub mod rail_job_card;
 pub mod rail_label;
 pub mod rail_nav_item;
 pub mod rail_search;
