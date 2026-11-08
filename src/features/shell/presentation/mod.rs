@@ -1,4 +1,5 @@
 pub mod actions;
+pub mod app_key_bindings;
 pub mod components;
 pub mod rail_key_bindings;
 pub mod shell_devices;

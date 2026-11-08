@@ -32,6 +32,7 @@ use crate::features::browser::presentation::state::search_state::SearchState;
 use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
 use crate::features::browser::presentation::state::tree_state::TreeState;
+use crate::features::browser::presentation::state::type_ahead::TypeAhead;
 use crate::features::places::domain::entities::crumb_trail::CrumbTrail;
 use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::global_components::handlers::{ClickHandler, IndexHandler};
@@ -56,6 +57,7 @@ pub struct PaneView {
     pub(super) filter_open: bool,
     pub(super) cut: HashSet<PathBuf>,
     pub(super) renames: RenameSlot,
+    pub(super) type_ahead: TypeAhead,
     pub(super) watching: WatchSlot,
     pub(super) thumbnails: ThumbSlot,
     pub(super) rename_field: Entity<TextField>,
@@ -106,6 +108,7 @@ impl PaneView {
             filter_open: false,
             cut: HashSet::new(),
             renames: RenameSlot::default(),
+            type_ahead: TypeAhead::default(),
             watching: WatchSlot::default(),
             thumbnails: ThumbSlot::default(),
             rename_field: inputs.rename,
@@ -279,6 +282,7 @@ impl Render for PaneView {
             }),
         );
         let body = self.drop_zone(self.body(cx), cx);
+        let root = Self::with_type_ahead(root, cx);
         Self::with_tree_actions(
             Self::with_size_actions(Self::with_tag_actions(Self::with_actions(root, cx), cx), cx),
             cx,

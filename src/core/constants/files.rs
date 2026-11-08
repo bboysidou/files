@@ -41,3 +41,4 @@ pub const PERMISSION_BITS: u32 = 0o777;
 pub const PERMISSION_TOP_BIT: u32 = 0o400;
 pub const PERMISSION_COUNT: usize = 9;
 pub const BAND_SCROLL_TICK_MS: u64 = 16;
+pub const TYPE_AHEAD_RESET_MS: u64 = 1000;

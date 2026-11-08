@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
 use crate::core::constants::settings::DUAL_SPLIT_DEFAULT_PERMILLE;
+use crate::core::enums::browser::key_preset::KeyPreset;
 use crate::core::enums::browser::sort_key::SortKey;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::folder_views::FolderViews;
@@ -42,6 +43,7 @@ pub struct Settings {
     pub sort_ascending: bool,
     pub hidden_last: bool,
     pub restore_tabs: bool,
+    pub key_preset: KeyPreset,
     pub view_mode: ViewMode,
     pub columns: ListColumns,
     pub folder_views: FolderViews,
@@ -60,6 +62,7 @@ impl Default for Settings {
             sort_ascending: true,
             hidden_last: false,
             restore_tabs: true,
+            key_preset: KeyPreset::Vim,
             view_mode: ViewMode::List,
             columns: ListColumns::default(),
             folder_views: FolderViews::default(),

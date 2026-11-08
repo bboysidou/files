@@ -4,25 +4,22 @@ mod core;
 mod features;
 mod global_components;
 
-use gpui::{App, AppContext, Bounds, Focusable, KeyBinding, WindowBounds, WindowOptions, px, size};
+use gpui::{App, AppContext, Bounds, Focusable, WindowBounds, WindowOptions, px, size};
 
 use crate::core::assets::embedded_assets::EmbeddedAssets;
 use crate::core::assets::embedded_fonts::embedded_fonts;
 use crate::core::constants::app::{APP_ID, WINDOW_HEIGHT, WINDOW_WIDTH};
-use crate::core::constants::keymap::TOGGLE_RAIL_KEYS;
 use crate::core::dependency_injection::integration::{default_handler, instance_bridge};
 use crate::core::dependency_injection::picker::portal_registration;
 use crate::core::dependency_injection::places::places_repository;
+use crate::core::dependency_injection::settings::settings_repository;
 use crate::core::helpers::i18n::supported_locale::supported_locale;
 use crate::core::helpers::i18n::system_locale::system_locale;
-use crate::features::browser::presentation::key_bindings::browser_key_bindings;
 use crate::features::integration::domain::entities::launch_request::LaunchRequest;
 use crate::features::integration::domain::usecases::parse_launch::parse_launch;
 use crate::features::picker::presentation::portal_host::serve_portal;
-use crate::features::shell::presentation::actions::ToggleRail;
-use crate::features::shell::presentation::rail_key_bindings::rail_key_bindings;
+use crate::features::shell::presentation::app_key_bindings::bind_app_keys;
 use crate::features::shell::presentation::shell_view::ShellView;
-use crate::global_components::text_field::text_field_actions::text_field_key_bindings;
 
 rust_i18n::i18n!("locales", fallback = "en");
 
@@ -47,10 +44,7 @@ fn run_default(enable: bool) {
 
 fn bind_keys(cx: &mut App) {
     let _ = cx.text_system().add_fonts(embedded_fonts());
-    cx.bind_keys([KeyBinding::new(TOGGLE_RAIL_KEYS, ToggleRail, None)]);
-    cx.bind_keys(rail_key_bindings());
-    cx.bind_keys(browser_key_bindings());
-    cx.bind_keys(text_field_key_bindings());
+    bind_app_keys(settings_repository().load().key_preset, cx);
 }
 
 fn open_main_window(launch: LaunchRequest, cx: &mut App) {

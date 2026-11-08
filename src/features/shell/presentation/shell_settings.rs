@@ -5,12 +5,21 @@ use gpui::{App, Context};
 use crate::core::constants::settings::SETTINGS_SAVE_DEBOUNCE_MS;
 use crate::features::browser::domain::entities::sort_order::SortOrder;
 use crate::features::browser::domain::entities::view_options::ViewOptions;
+use crate::features::browser::presentation::state::active_key_preset::ActiveKeyPreset;
 use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
 use crate::features::settings::domain::entities::settings::Settings;
+use crate::features::shell::presentation::app_key_bindings::bind_app_keys;
 use crate::features::shell::presentation::shell_view::ShellView;
 use crate::features::shell::presentation::state::saved_tab_mapping::{restored_tab, saved_tab};
 
 impl ShellView {
+    pub(super) fn sync_key_preset(&mut self, cx: &mut Context<Self>) {
+        let preset = self.browser.read(cx).key_preset();
+        if cx.global::<ActiveKeyPreset>().0 != preset {
+            bind_app_keys(preset, cx);
+        }
+    }
+
     pub(super) fn restored_snapshot(settings: &Settings) -> BrowserSnapshot {
         let saved = if settings.restore_tabs {
             settings.tabs.as_slice()
@@ -24,6 +33,7 @@ impl ShellView {
             preview_open: settings.preview_open,
             dual_split: settings.dual_split,
             restore_tabs: settings.restore_tabs,
+            key_preset: settings.key_preset,
             folder_views: settings.folder_views.clone(),
             options: ViewOptions {
                 show_hidden: settings.show_hidden,
@@ -47,6 +57,7 @@ impl ShellView {
             sort_ascending: snapshot.options.sort.ascending,
             hidden_last: snapshot.options.sort.hidden_last,
             restore_tabs: snapshot.restore_tabs,
+            key_preset: snapshot.key_preset,
             folder_views: snapshot.folder_views.clone(),
             view_mode: snapshot.options.view,
             columns: snapshot.options.columns,

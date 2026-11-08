@@ -1,3 +1,4 @@
+use crate::core::enums::browser::key_preset::KeyPreset;
 use crate::core::enums::browser::sort_key::SortKey;
 use crate::core::enums::view::view_mode::ViewMode;
 
@@ -12,4 +13,5 @@ pub enum SettingChange {
     RestoreTabs(bool),
     Column(SortKey, bool),
     FolderViews(bool),
+    Keys(KeyPreset),
 }

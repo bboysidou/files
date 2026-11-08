@@ -1,3 +1,4 @@
+pub mod active_key_preset;
 pub mod archive_job;
 pub mod band_state;
 pub mod browser_parts;
@@ -41,3 +42,4 @@ pub mod thumb_state;
 pub mod toast_model;
 pub mod toolbar_model;
 pub mod tree_state;
+pub mod type_ahead;

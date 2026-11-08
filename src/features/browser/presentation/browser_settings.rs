@@ -6,6 +6,7 @@ use gpui::{
 };
 use rust_i18n::t;
 
+use crate::core::enums::browser::key_preset::KeyPreset;
 use crate::core::theme::colors::{CARD, FG_BRIGHT, LINE_STRONG};
 use crate::core::theme::metrics::LIST_CREATED_WIDTH;
 use crate::core::theme::metrics::{
@@ -25,6 +26,10 @@ const SETTINGS_PRIORITY: usize = 1;
 const DOUBLE: f32 = 2.0;
 
 impl BrowserView {
+    pub fn key_preset(&self) -> KeyPreset {
+        self.settings.key_preset
+    }
+
     pub(super) fn open_settings(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.settings.open = true;
         window.focus(&self.settings.focus, cx);
@@ -58,6 +63,10 @@ impl BrowserView {
             }
             SettingChange::RestoreTabs(on) => {
                 self.settings.restore_tabs = on;
+                return cx.notify();
+            }
+            SettingChange::Keys(preset) => {
+                self.settings.key_preset = preset;
                 return cx.notify();
             }
         }

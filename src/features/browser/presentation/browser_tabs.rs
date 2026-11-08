@@ -54,6 +54,7 @@ impl BrowserView {
             preview_open: self.column.open,
             dual_split: (self.dual.split * PERMILLE).round() as u16,
             restore_tabs: self.settings.restore_tabs,
+            key_preset: self.settings.key_preset,
             folder_views: self.settings.folder_views.clone(),
         }
     }

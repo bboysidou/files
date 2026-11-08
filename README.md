@@ -125,6 +125,15 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 
 ## Keys
 
+Two presets, picked under Keys in the settings panel and applied at once. **Vim** (the default)
+is the table below. **Classic** drops every plain-letter key so typing a name jumps to it
+(the typed letters reset after a second), and moves the letter commands to `F1` (this sheet),
+`Shift+F10` / Menu key (context menu), `Alt+Enter` (properties), `Ctrl+Space` (mark), `Ctrl+I`
+(invert), `Alt+S` (folder sizes), `Ctrl+Shift+F` (filter), `Alt+1`–`9` (tabs),
+`Alt+PgDn` / `Alt+PgUp` (PDF pages in the preview column) and `Ctrl+Alt+1`–`7` / `Ctrl+Alt+0`
+(tags). Ctrl, F-key, arrow and Space keys are the same in both. The keymap sheet shows the keys of
+the active preset.
+
 | Keys | Action |
 | --- | --- |
 | `j` `k` / `↓` `↑` | Move the cursor |

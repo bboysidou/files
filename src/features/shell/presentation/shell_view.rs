@@ -76,6 +76,7 @@ impl ShellView {
         let browser_changes = cx.observe(&browser, |this, _, cx| {
             this.persist(cx);
             this.note_location(cx);
+            this.sync_key_preset(cx);
             cx.notify();
         });
         let quit = cx.on_app_quit(|this, cx| {

@@ -16,7 +16,7 @@ use crate::core::theme::metrics::{
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::components::key_row::KeyRow;
 use crate::features::browser::presentation::key_bindings::KEYMAP_CONTEXT;
-use crate::features::browser::presentation::state::keymap_rows::KEYMAP_ROWS;
+use crate::features::browser::presentation::state::keymap_rows::keymap_rows;
 use crate::global_components::handlers::ClickHandler;
 use crate::global_components::icon_glyph::IconGlyph;
 use crate::global_components::modal_scrim::ModalScrim;
@@ -53,9 +53,9 @@ impl BrowserView {
 
     fn keymap_rows(&self, cx: &Context<Self>) -> Vec<AnyElement> {
         let query = self.keymap_field.read(cx).text().trim().to_lowercase();
-        let rows: Vec<AnyElement> = KEYMAP_ROWS
-            .iter()
-            .map(|(label, keys)| (t!(*label).to_string(), *keys))
+        let rows: Vec<AnyElement> = keymap_rows(self.settings.key_preset)
+            .into_iter()
+            .map(|(label, keys)| (t!(label).to_string(), keys))
             .filter(|(label, keys)| {
                 query.is_empty()
                     || label.to_lowercase().contains(&query)

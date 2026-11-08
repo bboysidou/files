@@ -1,6 +1,9 @@
 use gpui::KeyBinding;
 
+use crate::core::enums::browser::key_preset::KeyPreset;
 use crate::features::browser::presentation::actions::*;
+use crate::features::browser::presentation::classic_key_bindings::classic_key_bindings;
+use crate::features::browser::presentation::vim_key_bindings::vim_key_bindings;
 
 pub const BROWSER_CONTEXT: &str = "Browser";
 pub const PANE_CONTEXT: &str = "Pane";
@@ -14,37 +17,32 @@ pub const SETTINGS_CONTEXT: &str = "Settings";
 pub const BULK_CONTEXT: &str = "BulkRename";
 pub const LOGIN_CONTEXT: &str = "NetworkLogin";
 pub const PROPERTIES_CONTEXT: &str = "Properties";
-const PANE_KEYS: &str = "Pane && !TextField";
+pub(super) const PANE_KEYS: &str = "Pane && !TextField";
 
-pub fn browser_key_bindings() -> Vec<KeyBinding> {
-    let mut bindings = navigation_bindings();
+pub fn browser_key_bindings(preset: KeyPreset) -> Vec<KeyBinding> {
+    let mut bindings = match preset {
+        KeyPreset::Vim => vim_key_bindings(),
+        KeyPreset::Classic => classic_key_bindings(),
+    };
+    bindings.extend(navigation_bindings());
     bindings.extend(grid_bindings());
     bindings.extend(selection_bindings());
     bindings.extend(operation_bindings());
     bindings.extend(tab_bindings());
     bindings.extend(quick_look_bindings());
     bindings.extend(overlay_bindings());
-    bindings.extend(tag_bindings());
     bindings
 }
 
 fn navigation_bindings() -> Vec<KeyBinding> {
     let context = Some(PANE_KEYS);
     vec![
-        KeyBinding::new("j", MoveDown, context),
         KeyBinding::new("down", MoveDown, context),
-        KeyBinding::new("k", MoveUp, context),
         KeyBinding::new("up", MoveUp, context),
-        KeyBinding::new("g g", SelectFirst, context),
         KeyBinding::new("home", SelectFirst, context),
-        KeyBinding::new("shift-g", SelectLast, context),
-        KeyBinding::new("shift-j", PreviewPageDown, context),
-        KeyBinding::new("shift-k", PreviewPageUp, context),
         KeyBinding::new("end", SelectLast, context),
         KeyBinding::new("enter", OpenEntry, context),
-        KeyBinding::new("l", OpenEntry, context),
         KeyBinding::new("right", OpenEntry, context),
-        KeyBinding::new("h", GoParent, context),
         KeyBinding::new("left", GoParent, context),
         KeyBinding::new("backspace", GoParent, context),
         KeyBinding::new("alt-up", GoParent, context),
@@ -52,13 +50,7 @@ fn navigation_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("alt-right", GoForward, context),
         KeyBinding::new("ctrl-h", ToggleHidden, context),
         KeyBinding::new("f5", Reload, context),
-        KeyBinding::new("/", OpenFilter, context),
         KeyBinding::new("space", QuickLook, context),
-        KeyBinding::new("f", StartSearch, context),
-        KeyBinding::new(":", EditPath, context),
-        KeyBinding::new("m", OpenMenu, context),
-        KeyBinding::new("?", ShowKeymap, context),
-        KeyBinding::new(",", ShowSettings, context),
     ]
 }
 
@@ -66,10 +58,7 @@ fn selection_bindings() -> Vec<KeyBinding> {
     let context = Some(PANE_KEYS);
     vec![
         KeyBinding::new("escape", Dismiss, context),
-        KeyBinding::new("v", ToggleMark, context),
         KeyBinding::new("ctrl-a", SelectAllEntries, context),
-        KeyBinding::new("shift-v", InvertSelection, context),
-        KeyBinding::new("s", MeasureFolders, context),
         KeyBinding::new("shift-down", ExtendDown, context),
         KeyBinding::new("shift-up", ExtendUp, context),
         KeyBinding::new("shift-right", ExpandFolder, context),
@@ -80,27 +69,14 @@ fn selection_bindings() -> Vec<KeyBinding> {
 fn operation_bindings() -> Vec<KeyBinding> {
     let context = Some(PANE_KEYS);
     vec![
-        KeyBinding::new("y", CopySelection, context),
         KeyBinding::new("ctrl-c", CopySelection, context),
-        KeyBinding::new("x", CutSelection, context),
         KeyBinding::new("ctrl-x", CutSelection, context),
-        KeyBinding::new("p", PasteClipboard, context),
         KeyBinding::new("ctrl-v", PasteClipboard, context),
-        KeyBinding::new("d d", TrashSelection, context),
         KeyBinding::new("delete", TrashSelection, context),
-        KeyBinding::new("r", RenameEntry, context),
         KeyBinding::new("f2", RenameEntry, context),
         KeyBinding::new("ctrl-shift-n", NewFolder, context),
-        KeyBinding::new("shift-n", NewFile, context),
         KeyBinding::new("ctrl-d", Duplicate, context),
         KeyBinding::new("ctrl-shift-v", PasteLink, context),
-        KeyBinding::new("o", OpenWith, context),
-        KeyBinding::new("i", ShowProperties, context),
-        KeyBinding::new("e", ExtractHere, context),
-        KeyBinding::new("c", CompressZip, context),
-        KeyBinding::new("shift-b", BrowseArchive, context),
-        KeyBinding::new("shift-s", OpenTerminal, context),
-        KeyBinding::new("z", Undo, context),
         KeyBinding::new("ctrl-z", Undo, context),
         KeyBinding::new("ctrl-shift-z", Redo, context),
         KeyBinding::new("ctrl-y", Redo, context),
@@ -111,27 +87,12 @@ fn tab_bindings() -> Vec<KeyBinding> {
     let pane = Some(PANE_KEYS);
     let browser = Some(BROWSER_CONTEXT);
     vec![
-        KeyBinding::new("t", NewTab, pane),
-        KeyBinding::new("w", CloseTab, pane),
-        KeyBinding::new("]", NextTab, pane),
-        KeyBinding::new("[", PreviousTab, pane),
-        KeyBinding::new("1", ActivateTab1, pane),
-        KeyBinding::new("2", ActivateTab2, pane),
-        KeyBinding::new("3", ActivateTab3, pane),
-        KeyBinding::new("4", ActivateTab4, pane),
-        KeyBinding::new("5", ActivateTab5, pane),
-        KeyBinding::new("6", ActivateTab6, pane),
-        KeyBinding::new("7", ActivateTab7, pane),
-        KeyBinding::new("8", ActivateTab8, pane),
-        KeyBinding::new("9", ActivateTab9, pane),
         KeyBinding::new("ctrl-t", NewTab, browser),
         KeyBinding::new("ctrl-w", CloseTab, browser),
         KeyBinding::new("ctrl-tab", NextTab, browser),
         KeyBinding::new("ctrl-shift-tab", PreviousTab, browser),
         KeyBinding::new("ctrl-shift-pageup", MoveTabLeft, browser),
         KeyBinding::new("ctrl-shift-pagedown", MoveTabRight, browser),
-        KeyBinding::new("{", MoveTabLeft, pane),
-        KeyBinding::new("}", MoveTabRight, pane),
         KeyBinding::new("f3", TogglePreview, browser),
         KeyBinding::new("ctrl-1", ShowList, browser),
         KeyBinding::new("ctrl-2", ShowColumns, browser),
@@ -195,19 +156,5 @@ fn overlay_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("m", CollisionMerge, Some(CONFIRM_CONTEXT)),
         KeyBinding::new("s", CollisionSkip, Some(CONFIRM_CONTEXT)),
         KeyBinding::new("r", CollisionReplace, Some(CONFIRM_CONTEXT)),
-    ]
-}
-
-fn tag_bindings() -> Vec<KeyBinding> {
-    let context = Some(PANE_KEYS);
-    vec![
-        KeyBinding::new("shift-t 1", TagRed, context),
-        KeyBinding::new("shift-t 2", TagOrange, context),
-        KeyBinding::new("shift-t 3", TagYellow, context),
-        KeyBinding::new("shift-t 4", TagGreen, context),
-        KeyBinding::new("shift-t 5", TagBlue, context),
-        KeyBinding::new("shift-t 6", TagPurple, context),
-        KeyBinding::new("shift-t 7", TagGrey, context),
-        KeyBinding::new("shift-t 0", ClearTags, context),
     ]
 }

@@ -3,6 +3,7 @@ use std::rc::Rc;
 use gpui::{AnyElement, IntoElement, SharedString, WeakEntity};
 use rust_i18n::t;
 
+use crate::core::enums::browser::key_preset::KeyPreset;
 use crate::core::enums::browser::sort_key::SortKey;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::list_columns::ListColumns;
@@ -19,13 +20,14 @@ const VIEW_KEYS: [&str; 4] = [
     "settings.view.grid",
     "settings.view.dual",
 ];
-const SORT_KEYS: [&str; 6] = [
+const SORT_KEYS: [&str; 7] = [
     "settings.sort.name",
     "settings.sort.size",
     "settings.sort.kind",
     "settings.sort.modified",
     "settings.sort.extension",
     "settings.sort.created",
+    "settings.sort.random",
 ];
 const COLUMN_LABELS: [(&str, &str); 4] = [
     ("set-col-size", "settings.column.size"),
@@ -110,7 +112,26 @@ impl BrowserView {
                     pick: |index| Some(SettingChange::RestoreTabs(index == 0)),
                 },
             },
+            self.keys_item(),
         ]
+    }
+
+    fn keys_item(&self) -> SettingItem {
+        SettingItem {
+            id: "set-keys",
+            label: "settings.keys",
+            control: SettingControl::Choice {
+                labels: KeyPreset::ALL
+                    .iter()
+                    .map(|preset| preset.label_key())
+                    .collect(),
+                selected: KeyPreset::ALL
+                    .iter()
+                    .position(|preset| *preset == self.settings.key_preset)
+                    .unwrap_or_default(),
+                pick: |index| KeyPreset::ALL.get(index).copied().map(SettingChange::Keys),
+            },
+        }
     }
 
     pub(super) fn column_items(&self) -> Vec<SettingItem> {
