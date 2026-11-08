@@ -41,6 +41,19 @@ cargo run --release
 
 Needs a recent stable Rust toolchain and the Wayland or X11 development libraries GPUI uses.
 
+## Command line
+
+```sh
+files [PATH]           # open a folder, or the folder holding a file
+files --select PATH    # open the folder and put the cursor on PATH
+files --default        # make files the default file manager (inode/directory)
+files --default off    # give the default back to the previous file manager
+```
+
+Only one window runs: launching `files` again opens the path as a new tab in it. While `files` is
+the default, it also answers `org.freedesktop.FileManager1`, so "Show in folder" in other apps
+opens it.
+
 ## Settings
 
 Stored in `~/.config/files/settings.toml` (or `$XDG_CONFIG_HOME/files/`), saved as you go.

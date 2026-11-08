@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -26,6 +27,7 @@ use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::devices::domain::entities::device::Device;
 use crate::features::devices::domain::repositories::device_repository::DeviceRepository;
+use crate::features::integration::domain::entities::launch_request::LaunchRequest;
 use crate::features::places::domain::entities::place::{Place, PlaceTarget};
 use crate::features::places::domain::repositories::places_repository::PlacesRepository;
 use crate::features::settings::domain::entities::settings::Settings;
@@ -48,6 +50,8 @@ pub struct ShellView {
     pub(super) directory_watcher: Arc<dyn DirectoryWatcher>,
     pub(super) device_task: Option<Task<()>>,
     pub(super) device_watch: Option<Task<()>>,
+    pub(super) bus: Option<Box<dyn Any>>,
+    pub(super) launch_task: Option<Task<()>>,
     _browser_changes: Subscription,
     _quit: Subscription,
 }
@@ -55,6 +59,7 @@ pub struct ShellView {
 impl ShellView {
     pub fn new(
         repository: &dyn PlacesRepository,
+        launch: LaunchRequest,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
@@ -101,11 +106,12 @@ impl ShellView {
             directory_watcher: directory_watcher(),
             device_task: None,
             device_watch: None,
+            bus: None,
+            launch_task: None,
             _browser_changes: browser_changes,
             _quit: quit,
         };
-        shell.refresh_devices(cx);
-        shell.watch_devices(cx);
+        shell.start(launch, window, cx);
         shell
     }
 

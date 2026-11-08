@@ -1,0 +1,14 @@
+pub const APP_BUS_NAME: &str = "io.github.bboysidou.Files";
+pub const APP_BUS_PATH: &str = "/io/github/bboysidou/Files";
+pub const APP_BUS_INTERFACE: &str = "io.github.bboysidou.Files";
+pub const APP_OPEN_METHOD: &str = "Open";
+pub const FILE_MANAGER_BUS_NAME: &str = "org.freedesktop.FileManager1";
+pub const FILE_MANAGER_BUS_PATH: &str = "/org/freedesktop/FileManager1";
+pub const ARG_SELECT: &str = "--select";
+pub const ARG_DEFAULT: &str = "--default";
+pub const ARG_OFF: &str = "off";
+pub const DESKTOP_FILE_NAME: &str = "files.desktop";
+pub const DIRECTORY_MIME: &str = "inode/directory";
+pub const XDG_MIME_COMMAND: &str = "xdg-mime";
+pub const PREVIOUS_HANDLER_FILE: &str = "previous-file-manager";
+pub const APPLICATIONS_DIR: &str = "applications";

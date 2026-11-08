@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use gpui::{Context, Focusable, Window};
 
 use crate::features::browser::presentation::browser_view::BrowserView;
@@ -58,5 +60,21 @@ impl BrowserView {
         let count = self.tabs.len() as isize;
         let next = (self.active as isize + delta).rem_euclid(count) as usize;
         self.activate(next, window, cx);
+    }
+
+    pub fn open_tab(
+        &mut self,
+        (target, focus): (PlaceTarget, Option<PathBuf>),
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let tab = self.open_pane(TabSnapshot::fresh(target), window, cx);
+        if let Some(path) = focus {
+            tab.pane.update(cx, |pane, _| pane.focus_when_loaded(path));
+        }
+        self.tabs.push(tab);
+        self.sync_cut(cx);
+        self.sync_compact(cx);
+        self.activate(self.tabs.len() - 1, window, cx);
     }
 }

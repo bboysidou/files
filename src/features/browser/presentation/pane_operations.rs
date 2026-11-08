@@ -123,4 +123,8 @@ impl PaneView {
             });
         })
     }
+
+    pub(super) fn focus_when_loaded(&mut self, path: PathBuf) {
+        self.pending_focus = Some(path);
+    }
 }

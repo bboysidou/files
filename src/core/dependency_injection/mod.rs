@@ -1,5 +1,6 @@
 pub mod browser;
 pub mod devices;
+pub mod integration;
 pub mod operations;
 pub mod places;
 pub mod preview;

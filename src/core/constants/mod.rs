@@ -4,6 +4,7 @@ pub mod devices;
 pub mod files;
 pub mod hash;
 pub mod i18n;
+pub mod integration;
 pub mod keymap;
 pub mod operations;
 pub mod paths;
