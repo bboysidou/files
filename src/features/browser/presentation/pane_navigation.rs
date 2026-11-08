@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use gpui::Context;
+use rust_i18n::t;
 
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::file_entry::FileEntry;
@@ -8,6 +9,7 @@ use crate::features::browser::domain::entities::list_error::ListError;
 use crate::features::browser::domain::entities::navigation_history::HistoryStop;
 use crate::features::browser::domain::entities::selection::Selection;
 use crate::features::browser::domain::usecases::arrange_entries::arrange_entries;
+use crate::features::browser::domain::usecases::listing_changes::listing_changes;
 use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::load_state::LoadState;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
@@ -35,6 +37,7 @@ impl PaneView {
     ) {
         self.location = target;
         self.pending_focus = focus;
+        self.reload_base = None;
         self.renames.path = None;
         self.search = None;
         self.search_task = None;
@@ -77,6 +80,32 @@ impl PaneView {
         cx.notify();
     }
 
+    pub(super) fn reload(&mut self, cx: &mut Context<Self>) {
+        if let LoadState::Ready(raw) = &self.load {
+            self.reload_base = Some(raw.clone());
+        }
+        self.load(cx);
+    }
+
+    fn report_reload(&mut self, raw: &[FileEntry], cx: &mut Context<Self>) {
+        let Some(base) = self.reload_base.take() else {
+            return;
+        };
+        let changes = listing_changes(&base, raw);
+        let message = if changes.is_empty() {
+            t!("reload.same").to_string()
+        } else {
+            t!(
+                "reload.changes",
+                added = changes.added,
+                removed = changes.removed,
+                changed = changes.changed
+            )
+            .to_string()
+        };
+        cx.emit(PaneEvent::Message(message));
+    }
+
     fn finish_load(
         &mut self,
         generation: usize,
@@ -88,10 +117,12 @@ impl PaneView {
         }
         match result {
             Ok(raw) => {
+                self.report_reload(&raw, cx);
                 self.load = LoadState::Ready(raw);
                 self.rearrange(cx);
             }
             Err(error) => {
+                self.reload_base = None;
                 self.load = LoadState::Failed(error);
                 self.entries.clear();
                 cx.notify();

@@ -343,3 +343,5 @@ keys.windows: "Nouvelle fenêtre / déplacer l’onglet dans une nouvelle fenêt
 keys.connect: "Se connecter à un serveur"
 keys.quick_look_inside: "Dans l’aperçu rapide : fichier / défiler ou page PDF"
 search.more_matches: "(+%{count} autres)"
+reload.same: "Actualisé, aucun changement"
+reload.changes: "Actualisé : %{added} ajoutés, %{removed} supprimés, %{changed} modifiés"

@@ -51,6 +51,7 @@ fn navigation_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("alt-right", GoForward, context),
         KeyBinding::new("ctrl-h", ToggleHidden, context),
         KeyBinding::new("f5", Reload, context),
+        KeyBinding::new("ctrl-r", Reload, context),
         KeyBinding::new("space", QuickLook, context),
     ]
 }

@@ -43,7 +43,7 @@ pub const KEYMAP_ROWS: [(&str, &str); 45] = [
     ("keys.rail_focus", "Ctrl+0, then j k · Enter · x · e · Esc"),
     ("keys.connect", "Ctrl+K"),
     ("keys.history", "Alt+← / Alt+→"),
-    ("keys.reload", "F5"),
+    ("keys.reload", "F5 / Ctrl+R"),
     ("keys.sheet", "?"),
     ("keys.settings", ", · Ctrl+,"),
 ];
@@ -79,7 +79,7 @@ pub const CLASSIC_KEYS: [(&str, &str); 31] = [
     ("keys.tag", "Ctrl+Alt+1–7 · Ctrl+Alt+0"),
     ("keys.type_ahead", "a–z"),
     ("keys.history", "Alt+← / Alt+→"),
-    ("keys.reload", "F5"),
+    ("keys.reload", "F5 / Ctrl+R"),
 ];
 
 pub fn keymap_rows(preset: KeyPreset) -> Vec<(&'static str, &'static str)> {

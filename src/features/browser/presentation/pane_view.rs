@@ -42,6 +42,7 @@ pub struct PaneView {
     pub(super) location: PlaceTarget,
     pub(super) history: NavigationHistory,
     pub(super) load: LoadState,
+    pub(super) reload_base: Option<Vec<FileEntry>>,
     pub(super) entries: Vec<FileEntry>,
     pub(super) selection: Selection,
     pub(super) sort: SortOrder,
@@ -94,6 +95,7 @@ impl PaneView {
             location: start.tab.location,
             history: start.tab.history,
             load: LoadState::Loading,
+            reload_base: None,
             entries: Vec::new(),
             selection: Selection::default(),
             sort: start.options.sort,
@@ -206,7 +208,7 @@ impl PaneView {
             .on_action(cx.listener(|this, _: &GoBack, _, cx| this.go_back(cx)))
             .on_action(cx.listener(|this, _: &GoForward, _, cx| this.go_forward(cx)))
             .on_action(cx.listener(|this, _: &ToggleHidden, _, cx| this.toggle_hidden(cx)))
-            .on_action(cx.listener(|this, _: &Reload, _, cx| this.load(cx)))
+            .on_action(cx.listener(|this, _: &Reload, _, cx| this.reload(cx)))
             .on_action(cx.listener(|this, _: &OpenFilter, window, cx| this.open_filter(window, cx)))
             .on_action(cx.listener(|this, _: &MoveLeft, _, cx| this.move_cursor(-1, cx)))
             .on_action(cx.listener(|this, _: &MoveRight, _, cx| this.move_cursor(1, cx)))
