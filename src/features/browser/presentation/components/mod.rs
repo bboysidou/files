@@ -21,6 +21,7 @@ pub mod preview_folder;
 pub mod preview_image;
 pub mod preview_line;
 pub mod preview_markdown;
+pub mod preview_media;
 pub mod quick_look_facts;
 pub mod quick_look_header;
 pub mod quick_look_panel;

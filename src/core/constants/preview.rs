@@ -38,5 +38,28 @@ pub const MARKDOWN_TASK_DONE: &str = "[x]";
 pub const MARKDOWN_TASK_OPEN: &str = "[ ]";
 pub const MARKDOWN_CELL_SEPARATOR: &str = "  │  ";
 pub const ARCHIVE_BROWSE_DIR: &str = "files/archives";
+pub const PREVIEW_MEDIA_DIR: &str = "files/media";
+pub const FFPROBE_COMMAND: &str = "ffprobe";
+pub const FFPROBE_ARGUMENTS: [&str; 6] = [
+    "-v",
+    "error",
+    "-show_entries",
+    "format=duration:stream=codec_type,codec_name,width,height,sample_rate,channels",
+    "-of",
+    "json",
+];
+pub const FFMPEG_COMMAND: &str = "ffmpeg";
+pub const FFMPEG_FRAME_SEEK: [&str; 4] = ["-v", "error", "-ss", "1"];
+pub const FFMPEG_FRAME_OUTPUT: [&str; 5] = ["-frames:v", "1", "-vf", "scale=1280:-2", "-y"];
+pub const MAGICK_COMMAND: &str = "magick";
+pub const FONT_SPECIMEN_TEXT: &str =
+    "AaBbCc 0123456789\nThe quick brown fox\njumps over the lazy dog";
+pub const FONT_SPECIMEN_POINTS: &str = "64";
+pub const FONT_SPECIMEN_BACKGROUND: &str = "#1A1A1A";
+pub const FONT_SPECIMEN_INK: &str = "#E8E8E8";
+pub const FC_SCAN_COMMAND: &str = "fc-scan";
+pub const FC_SCAN_FAMILY: [&str; 2] = ["--format", "%{family[0]}"];
+pub const PNG_EXTENSION: &str = "png";
+pub const MILLIS_PER_SECOND: f64 = 1000.0;
 pub const CACHE_MAX_AGE_SECS: u64 = 30 * 24 * 60 * 60;
 pub const CACHE_MAX_BYTES: u64 = 2 * 1024 * 1024 * 1024;

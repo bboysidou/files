@@ -7,6 +7,7 @@ use crate::core::constants::preview::{
     MARKDOWN_EXTENSIONS, PDF_EXTENSION, PREVIEW_FOLDER_LIMIT, PREVIEW_MAX_LINES,
     PREVIEW_SNIFF_BYTES, PREVIEW_TAB, PREVIEW_TEXT_MAX_BYTES,
 };
+use crate::core::enums::files::file_kind::FileKind;
 use crate::core::helpers::files::is_archive::is_archive;
 use crate::core::helpers::files::is_image::is_image;
 use crate::features::browser::domain::entities::file_entry::FileEntry;
@@ -14,7 +15,9 @@ use crate::features::browser::domain::entities::sort_order::SortOrder;
 use crate::features::browser::domain::repositories::directory_repository::DirectoryRepository;
 use crate::features::browser::domain::usecases::arrange_entries::arrange_entries;
 use crate::features::preview::data::datasources::archive_lister::list_archive;
+use crate::features::preview::data::datasources::font_specimen::{font_family, font_specimen};
 use crate::features::preview::data::datasources::markdown_parser::parse_markdown;
+use crate::features::preview::data::datasources::media_probe::{probe_media, video_frame};
 use crate::features::preview::data::datasources::pdf_renderer::PdfRenderer;
 use crate::features::preview::data::datasources::syntax_highlighter::SyntaxHighlighter;
 use crate::features::preview::domain::entities::preview_content::PreviewContent;
@@ -147,6 +150,15 @@ impl PreviewSource for LocalPreviewSource {
             self.folder(&entry.path)
         } else if is_image(entry.extension.as_deref()) {
             Self::image(&entry.path)
+        } else if matches!(entry.kind, FileKind::Video | FileKind::Audio) {
+            media(entry)
+        } else if entry.kind == FileKind::Font {
+            font_specimen(&entry.path).map_or(PreviewContent::Unsupported, |specimen| {
+                PreviewContent::Font {
+                    specimen,
+                    family: font_family(&entry.path),
+                }
+            })
         } else if is_archive(entry) {
             list_archive(&entry.path).unwrap_or(PreviewContent::Unsupported)
         } else if is_pdf(entry.extension.as_deref()) {
@@ -155,4 +167,12 @@ impl PreviewSource for LocalPreviewSource {
             self.text(entry)
         }
     }
+}
+
+fn media(entry: &FileEntry) -> PreviewContent {
+    let Some(facts) = probe_media(&entry.path) else {
+        return PreviewContent::Unsupported;
+    };
+    let frame = facts.video.as_ref().and_then(|_| video_frame(&entry.path));
+    PreviewContent::Media { frame, facts }
 }

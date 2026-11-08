@@ -47,6 +47,8 @@ Early development. Working today:
 - Helpers that read untrusted files (`pdftoppm`, `pdfinfo`, `bsdtar`) run inside bubblewrap when
   `bwrap` is installed: no network, empty environment, read-only `/usr`, read access to the one
   input file and write access only to their output folder. Without `bwrap` they run directly
+- Video and audio previews show duration and codecs (`ffprobe`), videos also a frame at 1 s
+  (`ffmpeg`); fonts show a rendered specimen (ImageMagick). All three run in the sandbox
 - Preview column beside the list that follows the cursor (`F3`)
 - Columns view (`Ctrl+2`): the parent folder on the left, the open folder in the middle, the
   folder under the cursor on the right; click a side column to move there

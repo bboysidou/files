@@ -6,7 +6,7 @@ use futures::channel::mpsc;
 use gpui::{Context, Window};
 
 use crate::core::constants::preview::{
-    ARCHIVE_BROWSE_DIR, CACHE_MAX_AGE_SECS, CACHE_MAX_BYTES, PREVIEW_PDF_DIR,
+    ARCHIVE_BROWSE_DIR, CACHE_MAX_AGE_SECS, CACHE_MAX_BYTES, PREVIEW_MEDIA_DIR, PREVIEW_PDF_DIR,
 };
 use crate::core::dependency_injection::integration::{default_handler, instance_bridge};
 use crate::core::helpers::files::prune_cache::prune_cache;
@@ -76,7 +76,7 @@ fn prune_caches() {
         return;
     };
     let max_age = Duration::from_secs(CACHE_MAX_AGE_SECS);
-    for dir in [ARCHIVE_BROWSE_DIR, PREVIEW_PDF_DIR] {
+    for dir in [ARCHIVE_BROWSE_DIR, PREVIEW_PDF_DIR, PREVIEW_MEDIA_DIR] {
         prune_cache(&cache.join(dir), max_age, CACHE_MAX_BYTES);
     }
 }

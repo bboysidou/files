@@ -13,6 +13,7 @@ pub enum FileKind {
     Archive,
     DiskImage,
     Spreadsheet,
+    Font,
     Other,
 }
 
@@ -44,6 +45,7 @@ impl FileKind {
             | "tzst" | "cpio" | "jar" => FileKind::Archive,
             "iso" | "img" => FileKind::DiskImage,
             "ods" | "csv" | "xlsx" | "xls" => FileKind::Spreadsheet,
+            "ttf" | "otf" | "woff" | "woff2" | "ttc" => FileKind::Font,
             _ => FileKind::Other,
         }
     }
@@ -63,6 +65,7 @@ impl FileKind {
             FileKind::Archive => "kind.archive",
             FileKind::DiskImage => "kind.disk_image",
             FileKind::Spreadsheet => "kind.spreadsheet",
+            FileKind::Font => "kind.font",
             FileKind::Other => "kind.other",
         }
     }

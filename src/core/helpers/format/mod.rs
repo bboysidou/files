@@ -1,3 +1,4 @@
+pub mod duration_text;
 pub mod file_size;
 pub mod grid_layout;
 pub mod item_count;

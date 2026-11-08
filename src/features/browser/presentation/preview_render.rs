@@ -1,4 +1,5 @@
 use std::ops::Range;
+use std::path::PathBuf;
 use std::time::SystemTime;
 
 use gpui::{
@@ -17,6 +18,7 @@ use crate::features::browser::presentation::components::preview_folder::PreviewF
 use crate::features::browser::presentation::components::preview_image::PreviewImage;
 use crate::features::browser::presentation::components::preview_line::PreviewLine;
 use crate::features::browser::presentation::components::preview_markdown::PreviewMarkdown;
+use crate::features::browser::presentation::components::preview_media::PreviewMedia;
 use crate::features::browser::presentation::state::preview_state::PreviewState;
 use crate::features::browser::presentation::state::preview_surface::PreviewSurface;
 use crate::features::preview::domain::entities::preview_content::PreviewContent;
@@ -29,13 +31,15 @@ impl BrowserView {
         surface: PreviewSurface,
         cx: &mut Context<Self>,
     ) -> AnyElement {
-        match &state.content {
-            None => div().into_any_element(),
-            Some(PreviewContent::Image { path, .. }) => PreviewImage {
+        if let Some(path) = state.content.as_ref().and_then(still_image) {
+            return PreviewImage {
                 path: path.clone(),
                 zoom: state.zoom,
             }
-            .into_any_element(),
+            .into_any_element();
+        }
+        match &state.content {
+            None => div().into_any_element(),
             Some(PreviewContent::Text { lines, .. }) => uniform_list(
                 surface.list_id(),
                 lines.len(),
@@ -46,11 +50,6 @@ impl BrowserView {
             .size_full()
             .p(px(QUICK_LOOK_STAGE_PAD))
             .track_scroll(self.preview_scroll_for(surface))
-            .into_any_element(),
-            Some(PreviewContent::Pdf { page, .. }) => PreviewImage {
-                path: page.clone(),
-                zoom: state.zoom,
-            }
             .into_any_element(),
             Some(PreviewContent::Markdown { blocks, .. }) => PreviewMarkdown {
                 id: surface.markdown_id(),
@@ -65,6 +64,11 @@ impl BrowserView {
                 members: members.clone(),
                 total: *total,
                 capped: *capped,
+            }),
+            Some(PreviewContent::Media { frame, facts }) => padded(PreviewMedia {
+                frame: frame.clone(),
+                facts: facts.clone(),
+                zoom: state.zoom,
             }),
             Some(PreviewContent::Folder { entries, total }) => padded(PreviewFolder {
                 entries: entries.clone(),
@@ -186,4 +190,13 @@ fn padded(child: impl IntoElement) -> AnyElement {
         .p(px(QUICK_LOOK_STAGE_PAD))
         .child(child)
         .into_any_element()
+}
+
+fn still_image(content: &PreviewContent) -> Option<&PathBuf> {
+    match content {
+        PreviewContent::Image { path, .. } => Some(path),
+        PreviewContent::Pdf { page, .. } => Some(page),
+        PreviewContent::Font { specimen, .. } => Some(specimen),
+        _ => None,
+    }
 }
