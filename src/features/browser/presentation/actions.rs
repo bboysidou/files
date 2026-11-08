@@ -89,6 +89,8 @@ actions!(
         CompressTarGz,
         BrowseArchive,
         InvertSelection,
+        MoveTabLeft,
+        MoveTabRight,
         MeasureFolders,
         CloseSettings,
     ]

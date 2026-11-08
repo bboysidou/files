@@ -15,6 +15,7 @@ use crate::features::browser::presentation::actions::{BrowseArchive, CompressTar
 use crate::features::browser::presentation::actions::{
     BulkNextField, Duplicate, NewFile, PasteLink,
 };
+use crate::features::browser::presentation::actions::{MoveTabLeft, MoveTabRight};
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
 
@@ -111,6 +112,12 @@ impl BrowserView {
     fn with_tab_actions(element: Div, cx: &mut Context<Self>) -> Div {
         element
             .on_action(cx.listener(|this, _: &NewTab, window, cx| this.new_tab(window, cx)))
+            .on_action(cx.listener(|this, _: &MoveTabLeft, window, cx| {
+                this.shift_active_tab(-1, window, cx)
+            }))
+            .on_action(cx.listener(|this, _: &MoveTabRight, window, cx| {
+                this.shift_active_tab(1, window, cx)
+            }))
             .on_action(cx.listener(|this, _: &CloseTab, window, cx| this.close_active(window, cx)))
             .on_action(cx.listener(|this, _: &NextTab, window, cx| this.cycle(1, window, cx)))
             .on_action(cx.listener(|this, _: &PreviousTab, window, cx| this.cycle(-1, window, cx)))

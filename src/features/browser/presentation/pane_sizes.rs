@@ -2,7 +2,7 @@ use std::fs;
 use std::os::unix::fs::MetadataExt;
 use std::path::PathBuf;
 
-use gpui::{Context, Div, InteractiveElement};
+use gpui::{Context, Div, InteractiveElement, MouseButton, NavigationDirection};
 
 use crate::features::browser::presentation::actions::{InvertSelection, MeasureFolders};
 
@@ -15,6 +15,14 @@ impl PaneView {
         element
             .on_action(cx.listener(|this, _: &InvertSelection, _, cx| this.invert_selection(cx)))
             .on_action(cx.listener(|this, _: &MeasureFolders, _, cx| this.compute_folder_sizes(cx)))
+            .on_mouse_down(
+                MouseButton::Navigate(NavigationDirection::Back),
+                cx.listener(|this, _, _, cx| this.go_back(cx)),
+            )
+            .on_mouse_down(
+                MouseButton::Navigate(NavigationDirection::Forward),
+                cx.listener(|this, _, _, cx| this.go_forward(cx)),
+            )
     }
 
     pub(super) fn invert_selection(&mut self, cx: &mut Context<Self>) {

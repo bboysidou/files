@@ -1,13 +1,16 @@
 use gpui::{
     App, IntoElement, MouseButton, RenderOnce, SharedString, Window, div, prelude::*, px, rgb,
 };
+use gpui::{AppContext, Div, Stateful};
 
 use crate::core::theme::colors::{ACCENT, CARD, FG_BRIGHT, FG_MUTED, FG_SOFT};
 use crate::core::theme::metrics::{
     TAB_GAP, TAB_HEIGHT, TAB_INDICATOR, TAB_PAD_LEFT, TAB_PAD_RIGHT, TAB_RADIUS, TEXT_TINY,
 };
 use crate::features::browser::presentation::components::tab_close_button::TabCloseButton;
-use crate::global_components::handlers::IndexHandler;
+use crate::global_components::drag::drag_preview::DragPreview;
+use crate::global_components::drag::dragged_tab::DraggedTab;
+use crate::global_components::handlers::{IndexHandler, IndexPairHandler};
 
 #[derive(IntoElement)]
 pub struct SheetTab {
@@ -16,13 +19,18 @@ pub struct SheetTab {
     pub active: bool,
     pub on_select: IndexHandler,
     pub on_close: IndexHandler,
+    pub on_move: IndexPairHandler,
 }
 
 impl RenderOnce for SheetTab {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
         let index = self.index;
-        let (close_click, close_middle, select) =
-            (self.on_close.clone(), self.on_close, self.on_select);
+        let (close_click, close_middle, select, on_move) = (
+            self.on_close.clone(),
+            self.on_close,
+            self.on_select,
+            self.on_move,
+        );
         let close = TabCloseButton {
             index,
             on_close: close_click,
@@ -48,6 +56,7 @@ impl RenderOnce for SheetTab {
             .on_mouse_down(MouseButton::Middle, move |_, window, cx| {
                 close_middle(index, window, cx)
             });
+        let tab = tab_drag(tab, (index, self.title.clone()), on_move);
         let tab = if self.active {
             tab.bg(rgb(CARD))
                 .text_color(rgb(FG_BRIGHT))
@@ -58,4 +67,17 @@ impl RenderOnce for SheetTab {
         };
         tab.child(self.title).child(number).child(close)
     }
+}
+
+fn tab_drag(
+    tab: Stateful<Div>,
+    (index, title): (usize, SharedString),
+    on_move: IndexPairHandler,
+) -> Stateful<Div> {
+    tab.on_drag(DraggedTab { index }, move |_, _, _, cx| {
+        let label = title.clone();
+        cx.new(|_| DragPreview { label })
+    })
+    .drag_over::<DraggedTab>(|style, _, _, _| style.bg(rgb(CARD)))
+    .on_drop(move |dragged: &DraggedTab, window, cx| on_move((dragged.index, index), window, cx))
 }

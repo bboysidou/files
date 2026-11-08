@@ -1,4 +1,4 @@
-pub const KEYMAP_ROWS: [(&str, &str); 37] = [
+pub const KEYMAP_ROWS: [(&str, &str); 38] = [
     ("keys.move", "j k · ↓ ↑"),
     ("keys.parent_open", "h l · ← →"),
     ("keys.open", "Enter"),
@@ -30,6 +30,7 @@ pub const KEYMAP_ROWS: [(&str, &str); 37] = [
     ("keys.preview", "F3"),
     ("keys.tabs", "t / w · Ctrl+T / Ctrl+W"),
     ("keys.go_tab", "1–9 · [ ]"),
+    ("keys.move_tab", "{ } · Ctrl+Shift+PgUp / PgDn"),
     ("keys.hidden", "Ctrl+H"),
     ("keys.menu", "m · right click"),
     ("keys.history", "Alt+← / Alt+→"),

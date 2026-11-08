@@ -118,6 +118,8 @@ A file that cannot be read is moved to `settings.toml.bak` and the defaults are 
 | `Alt+←` / `Alt+→` | Back / forward |
 | `t` / `w` | New / close tab |
 | `1`–`9`, `[` `]` | Go to a tab |
+| `{` `}` / `Ctrl+Shift+PgUp` `PgDn` | Move the tab left / right (or drag it) |
+| Mouse back / forward buttons | Back / forward |
 | `/` / `Esc` | Filter this folder / clear the filter |
 | `f` / `Ctrl+F` | Search names below this folder |
 | `T` then `1`–`7` / `T` `0` | Toggle a colour tag / clear colour tags |

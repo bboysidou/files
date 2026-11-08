@@ -25,6 +25,7 @@ impl RenderOnce for TabStrip {
                 active: index == model.active,
                 on_select: model.on_select.clone(),
                 on_close: model.on_close.clone(),
+                on_move: model.on_move.clone(),
             });
         div()
             .id("tab-strip")

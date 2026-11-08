@@ -7,6 +7,7 @@ use crate::core::theme::metrics::TOAST_OFFSET;
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::handlers::ViewHandler;
 use crate::features::browser::presentation::state::tab_strip_model::TabStripModel;
+use crate::global_components::handlers::IndexPairHandler;
 use crate::global_components::handlers::{ClickHandler, IndexHandler};
 use crate::global_components::toast::Toast;
 
@@ -26,6 +27,10 @@ impl BrowserView {
         let on_new: ClickHandler = Rc::new(move |window, cx| {
             let _ = new_view.update(cx, |this, cx| this.new_tab(window, cx));
         });
+        let move_view = cx.entity().downgrade();
+        let on_move: IndexPairHandler = Rc::new(move |pair, window, cx| {
+            let _ = move_view.update(cx, |this, cx| this.move_tab(pair, window, cx));
+        });
         TabStripModel {
             titles: self
                 .tabs
@@ -35,6 +40,7 @@ impl BrowserView {
             active: self.active,
             on_select,
             on_close,
+            on_move,
             on_new,
         }
     }

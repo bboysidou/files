@@ -17,6 +17,7 @@ pub mod browser_operations;
 pub mod browser_preview;
 pub mod browser_quick_look;
 pub mod browser_settings;
+pub mod browser_tab_order;
 pub mod browser_tabs;
 pub mod browser_trash;
 pub mod browser_view;
