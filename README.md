@@ -26,7 +26,8 @@ Early development. Working today:
   `smb://`); the password is passed to gio once and never saved. Mounted shares are listed under
   Network in the sidebar, with a button to disconnect. A server you connect to is remembered
   there (in `settings.toml`, never its password): click it (or `Ctrl+0`, then `Enter`) to connect
-  again, `×` or `x` forgets it. `Ctrl+K` opens the path bar with `sftp://` ready to type a server
+  again, `×` or `x` forgets it, the pencil or `e` edits its address (the new address replaces the
+  old one once it connects). `Ctrl+K` opens the path bar with `sftp://` ready to type a server
 - Context menu on right click or `m`, and a searchable keymap sheet (`?`)
 - Seven colour tags stored in the `user.xdg.tags` attribute (the one Dolphin reads); `tag:red` in
   search, or a click on a sidebar dot, lists every tagged file under Home
@@ -175,7 +176,7 @@ the active preset.
 | `Ctrl+1` `Ctrl+2` `Ctrl+3` `Ctrl+4` | List, columns, grid, dual pane |
 | `Tab` / `F6` / `Shift+F6` | Dual pane: other side / copy there / move there |
 | `m` / right click | Context menu |
-| `Ctrl+0` | Move between the sidebar and the file list; in the sidebar `j` `k` move, `Enter` opens a place, drive or server, or searches a tag, `x` ejects a drive, disconnects or forgets a server, `Esc` goes back |
+| `Ctrl+0` | Move between the sidebar and the file list; in the sidebar `j` `k` move, `Enter` opens a place, drive or server, or searches a tag, `x` ejects a drive, disconnects or forgets a server, `e` edits a saved server, `Esc` goes back |
 | `,` / `Ctrl+,` | Settings |
 | `Ctrl+Shift+C` | Copy path |
 | `?` | Keyboard shortcuts |

@@ -235,6 +235,7 @@ impl Render for ShellView {
                 network: self.network_items(&location),
                 on_network,
                 on_unmount,
+                on_edit_network: Self::network_edit_handler(cx),
                 job: self.browser.read(cx).job_card(),
                 on_cancel_job,
                 on_tag,

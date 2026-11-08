@@ -2,7 +2,7 @@ use gpui::KeyBinding;
 
 use crate::core::constants::keymap::FOCUS_RAIL_KEYS;
 use crate::features::shell::presentation::actions::{
-    FocusRail, RailEject, RailLeave, RailNext, RailOpen, RailPrevious,
+    FocusRail, RailEdit, RailEject, RailLeave, RailNext, RailOpen, RailPrevious,
 };
 use crate::features::shell::presentation::components::rail::RAIL_CONTEXT;
 
@@ -21,6 +21,7 @@ pub fn rail_key_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("h", RailLeave, rail),
         KeyBinding::new("left", RailLeave, rail),
         KeyBinding::new("x", RailEject, rail),
+        KeyBinding::new("e", RailEdit, rail),
         KeyBinding::new("delete", RailEject, rail),
     ]
 }

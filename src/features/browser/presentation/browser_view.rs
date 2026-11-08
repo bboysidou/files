@@ -186,7 +186,10 @@ impl BrowserView {
                 PaneEvent::BulkRenameRequested(paths) => {
                     this.open_bulk_rename(paths.clone(), window, cx)
                 }
-                PaneEvent::Connected(uri) => cx.emit(BrowserEvent::ServerConnected(uri.clone())),
+                PaneEvent::Connected { uri, replaces } => cx.emit(BrowserEvent::ServerConnected {
+                    uri: uri.clone(),
+                    replaces: replaces.clone(),
+                }),
                 PaneEvent::Picked(_) | PaneEvent::PickCancelled => {}
             },
         );

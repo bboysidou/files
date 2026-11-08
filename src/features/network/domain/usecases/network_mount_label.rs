@@ -1,6 +1,6 @@
 use crate::core::constants::network::{
-    GVFS_HOST_KEY, GVFS_PAIR_SEPARATOR, GVFS_PORT_KEY, GVFS_SCHEME_SEPARATOR, GVFS_SHARE_KEY,
-    GVFS_USER_KEY, GVFS_VALUE_SEPARATOR,
+    GVFS_HOST_KEY, GVFS_PAIR_SEPARATOR, GVFS_PORT_KEY, GVFS_SCHEME_SEPARATOR, GVFS_SERVER_KEY,
+    GVFS_SHARE_KEY, GVFS_USER_KEY, GVFS_VALUE_SEPARATOR,
 };
 
 pub fn network_mount_label(name: &str) -> Option<String> {
@@ -12,7 +12,7 @@ pub fn network_mount_label(name: &str) -> Option<String> {
             .find(|(found, _)| *found == key)
             .map(|(_, value)| value)
     };
-    let host = value(GVFS_HOST_KEY)?;
+    let host = value(GVFS_HOST_KEY).or_else(|| value(GVFS_SERVER_KEY))?;
     let user = value(GVFS_USER_KEY).map_or(String::new(), |user| format!("{user}@"));
     let port = value(GVFS_PORT_KEY).map_or(String::new(), |port| format!(":{port}"));
     let share = value(GVFS_SHARE_KEY).map_or(String::new(), |share| format!("/{share}"));

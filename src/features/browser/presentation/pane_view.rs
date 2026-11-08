@@ -29,6 +29,7 @@ use crate::features::browser::presentation::state::overview_state::OverviewState
 use crate::features::browser::presentation::state::pane_parts::{RenameSlot, ThumbSlot, WatchSlot};
 use crate::features::browser::presentation::state::pane_start::PaneStart;
 use crate::features::browser::presentation::state::search_state::SearchState;
+use crate::features::browser::presentation::state::server_edit::ServerEdit;
 use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
 use crate::features::browser::presentation::state::tree_state::TreeState;
@@ -59,6 +60,7 @@ pub struct PaneView {
     pub(super) cut: HashSet<PathBuf>,
     pub(super) renames: RenameSlot,
     pub(super) type_ahead: TypeAhead,
+    pub(super) server_edit: ServerEdit,
     pub(super) watching: WatchSlot,
     pub(super) thumbnails: ThumbSlot,
     pub(super) rename_field: Entity<TextField>,
@@ -110,6 +112,7 @@ impl PaneView {
             cut: HashSet::new(),
             renames: RenameSlot::default(),
             type_ahead: TypeAhead::default(),
+            server_edit: ServerEdit::default(),
             watching: WatchSlot::default(),
             thumbnails: ThumbSlot::default(),
             rename_field: inputs.rename,

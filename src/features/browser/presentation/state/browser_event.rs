@@ -1,4 +1,7 @@
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum BrowserEvent {
-    ServerConnected(String),
+    ServerConnected {
+        uri: String,
+        replaces: Option<String>,
+    },
 }

@@ -10,6 +10,7 @@ actions!(
         RailOpen,
         RailLeave,
         RailEject,
+        RailEdit,
         NewWindow,
         DetachTab
     ]

@@ -28,6 +28,7 @@ pub struct RailDeviceItem {
     pub motion: RailMotion,
     pub on_select: IndexHandler,
     pub on_eject: ClickHandler,
+    pub on_edit: Option<ClickHandler>,
 }
 
 impl RenderOnce for RailDeviceItem {
@@ -62,6 +63,13 @@ impl RenderOnce for RailDeviceItem {
             .h(px(NAV_HEIGHT))
             .child(glyph)
             .child(RailLabel::new("device-label", self.label, self.motion))
+            .when_some(self.on_edit, |item, on_edit| {
+                item.child(
+                    IconButton::new(("edit", index), Icon::Edit)
+                        .radius(CONTROL_RADIUS)
+                        .on_click(on_edit),
+                )
+            })
             .when_some(self.trailing, |item, icon| {
                 item.child(
                     IconButton::new(("trailing", index), icon)

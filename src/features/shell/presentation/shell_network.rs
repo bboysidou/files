@@ -101,6 +101,14 @@ impl ShellView {
         }));
     }
 
+    pub(super) fn network_edit_handler(cx: &mut Context<Self>) -> IndexHandler {
+        let view = cx.entity().downgrade();
+        Rc::new(move |index, window, cx| {
+            cx.stop_propagation();
+            let _ = view.update(cx, |this, cx| this.edit_server(index, window, cx));
+        })
+    }
+
     pub(super) fn network_handlers(cx: &mut Context<Self>) -> (IndexHandler, IndexHandler) {
         let (open_view, trailing_view) = (cx.entity().downgrade(), cx.entity().downgrade());
         let on_open: IndexHandler = Rc::new(move |index, _, cx| {

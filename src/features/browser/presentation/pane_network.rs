@@ -31,7 +31,11 @@ impl PaneView {
                 .await;
             let _ = this.update(cx, |this, cx| match mounted {
                 Ok(path) => {
-                    cx.emit(PaneEvent::Connected(saved));
+                    let replaces = this.server_edit.pending.take();
+                    cx.emit(PaneEvent::Connected {
+                        uri: saved,
+                        replaces,
+                    });
                     this.navigate(PlaceTarget::Directory(path), cx)
                 }
                 Err(NetworkMountError::NeedsCredentials) => {
@@ -45,11 +49,15 @@ impl PaneView {
                     rejected: true,
                 }),
                 Err(NetworkMountError::TimedOut) => {
+                    this.server_edit.pending = None;
                     cx.emit(PaneEvent::Message(t!("network.timed_out").to_string()))
                 }
-                Err(NetworkMountError::Failed(reason)) => cx.emit(PaneEvent::Message(
-                    t!("network.failed", reason = reason).to_string(),
-                )),
+                Err(NetworkMountError::Failed(reason)) => {
+                    this.server_edit.pending = None;
+                    cx.emit(PaneEvent::Message(
+                        t!("network.failed", reason = reason).to_string(),
+                    ))
+                }
             });
         })
         .detach();

@@ -26,3 +26,4 @@ pub const GVFS_PORT_KEY: &str = "port";
 pub const GVFS_SHARE_KEY: &str = "share";
 pub const SMB_SCHEME: &str = "smb";
 pub const MOUNT_TIMEOUT_SECS: u64 = 60;
+pub const GVFS_SERVER_KEY: &str = "server";

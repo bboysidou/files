@@ -18,6 +18,12 @@ pub enum PaneEvent {
     DropRequested(DropRequest),
     BulkRenameRequested(Vec<PathBuf>),
     Navigated(PathBuf),
-    CredentialsRequested { uri: String, rejected: bool },
-    Connected(String),
+    CredentialsRequested {
+        uri: String,
+        rejected: bool,
+    },
+    Connected {
+        uri: String,
+        replaces: Option<String>,
+    },
 }

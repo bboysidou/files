@@ -40,7 +40,7 @@ pub const KEYMAP_ROWS: [(&str, &str); 45] = [
     ("keys.hidden", "Ctrl+H"),
     ("keys.tag", "T 1–7 · T 0"),
     ("keys.menu", "m · right click"),
-    ("keys.rail_focus", "Ctrl+0, then j k · Enter · x · Esc"),
+    ("keys.rail_focus", "Ctrl+0, then j k · Enter · x · e · Esc"),
     ("keys.connect", "Ctrl+K"),
     ("keys.history", "Alt+← / Alt+→"),
     ("keys.reload", "F5"),

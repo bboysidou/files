@@ -3,7 +3,7 @@ use gpui::{Context, Div, Focusable, InteractiveElement, Window};
 use crate::core::enums::tags::tag_color::TagColor;
 use crate::features::places::domain::entities::place::PlaceSection;
 use crate::features::shell::presentation::actions::{
-    FocusRail, RailEject, RailLeave, RailNext, RailOpen, RailPrevious,
+    FocusRail, RailEdit, RailEject, RailLeave, RailNext, RailOpen, RailPrevious,
 };
 use crate::features::shell::presentation::shell_view::ShellView;
 use crate::features::shell::presentation::state::rail_stop::RailStop;
@@ -21,6 +21,11 @@ impl ShellView {
             )
             .on_action(cx.listener(|this, _: &RailLeave, window, cx| this.leave_rail(window, cx)))
             .on_action(cx.listener(|this, _: &RailEject, _, cx| this.eject_rail_stop(cx)))
+            .on_action(cx.listener(|this, _: &RailEdit, window, cx| {
+                if let RailStop::Network(index) = this.rail_keys.cursor {
+                    this.edit_server(index, window, cx);
+                }
+            }))
     }
 
     fn rail_order(&self) -> Vec<RailStop> {

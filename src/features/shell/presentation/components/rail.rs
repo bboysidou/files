@@ -46,6 +46,7 @@ pub struct Rail {
     pub network: Vec<DeviceItem>,
     pub on_network: IndexHandler,
     pub on_unmount: IndexHandler,
+    pub on_edit_network: IndexHandler,
     pub job: Option<JobCardModel>,
     pub on_cancel_job: ClickHandler,
     pub on_tag: IndexHandler,
@@ -101,6 +102,7 @@ impl Rail {
                     motion: self.motion,
                     on_select: self.on_device.clone(),
                     on_eject: Rc::new(move |window, cx| on_eject(index, window, cx)),
+                    on_edit: None,
                 }
                 .into_any_element()
             })
@@ -125,6 +127,11 @@ impl Rail {
                 motion: self.motion,
                 on_select: self.on_network.clone(),
                 on_eject: Rc::new(move |window, cx| on_unmount(index, window, cx)),
+                on_edit: (mount.saved && !mount.mounted).then(|| {
+                    let on_edit = self.on_edit_network.clone();
+                    let edit: ClickHandler = Rc::new(move |window, cx| on_edit(index, window, cx));
+                    edit
+                }),
             }
             .into_any_element()
         });

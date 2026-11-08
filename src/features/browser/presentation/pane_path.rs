@@ -30,7 +30,16 @@ impl PaneView {
     }
 
     pub(super) fn start_connect_entry(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let text = SFTP_PREFIX;
+        self.server_edit.editing = None;
+        self.open_connect_entry(SFTP_PREFIX, window, cx);
+    }
+
+    pub fn edit_server_entry(&mut self, uri: String, window: &mut Window, cx: &mut Context<Self>) {
+        self.open_connect_entry(&uri, window, cx);
+        self.server_edit.editing = Some(uri);
+    }
+
+    fn open_connect_entry(&mut self, text: &str, window: &mut Window, cx: &mut Context<Self>) {
         self.path_field.update(cx, |field, cx| {
             field.set_text(text, text.len()..text.len(), cx)
         });
@@ -67,11 +76,13 @@ impl PaneView {
 
     fn commit_path(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let typed = self.path_field.read(cx).text().trim().to_string();
+        let editing = self.server_edit.editing.take();
         self.stop_path_entry(window, cx);
         if typed.is_empty() {
             return;
         }
         if let Some(uri) = network_uri(&typed) {
+            self.server_edit.pending = editing;
             return self.connect_network(uri, None, cx);
         }
         match self.resolve_typed(&typed).filter(|path| Path::is_dir(path)) {
@@ -83,6 +94,7 @@ impl PaneView {
     }
 
     fn stop_path_entry(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.server_edit.editing = None;
         self.path_editing = false;
         window.focus(&self.focus_handle, cx);
         cx.notify();
