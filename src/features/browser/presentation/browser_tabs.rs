@@ -6,7 +6,7 @@ use crate::features::places::domain::entities::place::PlaceTarget;
 impl BrowserView {
     pub(super) fn new_tab(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let target = match self.location(cx) {
-            PlaceTarget::Overview => self.home_target.clone(),
+            PlaceTarget::Overview => self.setup.home_target.clone(),
             target => target,
         };
         let tab = self.open_pane(target, window, cx);
@@ -24,7 +24,7 @@ impl BrowserView {
             return;
         }
         if self.tabs.len() == 1 {
-            let fresh = self.open_pane(self.home_target.clone(), window, cx);
+            let fresh = self.open_pane(self.setup.home_target.clone(), window, cx);
             self.tabs = vec![fresh];
             self.activate(0, window, cx);
             return;

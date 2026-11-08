@@ -2,7 +2,6 @@ use std::path::PathBuf;
 
 use gpui::Context;
 
-use crate::core::enums::browser::sort_key::SortKey;
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::domain::entities::list_error::ListError;
 use crate::features::browser::domain::entities::navigation_history::HistoryStop;
@@ -149,16 +148,6 @@ impl PaneView {
         } else {
             self.setup.launcher.launch(&entry.path);
         }
-    }
-
-    pub(super) fn toggle_hidden(&mut self, cx: &mut Context<Self>) {
-        self.show_hidden = !self.show_hidden;
-        self.rearrange(cx);
-    }
-
-    pub(super) fn sort_by(&mut self, key: SortKey, cx: &mut Context<Self>) {
-        self.sort = self.sort.toggled_on(key);
-        self.rearrange(cx);
     }
 
     fn current_stop(&self) -> HistoryStop {

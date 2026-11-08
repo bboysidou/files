@@ -21,6 +21,7 @@ use crate::features::browser::presentation::key_bindings::PANE_CONTEXT;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::load_state::LoadState;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
+use crate::features::browser::presentation::state::pane_start::PaneStart;
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
 use crate::features::places::domain::entities::crumb_trail::CrumbTrail;
 use crate::features::places::domain::entities::place::PlaceTarget;
@@ -58,7 +59,7 @@ pub struct PaneView {
 impl PaneView {
     pub fn new(
         setup: Rc<BrowserSetup>,
-        start: PlaceTarget,
+        start: PaneStart,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
@@ -72,13 +73,13 @@ impl PaneView {
         });
         let mut view = Self {
             setup,
-            location: start,
+            location: start.target,
             history: NavigationHistory::default(),
             load: LoadState::Loading,
             entries: Vec::new(),
             selection: Selection::default(),
-            sort: SortOrder::by_name(),
-            show_hidden: false,
+            sort: start.options.sort,
+            show_hidden: start.options.show_hidden,
             pending_focus: None,
             generation: 0,
             scroll: UniformListScrollHandle::new(),

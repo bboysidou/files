@@ -9,6 +9,7 @@ pub mod pane_body;
 pub mod pane_filter;
 pub mod pane_navigation;
 pub mod pane_operations;
+pub mod pane_options;
 pub mod pane_rename;
 pub mod pane_selection;
 pub mod pane_view;

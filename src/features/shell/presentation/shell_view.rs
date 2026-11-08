@@ -1,9 +1,10 @@
 use std::path::PathBuf;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use gpui::{
-    App, Context, Entity, FocusHandle, Focusable, IntoElement, Render, Subscription, Window, div,
-    prelude::*, px, rgb,
+    App, Context, Entity, FocusHandle, Focusable, IntoElement, Render, Subscription, Task, Window,
+    div, prelude::*, px, rgb,
 };
 
 use crate::core::constants::app::FONT_FAMILY;
@@ -13,6 +14,7 @@ use crate::core::dependency_injection::browser::{
 };
 use crate::core::dependency_injection::operations::file_operations;
 use crate::core::dependency_injection::preview::preview_source;
+use crate::core::dependency_injection::settings::settings_repository;
 use crate::core::enums::places::place_kind::PlaceKind;
 use crate::core::theme::colors::{FG, FRAME};
 use crate::core::theme::metrics::{FRAME_GAP, TEXT_BASE};
@@ -20,6 +22,8 @@ use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::places::domain::entities::place::{Place, PlaceTarget};
 use crate::features::places::domain::repositories::places_repository::PlacesRepository;
+use crate::features::settings::domain::entities::settings::Settings;
+use crate::features::settings::domain::repositories::settings_repository::SettingsRepository;
 use crate::features::shell::presentation::actions::ToggleRail;
 use crate::features::shell::presentation::components::rail::Rail;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
@@ -27,9 +31,13 @@ use crate::global_components::handlers::{ClickHandler, IndexHandler};
 
 pub struct ShellView {
     places: Vec<Place>,
-    browser: Entity<BrowserView>,
-    rail: RailMotion,
+    pub(super) browser: Entity<BrowserView>,
+    pub(super) rail: RailMotion,
+    pub(super) settings_repository: Arc<dyn SettingsRepository>,
+    pub(super) saved: Settings,
+    pub(super) save_task: Option<Task<()>>,
     _browser_changes: Subscription,
+    _quit: Subscription,
 }
 
 impl ShellView {
@@ -40,7 +48,10 @@ impl ShellView {
     ) -> Self {
         let places = repository.places();
         let home = repository.home();
-        let start = Self::start_target(&places, home.as_ref());
+        let home_target = Self::start_target(&places, home.as_ref());
+        let settings_repository = settings_repository();
+        let saved = settings_repository.load();
+        let restore = Self::restored_snapshot(&saved);
         let repository = directory_repository();
         let setup = BrowserSetup {
             preview: preview_source(repository.clone()),
@@ -50,14 +61,26 @@ impl ShellView {
             operations: file_operations(),
             places: places.clone(),
             home,
+            home_target,
         };
-        let browser = cx.new(|cx| BrowserView::new(setup, start, window, cx));
-        let browser_changes = cx.observe(&browser, |_, _, cx| cx.notify());
+        let browser = cx.new(|cx| BrowserView::new(setup, restore, window, cx));
+        let browser_changes = cx.observe(&browser, |this, _, cx| {
+            this.persist(cx);
+            cx.notify();
+        });
+        let quit = cx.on_app_quit(|this, cx| {
+            this.flush(cx);
+            async {}
+        });
         Self {
             places,
             browser,
-            rail: RailMotion::opened(),
+            rail: RailMotion::starting(saved.sidebar_open),
+            settings_repository,
+            saved,
+            save_task: None,
             _browser_changes: browser_changes,
+            _quit: quit,
         }
     }
 
@@ -76,6 +99,7 @@ impl ShellView {
 
     fn toggle_rail(&mut self, cx: &mut Context<Self>) {
         self.rail = self.rail.toggled();
+        self.persist(cx);
         cx.notify();
     }
 

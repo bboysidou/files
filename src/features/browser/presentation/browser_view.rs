@@ -14,11 +14,14 @@ use rust_i18n::t;
 
 use crate::core::enums::operations::clipboard_mode::ClipboardMode;
 use crate::core::theme::metrics::TOAST_OFFSET;
+use crate::features::browser::domain::entities::view_options::ViewOptions;
 use crate::features::browser::presentation::components::sheet::Sheet;
 use crate::features::browser::presentation::key_bindings::BROWSER_CONTEXT;
 use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
+use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
+use crate::features::browser::presentation::state::pane_start::PaneStart;
 use crate::features::browser::presentation::state::quick_look_state::QuickLookState;
 use crate::features::browser::presentation::state::tab::Tab;
 use crate::features::browser::presentation::state::tab_strip_model::TabStripModel;
@@ -33,7 +36,7 @@ pub struct BrowserView {
     pub(super) setup: Rc<BrowserSetup>,
     pub(super) tabs: Vec<Tab>,
     pub(super) active: usize,
-    pub(super) home_target: PlaceTarget,
+    pub(super) options: ViewOptions,
     pub(super) clipboard: Option<Clipboard>,
     pub(super) history: OperationHistory,
     pub(super) toast: Option<ToastModel>,
@@ -50,7 +53,7 @@ pub struct BrowserView {
 impl BrowserView {
     pub fn new(
         setup: BrowserSetup,
-        home_target: PlaceTarget,
+        restore: BrowserSnapshot,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
@@ -58,7 +61,7 @@ impl BrowserView {
             setup: Rc::new(setup),
             tabs: Vec::new(),
             active: 0,
-            home_target,
+            options: restore.options,
             clipboard: None,
             history: OperationHistory::default(),
             toast: None,
@@ -71,9 +74,38 @@ impl BrowserView {
             quick_look_generation: 0,
             preview_scroll: UniformListScrollHandle::new(),
         };
-        let first = view.open_pane(view.home_target.clone(), window, cx);
-        view.tabs.push(first);
+        let targets = if restore.tabs.is_empty() {
+            vec![view.setup.home_target.clone()]
+        } else {
+            restore.tabs
+        };
+        for target in targets {
+            let tab = view.open_pane(target, window, cx);
+            view.tabs.push(tab);
+        }
+        view.active = restore.active.min(view.tabs.len() - 1);
         view
+    }
+
+    pub fn snapshot(&self, cx: &App) -> BrowserSnapshot {
+        BrowserSnapshot {
+            tabs: self
+                .tabs
+                .iter()
+                .map(|tab| tab.pane.read(cx).location().clone())
+                .collect(),
+            active: self.active,
+            options: self.options,
+        }
+    }
+
+    fn apply_view_options(&mut self, options: ViewOptions, cx: &mut Context<Self>) {
+        self.options = options;
+        for tab in &self.tabs {
+            tab.pane
+                .update(cx, |pane, cx| pane.set_view_options(options, cx));
+        }
+        cx.notify();
     }
 
     pub fn location(&self, cx: &App) -> PlaceTarget {
@@ -93,10 +125,15 @@ impl BrowserView {
         cx: &mut Context<Self>,
     ) -> Tab {
         let setup = self.setup.clone();
-        let pane = cx.new(|cx| PaneView::new(setup, target, window, cx));
+        let start = PaneStart {
+            target,
+            options: self.options,
+        };
+        let pane = cx.new(|cx| PaneView::new(setup, start, window, cx));
         let changes = cx.observe(&pane, |_, _, cx| cx.notify());
         let events = cx.subscribe(&pane, |this, _, event: &PaneEvent, cx| match event {
             PaneEvent::RenameRequested(transfer) => this.rename(transfer.clone(), cx),
+            PaneEvent::ViewOptionsChanged(options) => this.apply_view_options(*options, cx),
         });
         Tab {
             pane,

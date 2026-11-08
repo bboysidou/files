@@ -17,6 +17,7 @@ Early development. Working today:
 - Tabs, back/forward/up history, clickable path crumbs
 - Filter the current folder as you type
 - Folders refresh by themselves when files change on disk
+- Remembers hidden files, sort order, the sidebar and your open tabs
 - Copy, cut, paste, rename, new folder and move to Trash, all with undo and redo
 - Quick Look for images, any text file and folders (`Space`)
 - Extension badges coloured from a hash of the extension, so every type gets a stable colour
@@ -29,6 +30,11 @@ cargo run --release
 ```
 
 Needs a recent stable Rust toolchain and the Wayland or X11 development libraries GPUI uses.
+
+## Settings
+
+Stored in `~/.config/files/settings.toml` (or `$XDG_CONFIG_HOME/files/`), saved as you go.
+A file that cannot be read is moved to `settings.toml.bak` and the defaults are used.
 
 ## Keys
 

@@ -13,9 +13,9 @@ pub struct RailMotion {
 }
 
 impl RailMotion {
-    pub fn opened() -> Self {
+    pub fn starting(open: bool) -> Self {
         Self {
-            open: true,
+            open,
             generation: 0,
         }
     }
