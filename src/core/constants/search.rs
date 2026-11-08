@@ -11,3 +11,4 @@ pub const CONTENT_SNIFF_BYTES: usize = 8 * 1024;
 pub const CONTENT_RESULT_LIMIT: usize = 300;
 pub const CONTENT_SNIPPET_CHARS: usize = 120;
 pub const CONTEXT_SEPARATOR: &str = " · ";
+pub const CONTENT_MAX_WORKERS: usize = 8;

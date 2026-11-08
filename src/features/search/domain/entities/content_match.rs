@@ -5,4 +5,5 @@ pub struct ContentMatch {
     pub path: PathBuf,
     pub line_number: usize,
     pub line: String,
+    pub matches: usize,
 }

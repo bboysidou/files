@@ -17,8 +17,9 @@ Early development. Working today:
 - Tabs, back/forward/up history, clickable path crumbs
 - Filter the current folder as you type, or search every name below it (`f`)
 - Search inside files: start the search with `text:` (for example `text:TODO`); text files up to
-  2 MB are scanned in the background, binary files skipped, and each hit shows its folder and the
-  first matching line. Typing again cancels the running scan
+  2 MB are scanned in the background, binary files skipped, and each hit shows its folder, the
+  first matching line and how many more matches the file has, scanned on up to 8 threads. Typing
+  again cancels the running scan
 - Type a path to jump there (`:` or `Ctrl+L`, `~` for home); network locations work too (`sftp://`, `smb://`,
   `ftp://`, `dav://` or `user@host:/path`), mounted with `gio mount` (gvfs; each protocol needs its
   gvfs backend). A server that asks for a login opens a user/password dialog (plus domain for

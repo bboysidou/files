@@ -3,8 +3,10 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use gpui::Context;
+use rust_i18n::t;
 
 use crate::features::browser::presentation::pane_view::PaneView;
+use crate::features::search::domain::entities::content_match::ContentMatch;
 use crate::features::search::domain::entities::indexed_path::IndexedPath;
 use crate::features::search::domain::usecases::content_needle::content_needle;
 
@@ -39,7 +41,7 @@ impl PaneView {
                         .into_iter()
                         .filter_map(|hit| {
                             let entry = repository.entry(&hit.path)?;
-                            Some((entry, format!("{}: {}", hit.line_number, hit.line)))
+                            Some((entry, content_snippet(&hit)))
                         })
                         .collect::<Vec<_>>()
                 })
@@ -60,4 +62,13 @@ impl PaneView {
             });
         }));
     }
+}
+
+fn content_snippet(hit: &ContentMatch) -> String {
+    let snippet = format!("{}: {}", hit.line_number, hit.line);
+    if hit.matches <= 1 {
+        return snippet;
+    }
+    let more = t!("search.more_matches", count = hit.matches - 1);
+    format!("{snippet}  {more}")
 }
