@@ -4,12 +4,13 @@ use crate::core::enums::operations::clipboard_mode::ClipboardMode;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::presentation::actions::{
     ActivateTab1, ActivateTab2, ActivateTab3, ActivateTab4, ActivateTab5, ActivateTab6,
-    ActivateTab7, ActivateTab8, ActivateTab9, CloseKeymap, CloseMenu, CloseTab, CopyPath,
-    CopySelection, CutSelection, EditPath, MenuConfirm, MenuNext, MenuPrevious, NewFolder, NewTab,
-    NextTab, PasteClipboard, PreviousTab, QuickLook, Redo, ShowGrid, ShowKeymap, ShowList,
-    StartSearch, TogglePreview, TrashSelection, Undo,
+    ActivateTab7, ActivateTab8, ActivateTab9, CloseKeymap, CloseMenu, CloseTab, ConfirmAccept,
+    ConfirmCancel, CopyPath, CopySelection, CutSelection, EditPath, EmptyTrash, MenuConfirm,
+    MenuNext, MenuPrevious, NewFolder, NewTab, NextTab, PasteClipboard, PreviousTab, QuickLook,
+    Redo, ShowGrid, ShowKeymap, ShowList, StartSearch, TogglePreview, TrashSelection, Undo,
 };
 use crate::features::browser::presentation::browser_view::BrowserView;
+use crate::features::browser::presentation::state::confirm_state::ConfirmState;
 
 impl BrowserView {
     pub(super) fn with_actions(element: Div, cx: &mut Context<Self>) -> Div {
@@ -30,6 +31,15 @@ impl BrowserView {
                 cx.listener(|this, _: &CloseKeymap, window, cx| this.close_keymap(window, cx)),
             )
             .on_action(cx.listener(|this, _: &CopyPath, _, cx| this.copy_paths(cx)))
+            .on_action(cx.listener(|this, _: &EmptyTrash, window, cx| {
+                this.ask(ConfirmState::EmptyTrash, window, cx)
+            }))
+            .on_action(
+                cx.listener(|this, _: &ConfirmAccept, window, cx| this.accept_confirm(window, cx)),
+            )
+            .on_action(
+                cx.listener(|this, _: &ConfirmCancel, window, cx| this.cancel_confirm(window, cx)),
+            )
     }
 
     fn with_operation_actions(element: Div, cx: &mut Context<Self>) -> Div {
@@ -41,7 +51,11 @@ impl BrowserView {
                 this.copy_to_clipboard(ClipboardMode::Cut, cx)
             }))
             .on_action(cx.listener(|this, _: &PasteClipboard, _, cx| this.paste(cx)))
-            .on_action(cx.listener(|this, _: &TrashSelection, _, cx| this.trash_selection(cx)))
+            .on_action(
+                cx.listener(|this, _: &TrashSelection, window, cx| {
+                    this.trash_selection(window, cx)
+                }),
+            )
             .on_action(cx.listener(|this, _: &NewFolder, _, cx| this.new_folder(cx)))
             .on_action(cx.listener(|this, _: &Undo, _, cx| this.undo(cx)))
             .on_action(

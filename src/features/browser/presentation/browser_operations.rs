@@ -2,13 +2,14 @@ use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use gpui::{Context, SharedString};
+use gpui::{Context, SharedString, Window};
 use rust_i18n::t;
 
 use crate::core::constants::operations::TOAST_DURATION_MS;
 use crate::core::enums::operations::clipboard_mode::ClipboardMode;
 use crate::core::helpers::format::item_count::item_count;
 use crate::features::browser::presentation::browser_view::BrowserView;
+use crate::features::browser::presentation::state::confirm_state::ConfirmState;
 use crate::features::browser::presentation::state::operation_intent::OperationIntent;
 use crate::features::browser::presentation::state::toast_model::ToastModel;
 use crate::features::operations::domain::entities::clipboard::Clipboard;
@@ -77,11 +78,14 @@ impl BrowserView {
         }
     }
 
-    pub(super) fn trash_selection(&mut self, cx: &mut Context<Self>) {
-        if self.location(cx) == PlaceTarget::Trash {
-            return self.show_toast(t!("op.already_in_trash").to_string(), false, cx);
-        }
+    pub(super) fn trash_selection(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let paths = self.active_pane().read(cx).target_paths();
+        if self.location(cx) == PlaceTarget::Trash {
+            if !paths.is_empty() {
+                self.ask(ConfirmState::Purge(paths), window, cx);
+            }
+            return;
+        }
         if !paths.is_empty() {
             self.execute(FileOperation::Trash(paths), OperationIntent::Fresh, cx);
         }
@@ -140,7 +144,7 @@ impl BrowserView {
         busy
     }
 
-    fn execute(
+    pub(super) fn execute(
         &mut self,
         operation: FileOperation,
         intent: OperationIntent,
@@ -226,6 +230,10 @@ impl BrowserView {
         .to_string()
     }
 
+    pub(super) fn reload_everything(&mut self, cx: &mut Context<Self>) {
+        self.reload_all(None, false, cx);
+    }
+
     fn reload_all(&mut self, landing: Option<PathBuf>, rename: bool, cx: &mut Context<Self>) {
         let active = self.active;
         for (index, tab) in self.tabs.iter().enumerate() {
@@ -248,7 +256,7 @@ impl BrowserView {
         }
     }
 
-    fn show_error(&mut self, error: OperationError, cx: &mut Context<Self>) {
+    pub(super) fn show_error(&mut self, error: OperationError, cx: &mut Context<Self>) {
         let reason = t!(error.label_key());
         self.show_toast(t!("op.failed", reason = reason).to_string(), false, cx);
     }

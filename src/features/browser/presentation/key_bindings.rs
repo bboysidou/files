@@ -9,6 +9,7 @@ const PANE_GRID_KEYS: &str = "Pane && view == grid && !TextField";
 pub const QUICK_LOOK_CONTEXT: &str = "QuickLook";
 pub const MENU_CONTEXT: &str = "Menu";
 pub const KEYMAP_CONTEXT: &str = "Keymap";
+pub const CONFIRM_CONTEXT: &str = "Confirm";
 const PANE_KEYS: &str = "Pane && !TextField";
 
 pub fn browser_key_bindings() -> Vec<KeyBinding> {
@@ -152,5 +153,7 @@ fn overlay_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("escape", CloseMenu, menu),
         KeyBinding::new("m", CloseMenu, menu),
         KeyBinding::new("escape", CloseKeymap, keymap),
+        KeyBinding::new("enter", ConfirmAccept, Some(CONFIRM_CONTEXT)),
+        KeyBinding::new("escape", ConfirmCancel, Some(CONFIRM_CONTEXT)),
     ]
 }

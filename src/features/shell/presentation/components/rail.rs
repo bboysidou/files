@@ -1,4 +1,5 @@
 use std::iter;
+use std::rc::Rc;
 
 use gpui::{
     AnimationExt, AnyElement, App, ElementId, IntoElement, RenderOnce, Window, div, prelude::*, px,
@@ -8,10 +9,12 @@ use crate::core::helpers::motion::lerp::lerp;
 use crate::core::theme::metrics::{RAIL_PAD_BOTTOM, RAIL_PAD_TOP, RAIL_PAD_X};
 use crate::features::places::domain::entities::place::{Place, PlaceSection};
 use crate::features::shell::presentation::components::rail_brand::RailBrand;
+use crate::features::shell::presentation::components::rail_device_item::RailDeviceItem;
 use crate::features::shell::presentation::components::rail_nav_item::RailNavItem;
 use crate::features::shell::presentation::components::rail_search::RailSearch;
 use crate::features::shell::presentation::components::rail_section_label::RailSectionLabel;
 use crate::features::shell::presentation::components::rail_tags::RailTags;
+use crate::features::shell::presentation::state::device_item::DeviceItem;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
 use crate::global_components::handlers::{ClickHandler, IndexHandler};
 
@@ -25,6 +28,9 @@ pub struct Rail {
     pub on_toggle: ClickHandler,
     pub on_select: IndexHandler,
     pub on_search: ClickHandler,
+    pub devices: Vec<DeviceItem>,
+    pub on_device: IndexHandler,
+    pub on_eject: IndexHandler,
 }
 
 impl Rail {
@@ -45,7 +51,34 @@ impl Rail {
                 }
                 .into_any_element()
             });
-        iter::once(label).chain(items).collect()
+        let devices = if section == PlaceSection::Devices {
+            self.device_items()
+        } else {
+            Vec::new()
+        };
+        iter::once(label).chain(items).chain(devices).collect()
+    }
+}
+
+impl Rail {
+    fn device_items(&self) -> Vec<AnyElement> {
+        self.devices
+            .iter()
+            .enumerate()
+            .map(|(index, device)| {
+                let on_eject = self.on_eject.clone();
+                RailDeviceItem {
+                    index,
+                    label: device.label.clone(),
+                    mounted: device.mounted,
+                    active: device.active,
+                    motion: self.motion,
+                    on_select: self.on_device.clone(),
+                    on_eject: Rc::new(move |window, cx| on_eject(index, window, cx)),
+                }
+                .into_any_element()
+            })
+            .collect()
     }
 }
 

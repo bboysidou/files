@@ -38,6 +38,7 @@ icons! {
     Download => "download",
     Drive => "drive",
     Edit => "edit",
+    Eject => "eject",
     Eye => "eye",
     Dual => "dual",
     Filter => "filter",
@@ -61,6 +62,7 @@ icons! {
     Star => "star",
     Trash => "trash",
     Up => "up",
+    Usb => "usb",
     Video => "video",
     Close => "x",
 }

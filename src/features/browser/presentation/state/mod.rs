@@ -1,5 +1,6 @@
 pub mod browser_setup;
 pub mod browser_snapshot;
+pub mod confirm_state;
 pub mod filter_model;
 pub mod handlers;
 pub mod keymap_rows;

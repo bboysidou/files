@@ -11,12 +11,13 @@ use crate::core::theme::metrics::{
     MENU_EDGE_MARGIN, MENU_ITEM_HEIGHT, MENU_MIN_WIDTH, MENU_PAD, MENU_SEPARATOR_MARGIN,
 };
 use crate::features::browser::presentation::actions::{
-    CopyPath, CopySelection, CutSelection, NewFolder, OpenEntry, PasteClipboard, QuickLook,
-    RenameEntry, TrashSelection,
+    CopyPath, CopySelection, CutSelection, EmptyTrash, NewFolder, OpenEntry, PasteClipboard,
+    QuickLook, RenameEntry, TrashSelection,
 };
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::key_bindings::MENU_CONTEXT;
 use crate::features::browser::presentation::state::menu_state::MenuState;
+use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::global_components::handlers::IndexHandler;
 use crate::global_components::menu::menu_entry::MenuEntry;
 use crate::global_components::menu::menu_panel::MenuPanel;
@@ -37,6 +38,21 @@ fn entry(label: &str, icon: Icon, shortcut: &'static str, action: Box<dyn Action
 }
 
 impl BrowserView {
+    fn trash_entries(has_entry: bool) -> Vec<MenuEntry> {
+        let mut restore = entry("trash.restore", Icon::Up, "Enter", Box::new(OpenEntry));
+        restore.enabled = has_entry;
+        let mut delete = entry(
+            "trash.delete",
+            Icon::Trash,
+            "Delete",
+            Box::new(TrashSelection),
+        );
+        (delete.enabled, delete.danger) = (has_entry, true);
+        let mut empty = entry("trash.empty", Icon::Trash, "", Box::new(EmptyTrash));
+        (empty.danger, empty.separated) = (true, true);
+        vec![restore, delete, empty]
+    }
+
     fn menu_entries(&self, cx: &Context<Self>) -> Vec<MenuEntry> {
         let pane = self.active_pane().read(cx);
         let (has_entry, has_directory) =
@@ -94,7 +110,12 @@ impl BrowserView {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        let entries = self.menu_entries(cx);
+        let pane = self.active_pane().read(cx);
+        let entries = if *pane.location() == PlaceTarget::Trash {
+            Self::trash_entries(pane.current_entry().is_some())
+        } else {
+            self.menu_entries(cx)
+        };
         let hot = entries
             .iter()
             .position(|item| item.enabled)

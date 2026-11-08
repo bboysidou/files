@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use gpui::{Pixels, Point};
 
 use crate::features::browser::domain::entities::view_options::ViewOptions;
@@ -9,4 +11,5 @@ pub enum PaneEvent {
     ViewOptionsChanged(ViewOptions),
     Message(String),
     ContextMenu(Point<Pixels>),
+    RestoreRequested(Vec<PathBuf>),
 }

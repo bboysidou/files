@@ -14,6 +14,7 @@ use crate::features::browser::presentation::key_bindings::BROWSER_CONTEXT;
 use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
+use crate::features::browser::presentation::state::confirm_state::ConfirmState;
 use crate::features::browser::presentation::state::handlers::ViewHandler;
 use crate::features::browser::presentation::state::menu_state::MenuState;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
@@ -56,6 +57,9 @@ pub struct BrowserView {
     pub(super) keymap_focus: FocusHandle,
     pub(super) keymap_field: Entity<TextField>,
     pub(super) _keymap_events: Subscription,
+    pub(super) confirm: Option<ConfirmState>,
+    pub(super) confirm_focus: FocusHandle,
+    pub(super) trash_task: Option<Task<()>>,
 }
 
 impl BrowserView {
@@ -94,6 +98,9 @@ impl BrowserView {
             keymap_focus: cx.focus_handle(),
             keymap_field,
             _keymap_events: keymap_events,
+            confirm: None,
+            confirm_focus: cx.focus_handle(),
+            trash_task: None,
         };
         let targets = if restore.tabs.is_empty() {
             vec![TabSnapshot::fresh(view.setup.home_target.clone())]
@@ -168,6 +175,10 @@ impl BrowserView {
         (field, events)
     }
 
+    pub fn notify_message(&mut self, message: String, cx: &mut Context<Self>) {
+        self.show_toast(message, false, cx);
+    }
+
     pub fn location(&self, cx: &App) -> PlaceTarget {
         self.active_pane().read(cx).location().clone()
     }
@@ -203,6 +214,9 @@ impl BrowserView {
                     PaneEvent::ViewOptionsChanged(options) => this.apply_view_options(*options, cx),
                     PaneEvent::Message(message) => this.show_toast(message.clone(), false, cx),
                     PaneEvent::ContextMenu(position) => this.open_menu(*position, window, cx),
+                    PaneEvent::RestoreRequested(entries) => {
+                        this.restore_from_trash(entries.clone(), cx)
+                    }
                 },
             );
         Tab {
@@ -222,6 +236,7 @@ impl Render for BrowserView {
         let quick_look = self.quick_look_overlay(window, cx);
         let menu = self.menu_overlay(window, cx);
         let keymap = self.keymap_overlay(window, cx);
+        let confirm = self.confirm_overlay(window, cx);
         let pane = self.active_pane().clone();
         let toolbar = pane.update(cx, |pane, cx| pane.toolbar_model(cx));
         let (item_count, selected_count) = {
@@ -267,6 +282,7 @@ impl Render for BrowserView {
             .children(quick_look)
             .children(menu)
             .children(keymap)
+            .children(confirm)
     }
 }
 

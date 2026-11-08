@@ -12,7 +12,8 @@ use crate::core::constants::paths::PATH_SEPARATOR;
 use crate::core::dependency_injection::browser::{
     directory_repository, directory_watcher, file_launcher,
 };
-use crate::core::dependency_injection::operations::{file_operations, system_clipboard};
+use crate::core::dependency_injection::devices::device_repository;
+use crate::core::dependency_injection::operations::{file_operations, system_clipboard, trash_bin};
 use crate::core::dependency_injection::preview::preview_source;
 use crate::core::dependency_injection::search::search_indexer;
 use crate::core::dependency_injection::settings::settings_repository;
@@ -20,8 +21,11 @@ use crate::core::dependency_injection::thumbnails::thumbnail_store;
 use crate::core::enums::places::place_kind::PlaceKind;
 use crate::core::theme::colors::{FG, FRAME};
 use crate::core::theme::metrics::{FRAME_GAP, TEXT_BASE};
+use crate::features::browser::domain::repositories::directory_watcher::DirectoryWatcher;
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
+use crate::features::devices::domain::entities::device::Device;
+use crate::features::devices::domain::repositories::device_repository::DeviceRepository;
 use crate::features::places::domain::entities::place::{Place, PlaceTarget};
 use crate::features::places::domain::repositories::places_repository::PlacesRepository;
 use crate::features::settings::domain::entities::settings::Settings;
@@ -38,6 +42,12 @@ pub struct ShellView {
     pub(super) settings_repository: Arc<dyn SettingsRepository>,
     pub(super) saved: Settings,
     pub(super) save_task: Option<Task<()>>,
+    pub(super) home_target: PlaceTarget,
+    pub(super) devices: Vec<Device>,
+    pub(super) device_repository: Arc<dyn DeviceRepository>,
+    pub(super) directory_watcher: Arc<dyn DirectoryWatcher>,
+    pub(super) device_task: Option<Task<()>>,
+    pub(super) device_watch: Option<Task<()>>,
     _browser_changes: Subscription,
     _quit: Subscription,
 }
@@ -64,9 +74,10 @@ impl ShellView {
             watcher: directory_watcher(),
             operations: file_operations(),
             system_clipboard: system_clipboard(),
+            trash_bin: trash_bin(),
             places: places.clone(),
             home,
-            home_target,
+            home_target: home_target.clone(),
         };
         let browser = cx.new(|cx| BrowserView::new(setup, restore, window, cx));
         let browser_changes = cx.observe(&browser, |this, _, cx| {
@@ -77,16 +88,25 @@ impl ShellView {
             this.flush(cx);
             async {}
         });
-        Self {
+        let mut shell = Self {
             places,
             browser,
             rail: RailMotion::starting(saved.sidebar_open),
             settings_repository,
             saved,
             save_task: None,
+            home_target,
+            devices: Vec::new(),
+            device_repository: device_repository(),
+            directory_watcher: directory_watcher(),
+            device_task: None,
+            device_watch: None,
             _browser_changes: browser_changes,
             _quit: quit,
-        }
+        };
+        shell.refresh_devices(cx);
+        shell.watch_devices(cx);
+        shell
     }
 
     fn start_target(places: &[Place], home: Option<&PathBuf>) -> PlaceTarget {
@@ -132,6 +152,7 @@ impl ShellView {
 impl Render for ShellView {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let (on_toggle, on_select) = Self::handlers(cx);
+        let (on_device, on_eject) = Self::device_handlers(cx);
         let browser = self.browser.downgrade();
         let on_search: ClickHandler = Rc::new(move |window, cx| {
             let _ = browser.update(cx, |browser, cx| browser.start_search(window, cx));
@@ -158,6 +179,9 @@ impl Render for ShellView {
                 on_toggle,
                 on_select,
                 on_search,
+                devices: self.device_items(&location),
+                on_device,
+                on_eject,
             })
             .child(self.browser.clone())
     }

@@ -19,6 +19,8 @@ Early development. Working today:
 - Type a path to jump there (`:` or `Ctrl+L`, `~` for home)
 - Context menu on right click or `m`, and a searchable keymap sheet (`?`)
 - Folders refresh by themselves when files change on disk
+- USB drives in the sidebar: click to mount and open, eject button to unmount and power off (udisks2)
+- Trash view: Enter restores, Delete deletes permanently after a confirmation, Empty Trash in the menu
 - Remembers hidden files, sort order, the sidebar, the preview column, the view mode and your open tabs
 - Copy, cut, paste, rename, new folder and move to Trash, all with undo and redo; copy and paste work
   with other file managers and apps through the system clipboard (Wayland)

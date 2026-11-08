@@ -9,6 +9,7 @@ use crate::features::browser::domain::entities::selection::Selection;
 use crate::features::browser::domain::usecases::arrange_entries::arrange_entries;
 use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::load_state::LoadState;
+use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::places::domain::entities::place::PlaceTarget;
 
 impl PaneView {
@@ -151,7 +152,10 @@ impl PaneView {
         let Some(entry) = self.entries.get(index) else {
             return;
         };
-        if entry.is_dir {
+        if self.location == PlaceTarget::Trash {
+            let entries = self.target_paths();
+            cx.emit(PaneEvent::RestoreRequested(entries));
+        } else if entry.is_dir {
             self.navigate(PlaceTarget::Directory(entry.path.clone()), cx);
         } else {
             self.setup.launcher.launch(&entry.path);
