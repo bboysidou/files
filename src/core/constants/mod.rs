@@ -10,6 +10,7 @@ pub mod keymap;
 pub mod operations;
 pub mod paths;
 pub mod preview;
+pub mod sandbox;
 pub mod search;
 pub mod settings;
 pub mod thumbnails;

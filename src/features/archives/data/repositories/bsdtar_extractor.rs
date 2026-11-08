@@ -1,10 +1,12 @@
 use std::fs;
 use std::path::Path;
-use std::process::{Command, Stdio};
+use std::process::Stdio;
 
 use crate::core::constants::preview::{
     ARCHIVE_COMMAND, ARCHIVE_DESTINATION_FLAG, ARCHIVE_EXTRACT_ARGUMENTS, ARCHIVE_STAGING_NAME,
 };
+use crate::core::helpers::process::sandbox_access::SandboxAccess;
+use crate::core::helpers::process::sandboxed_command::sandboxed_command;
 use crate::features::archives::domain::repositories::archive_extractor::ArchiveExtractor;
 use crate::features::operations::domain::usecases::unique_target::unique_target;
 
@@ -13,7 +15,11 @@ pub struct BsdtarExtractor;
 impl ArchiveExtractor for BsdtarExtractor {
     fn extract(&self, archive: &Path, destination: &Path) -> Result<(), String> {
         fs::create_dir(destination).map_err(|error| error.to_string())?;
-        let output = Command::new(ARCHIVE_COMMAND)
+        let access = SandboxAccess {
+            read: vec![archive.to_path_buf()],
+            write: vec![destination.to_path_buf()],
+        };
+        let output = sandboxed_command(ARCHIVE_COMMAND, &access)
             .args(ARCHIVE_EXTRACT_ARGUMENTS)
             .arg(archive)
             .arg(ARCHIVE_DESTINATION_FLAG)

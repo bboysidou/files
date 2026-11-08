@@ -35,6 +35,9 @@ Early development. Working today:
 - Archives (zip, tar.gz/xz/zst/bz2, 7z, rar, iso, cpio, jar): Quick Look and the preview column
   list what is inside, `e` extracts next to the archive into a folder named after it (one top-level
   folder is not nested twice). Uses `bsdtar` from libarchive, which refuses `..` and absolute paths
+- Helpers that read untrusted files (`pdftoppm`, `pdfinfo`, `bsdtar`) run inside bubblewrap when
+  `bwrap` is installed: no network, empty environment, read-only `/usr`, read access to the one
+  input file and write access only to their output folder. Without `bwrap` they run directly
 - Preview column beside the list that follows the cursor (`F3`)
 - Columns view (`Ctrl+2`): the parent folder on the left, the open folder in the middle, the
   folder under the cursor on the right; click a side column to move there

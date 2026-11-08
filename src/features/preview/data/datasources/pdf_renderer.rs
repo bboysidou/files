@@ -1,6 +1,5 @@
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
 use md5::{Digest, Md5};
 
@@ -8,6 +7,8 @@ use crate::core::constants::preview::{
     PDFINFO_COMMAND, PDFINFO_PAGES, PDFTOPPM_COMMAND, PREVIEW_PDF_DIR, PREVIEW_PDF_SCALE,
 };
 use crate::core::helpers::files::file_uri::file_uri;
+use crate::core::helpers::process::sandbox_access::SandboxAccess;
+use crate::core::helpers::process::sandboxed_command::sandboxed_command;
 
 const PNG_SUFFIX: &str = "png";
 
@@ -27,8 +28,13 @@ impl PdfRenderer {
         if image.exists() {
             return Some(image);
         }
-        fs::create_dir_all(prefix.parent()?).ok()?;
-        let status = Command::new(PDFTOPPM_COMMAND)
+        let output_dir = prefix.parent()?;
+        fs::create_dir_all(output_dir).ok()?;
+        let access = SandboxAccess {
+            read: vec![path.to_path_buf()],
+            write: vec![output_dir.to_path_buf()],
+        };
+        let status = sandboxed_command(PDFTOPPM_COMMAND, &access)
             .args([
                 "-png",
                 "-singlefile",
@@ -47,7 +53,14 @@ impl PdfRenderer {
     }
 
     pub fn page_count(&self, path: &Path) -> Option<usize> {
-        let output = Command::new(PDFINFO_COMMAND).arg(path).output().ok()?;
+        let access = SandboxAccess {
+            read: vec![path.to_path_buf()],
+            write: Vec::new(),
+        };
+        let output = sandboxed_command(PDFINFO_COMMAND, &access)
+            .arg(path)
+            .output()
+            .ok()?;
         String::from_utf8_lossy(&output.stdout)
             .lines()
             .find_map(|line| line.strip_prefix(PDFINFO_PAGES))
