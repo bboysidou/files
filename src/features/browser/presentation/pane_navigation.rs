@@ -39,7 +39,9 @@ impl PaneView {
 
     pub(super) fn load(&mut self, cx: &mut Context<Self>) {
         self.generation += 1;
-        let Some(directory) = self.setup.repository.resolve(&self.location) else {
+        let resolved = self.setup.repository.resolve(&self.location);
+        self.watch(resolved.clone(), cx);
+        let Some(directory) = resolved else {
             self.load = LoadState::Unlisted;
             self.load_task = None;
             self.entries.clear();

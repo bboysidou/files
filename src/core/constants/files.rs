@@ -10,3 +10,4 @@ pub const MISSING_VALUE: &str = "—";
 pub const DUPLICATE_FIRST_NUMBER: usize = 2;
 pub const FORBIDDEN_NAME_CHARS: [char; 2] = ['/', '\0'];
 pub const RESERVED_NAMES: [&str; 2] = [".", ".."];
+pub const WATCH_DEBOUNCE_MS: u64 = 250;

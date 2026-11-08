@@ -8,7 +8,9 @@ use gpui::{
 
 use crate::core::constants::app::FONT_FAMILY;
 use crate::core::constants::paths::PATH_SEPARATOR;
-use crate::core::dependency_injection::browser::{directory_repository, file_launcher};
+use crate::core::dependency_injection::browser::{
+    directory_repository, directory_watcher, file_launcher,
+};
 use crate::core::dependency_injection::operations::file_operations;
 use crate::core::dependency_injection::preview::preview_source;
 use crate::core::enums::places::place_kind::PlaceKind;
@@ -44,6 +46,7 @@ impl ShellView {
             preview: preview_source(repository.clone()),
             repository,
             launcher: file_launcher(),
+            watcher: directory_watcher(),
             operations: file_operations(),
             places: places.clone(),
             home,

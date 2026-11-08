@@ -12,5 +12,6 @@ pub mod pane_operations;
 pub mod pane_rename;
 pub mod pane_selection;
 pub mod pane_view;
+pub mod pane_watch;
 pub mod quick_look_render;
 pub mod state;
