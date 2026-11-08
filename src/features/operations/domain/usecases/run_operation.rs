@@ -38,6 +38,7 @@ pub fn run_operation(
         FileOperation::Rename(transfer) => files.move_path(&transfer.from, &transfer.to, sink)?,
         FileOperation::Trash(paths) => files.trash(paths)?,
         FileOperation::Restore(paths) => files.restore(paths)?,
+        FileOperation::Extract(path) => files.restore(std::slice::from_ref(path))?,
         FileOperation::CreateFolder(path) => files.create_folder(path)?,
         FileOperation::RemoveFolder(path) => files.remove_folder(path)?,
         FileOperation::Batch(steps) => {

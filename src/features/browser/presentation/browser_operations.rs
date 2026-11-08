@@ -163,21 +163,20 @@ impl BrowserView {
         if let FileOperation::Batch(steps) = operation {
             return steps.last().map(Self::describe).unwrap_or_default();
         }
-        let items = item_count(operation.item_count());
-        let name_of = |path: &PathBuf| {
-            path.file_name()
+        if let Some((key, path)) = named_step(operation) {
+            let name = path
+                .file_name()
                 .map(|name| name.to_string_lossy().into_owned())
-                .unwrap_or_default()
-        };
+                .unwrap_or_default();
+            return t!(key, name = name).to_string();
+        }
+        let items = item_count(operation.item_count());
         match operation {
             FileOperation::Copy(_) => t!("op.copied", items = items),
             FileOperation::Move(_) => t!("op.moved", items = items),
-            FileOperation::Rename(transfer) => t!("op.renamed", name = name_of(&transfer.to)),
             FileOperation::Trash(_) => t!("op.trashed", items = items),
             FileOperation::Restore(_) => t!("op.restored", items = items),
-            FileOperation::CreateFolder(path) => t!("op.created_folder", name = name_of(path)),
-            FileOperation::RemoveFolder(path) => t!("op.removed_folder", name = name_of(path)),
-            FileOperation::Batch(_) => Default::default(),
+            _ => Default::default(),
         }
         .to_string()
     }
@@ -256,5 +255,15 @@ impl BrowserView {
             .join("\n");
         cx.write_to_clipboard(gpui::ClipboardItem::new_string(text));
         self.show_toast(message, false, cx);
+    }
+}
+
+fn named_step(operation: &FileOperation) -> Option<(&'static str, &PathBuf)> {
+    match operation {
+        FileOperation::Rename(transfer) => Some(("op.renamed", &transfer.to)),
+        FileOperation::CreateFolder(path) => Some(("op.created_folder", path)),
+        FileOperation::RemoveFolder(path) => Some(("op.removed_folder", path)),
+        FileOperation::Extract(path) => Some(("archive.extracted", path)),
+        _ => None,
     }
 }

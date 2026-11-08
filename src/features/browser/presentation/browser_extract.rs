@@ -4,6 +4,7 @@ use rust_i18n::t;
 use crate::core::helpers::files::archive_stem::archive_stem;
 use crate::core::helpers::files::is_archive::is_archive;
 use crate::features::browser::presentation::browser_view::BrowserView;
+use crate::features::operations::domain::entities::file_operation::FileOperation;
 use crate::features::operations::domain::usecases::unique_target::unique_target;
 
 impl BrowserView {
@@ -21,7 +22,7 @@ impl BrowserView {
         };
         let destination = unique_target(parent, archive_stem(&entry.name), &|path| path.exists());
         let extractor = self.setup.extractor.clone();
-        let archive = entry.path.clone();
+        let (archive, done) = (entry.path.clone(), destination.clone());
         let name = destination
             .file_name()
             .map(|name| name.to_string_lossy().to_string())
@@ -36,11 +37,17 @@ impl BrowserView {
                 .background_executor()
                 .spawn(async move { extractor.extract(&archive, &destination) })
                 .await;
-            let message = match outcome {
-                Ok(()) => t!("archive.extracted", name = name).to_string(),
-                Err(reason) => t!("archive.failed", reason = reason).to_string(),
-            };
-            let _ = this.update(cx, |this, cx| this.show_toast(message, false, cx));
+            let _ = this.update(cx, |this, cx| match outcome {
+                Ok(()) => {
+                    this.history.record(FileOperation::Extract(done));
+                    let message = t!("archive.extracted", name = name).to_string();
+                    this.show_toast(message, true, cx);
+                }
+                Err(reason) => {
+                    let message = t!("archive.failed", reason = reason).to_string();
+                    this.show_toast(message, false, cx);
+                }
+            });
         })
         .detach();
     }
