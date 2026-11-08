@@ -1,5 +1,6 @@
 pub mod browser_setup;
 pub mod browser_snapshot;
+pub mod column_state;
 pub mod confirm_state;
 pub mod filter_model;
 pub mod handlers;

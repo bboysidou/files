@@ -31,6 +31,7 @@ pub struct FileRow {
     pub on_click: IndexClickHandler,
     pub on_right: IndexPointHandler,
     pub compact: bool,
+    pub name_only: bool,
     pub context: Option<String>,
 }
 
@@ -91,11 +92,13 @@ impl RenderOnce for FileRow {
                 rename: self.rename,
                 context: self.context,
             })
-            .child(Self::cell(LIST_SIZE_WIDTH, size).flex().justify_end())
-            .when(!self.compact, |row| {
-                row.child(Self::cell(LIST_KIND_WIDTH, kind))
-            })
-            .child(Self::cell(LIST_MODIFIED_WIDTH, modified)),
+            .when(!self.name_only, |row| {
+                row.child(Self::cell(LIST_SIZE_WIDTH, size).flex().justify_end())
+                    .when(!self.compact, |row| {
+                        row.child(Self::cell(LIST_KIND_WIDTH, kind))
+                    })
+                    .child(Self::cell(LIST_MODIFIED_WIDTH, modified))
+            }),
         )
     }
 }

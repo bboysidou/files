@@ -8,6 +8,7 @@ pub mod header_cell;
 pub mod key_row;
 pub mod list_header;
 pub mod markdown_block_view;
+pub mod miller_column;
 pub mod name_cell;
 pub mod nav_buttons;
 pub mod path_field;

@@ -20,7 +20,7 @@ impl ViewMode {
     ];
 
     pub fn is_available(self) -> bool {
-        matches!(self, ViewMode::List | ViewMode::Grid)
+        matches!(self, ViewMode::List | ViewMode::Columns | ViewMode::Grid)
     }
 
     pub fn icon(self) -> Icon {

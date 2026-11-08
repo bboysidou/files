@@ -2,7 +2,9 @@ use std::ops::Range;
 use std::rc::Rc;
 use std::time::SystemTime;
 
-use gpui::{AnyElement, Context, IntoElement, ParentElement, Styled, div, uniform_list};
+use gpui::{
+    AnyElement, Context, IntoElement, ParentElement, Styled, UniformList, div, uniform_list,
+};
 use rust_i18n::t;
 
 use crate::core::enums::assets::icon::Icon;
@@ -63,8 +65,21 @@ impl PaneView {
             LoadState::Loading | LoadState::Ready(_) if self.view == ViewMode::Grid => {
                 self.grid(cx)
             }
+            LoadState::Loading | LoadState::Ready(_) if self.view == ViewMode::Columns => {
+                self.columns(cx)
+            }
             LoadState::Loading | LoadState::Ready(_) => self.file_list(cx),
         }
+    }
+
+    pub(super) fn entry_list(&self, cx: &mut Context<Self>) -> UniformList {
+        uniform_list(
+            "entries",
+            self.entries.len(),
+            cx.processor(|this, range: Range<usize>, _window, cx| this.rows(range, cx)),
+        )
+        .flex_1()
+        .track_scroll(&self.scroll)
     }
 
     fn file_list(&self, cx: &mut Context<Self>) -> AnyElement {
@@ -72,13 +87,7 @@ impl PaneView {
         let on_sort: SortHandler = Rc::new(move |key: SortKey, _, cx| {
             let _ = view.update(cx, |this, cx| this.sort_by(key, cx));
         });
-        let rows = uniform_list(
-            "entries",
-            self.entries.len(),
-            cx.processor(|this, range: Range<usize>, _window, cx| this.rows(range, cx)),
-        )
-        .flex_1()
-        .track_scroll(&self.scroll);
+        let rows = self.entry_list(cx);
         div()
             .size_full()
             .flex()
@@ -115,6 +124,7 @@ impl PaneView {
                     on_click: on_click.clone(),
                     on_right: on_right.clone(),
                     compact: self.compact,
+                    name_only: self.view == ViewMode::Columns,
                     context: self.search_context(&self.entries.get(index)?.path),
                 })
             })

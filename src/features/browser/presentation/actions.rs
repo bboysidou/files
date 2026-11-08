@@ -38,6 +38,7 @@ actions!(
         MoveRight,
         ShowList,
         ShowGrid,
+        ShowColumns,
         StartSearch,
         EditPath,
         OpenMenu,

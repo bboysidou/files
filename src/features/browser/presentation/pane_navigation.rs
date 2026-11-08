@@ -165,7 +165,7 @@ impl PaneView {
         }
     }
 
-    fn current_stop(&self) -> HistoryStop {
+    pub(super) fn current_stop(&self) -> HistoryStop {
         HistoryStop {
             target: self.location.clone(),
             focus: self.current_entry_path(),

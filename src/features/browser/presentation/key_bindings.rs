@@ -110,6 +110,7 @@ fn tab_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("ctrl-shift-tab", PreviousTab, browser),
         KeyBinding::new("f3", TogglePreview, browser),
         KeyBinding::new("ctrl-1", ShowList, browser),
+        KeyBinding::new("ctrl-2", ShowColumns, browser),
         KeyBinding::new("ctrl-3", ShowGrid, browser),
         KeyBinding::new("ctrl-l", EditPath, browser),
         KeyBinding::new("ctrl-f", StartSearch, browser),

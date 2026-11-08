@@ -7,7 +7,8 @@ use crate::features::browser::presentation::actions::{
     ActivateTab7, ActivateTab8, ActivateTab9, CloseKeymap, CloseMenu, CloseTab, ConfirmAccept,
     ConfirmCancel, CopyPath, CopySelection, CutSelection, EditPath, EmptyTrash, MenuConfirm,
     MenuNext, MenuPrevious, NewFolder, NewTab, NextTab, PasteClipboard, PreviousTab, QuickLook,
-    Redo, ShowGrid, ShowKeymap, ShowList, StartSearch, TogglePreview, TrashSelection, Undo,
+    Redo, ShowColumns, ShowGrid, ShowKeymap, ShowList, StartSearch, TogglePreview, TrashSelection,
+    Undo,
 };
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
@@ -64,6 +65,9 @@ impl BrowserView {
             .on_action(cx.listener(|this, _: &EditPath, window, cx| this.edit_path(window, cx)))
             .on_action(cx.listener(|this, _: &ShowList, _, cx| this.set_view(ViewMode::List, cx)))
             .on_action(cx.listener(|this, _: &ShowGrid, _, cx| this.set_view(ViewMode::Grid, cx)))
+            .on_action(
+                cx.listener(|this, _: &ShowColumns, _, cx| this.set_view(ViewMode::Columns, cx)),
+            )
             .on_action(cx.listener(|this, _: &TogglePreview, _, cx| this.toggle_preview_column(cx)))
             .on_action(
                 cx.listener(|this, _: &QuickLook, window, cx| this.open_quick_look(window, cx)),
