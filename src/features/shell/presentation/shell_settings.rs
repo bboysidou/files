@@ -31,6 +31,7 @@ impl ShellView {
                     hidden_last: settings.hidden_last,
                 },
                 view: settings.view_mode,
+                columns: settings.columns,
             },
         }
     }
@@ -44,6 +45,7 @@ impl ShellView {
             hidden_last: snapshot.options.sort.hidden_last,
             restore_tabs: snapshot.restore_tabs,
             view_mode: snapshot.options.view,
+            columns: snapshot.options.columns,
             sidebar_open: self.rail.open,
             preview_open: snapshot.preview_open,
             active_tab: snapshot.active,

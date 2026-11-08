@@ -44,6 +44,7 @@ fn compare_by(left: &FileEntry, right: &FileEntry, key: SortKey) -> Ordering {
         SortKey::Name => by_name(),
         SortKey::Size => magnitude(left).cmp(&magnitude(right)).then_with(by_name),
         SortKey::Modified => left.modified.cmp(&right.modified).then_with(by_name),
+        SortKey::Created => left.created.cmp(&right.created).then_with(by_name),
         SortKey::Extension => natural_compare(
             &left.extension.as_deref().unwrap_or_default().to_lowercase(),
             &right

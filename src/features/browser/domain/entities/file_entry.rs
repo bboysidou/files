@@ -15,5 +15,6 @@ pub struct FileEntry {
     pub size: Option<u64>,
     pub child_count: Option<usize>,
     pub modified: Option<SystemTime>,
+    pub created: Option<SystemTime>,
     pub tags: Vec<TagColor>,
 }

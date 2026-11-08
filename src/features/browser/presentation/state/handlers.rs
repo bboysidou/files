@@ -7,3 +7,4 @@ use crate::core::enums::view::view_mode::ViewMode;
 
 pub type SortHandler = Rc<dyn Fn(SortKey, &mut Window, &mut App)>;
 pub type ViewHandler = Rc<dyn Fn(ViewMode, &mut Window, &mut App)>;
+pub type ResizeHandler = Rc<dyn Fn(SortKey, u16, &mut Window, &mut App)>;

@@ -3,6 +3,7 @@ pub mod band_state;
 pub mod browser_setup;
 pub mod browser_snapshot;
 pub mod bulk_rename_state;
+pub mod column_drag;
 pub mod column_state;
 pub mod confirm_state;
 pub mod drop_request;

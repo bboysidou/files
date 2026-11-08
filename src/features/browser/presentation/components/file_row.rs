@@ -7,12 +7,12 @@ use gpui::{
 use rust_i18n::t;
 
 use crate::core::constants::files::MISSING_VALUE;
+use crate::core::enums::browser::sort_key::SortKey;
 use crate::core::helpers::format::size_text::size_text;
 use crate::core::helpers::time::relative_time::relative_time;
 use crate::core::theme::colors::{ACCENT, FG_SOFT, ROW_HOVER, SELECTION_ALPHA, TRANSPARENT};
 use crate::core::theme::metrics::{
-    LIST_CELL_PAD_X, LIST_KIND_WIDTH, LIST_MODIFIED_WIDTH, LIST_ROW_HEIGHT, LIST_ROW_RADIUS,
-    LIST_ROW_SPACING, LIST_SIZE_WIDTH, TEXT_SMALL,
+    LIST_CELL_PAD_X, LIST_ROW_HEIGHT, LIST_ROW_RADIUS, LIST_ROW_SPACING, TEXT_SMALL,
 };
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::components::name_cell::NameCell;
@@ -32,7 +32,7 @@ pub struct FileRow {
     pub now: SystemTime,
     pub on_click: IndexClickHandler,
     pub on_right: IndexPointHandler,
-    pub compact: bool,
+    pub columns: Vec<(SortKey, u16)>,
     pub name_only: bool,
     pub context: Option<String>,
 }
@@ -40,6 +40,21 @@ pub struct FileRow {
 impl FileRow {
     fn size_text(entry: &FileEntry) -> SharedString {
         size_text(entry.is_dir, entry.child_count, entry.size).into()
+    }
+
+    fn column_text(key: SortKey, entry: &FileEntry, now: SystemTime) -> String {
+        let when = |moment: Option<SystemTime>| {
+            moment.map_or_else(
+                || MISSING_VALUE.to_string(),
+                |moment| relative_time(moment, now),
+            )
+        };
+        match key {
+            SortKey::Size => Self::size_text(entry).to_string(),
+            SortKey::Kind => t!(entry.kind.label_key()).to_string(),
+            SortKey::Created => when(entry.created),
+            _ => when(entry.modified),
+        }
     }
 
     fn cell(width: f32, text: impl Into<SharedString>) -> gpui::Div {
@@ -57,12 +72,21 @@ impl FileRow {
 impl RenderOnce for FileRow {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
         let (index, on_click, on_right) = (self.index, self.on_click, self.on_right);
-        let size = Self::size_text(&self.entry);
-        let kind = t!(self.entry.kind.label_key()).to_string();
-        let modified = self.entry.modified.map_or_else(
-            || MISSING_VALUE.to_string(),
-            |moment| relative_time(moment, self.now),
-        );
+        let cells: Vec<gpui::Div> = self
+            .columns
+            .iter()
+            .map(|(key, width)| {
+                let cell = Self::cell(
+                    f32::from(*width),
+                    Self::column_text(*key, &self.entry, self.now),
+                );
+                if *key == SortKey::Size {
+                    cell.flex().justify_end()
+                } else {
+                    cell
+                }
+            })
+            .collect();
         let row = div()
             .id(("row", index))
             .flex()
@@ -95,13 +119,7 @@ impl RenderOnce for FileRow {
                 rename: self.rename,
                 context: self.context,
             })
-            .when(!self.name_only, |row| {
-                row.child(Self::cell(LIST_SIZE_WIDTH, size).flex().justify_end())
-                    .when(!self.compact, |row| {
-                        row.child(Self::cell(LIST_KIND_WIDTH, kind))
-                    })
-                    .child(Self::cell(LIST_MODIFIED_WIDTH, modified))
-            }),
+            .when(!self.name_only, |row| row.children(cells)),
         )
     }
 }

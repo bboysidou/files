@@ -42,6 +42,9 @@ impl LocalDirectoryRepository {
             modified: metadata
                 .as_ref()
                 .and_then(|metadata| metadata.modified().ok()),
+            created: metadata
+                .as_ref()
+                .and_then(|metadata| metadata.created().ok()),
             name,
             path,
             extension,

@@ -8,15 +8,17 @@ pub enum SortKey {
     Kind,
     Modified,
     Extension,
+    Created,
 }
 
 impl SortKey {
-    pub const ALL: [SortKey; 5] = [
+    pub const ALL: [SortKey; 6] = [
         SortKey::Name,
         SortKey::Size,
         SortKey::Kind,
         SortKey::Modified,
         SortKey::Extension,
+        SortKey::Created,
     ];
 
     pub fn label_key(self) -> &'static str {
@@ -26,6 +28,7 @@ impl SortKey {
             SortKey::Kind => "list.column.kind",
             SortKey::Modified => "list.column.modified",
             SortKey::Extension => "list.column.extension",
+            SortKey::Created => "list.column.created",
         }
     }
 }

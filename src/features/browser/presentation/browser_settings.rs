@@ -10,10 +10,12 @@ use rust_i18n::t;
 use crate::core::enums::browser::sort_key::SortKey;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::core::theme::colors::{CARD, FG_BRIGHT, LINE_STRONG};
+use crate::core::theme::metrics::LIST_CREATED_WIDTH;
 use crate::core::theme::metrics::{
     QUICK_LOOK_MARGIN, QUICK_LOOK_RADIUS, SETTINGS_PANEL_HEIGHT, SETTINGS_PANEL_WIDTH,
     SHEET_PANEL_PAD, TEXT_EMPTY_TITLE, TOOLBAR_GAP,
 };
+use crate::features::browser::domain::entities::list_columns::ListColumns;
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::components::settings_row::SettingsRow;
 use crate::features::browser::presentation::key_bindings::SETTINGS_CONTEXT;
@@ -32,12 +34,19 @@ const VIEW_KEYS: [&str; 4] = [
     "settings.view.grid",
     "settings.view.dual",
 ];
-const SORT_KEYS: [&str; 5] = [
+const SORT_KEYS: [&str; 6] = [
     "settings.sort.name",
     "settings.sort.size",
     "settings.sort.kind",
     "settings.sort.modified",
     "settings.sort.extension",
+    "settings.sort.created",
+];
+const COLUMN_LABELS: [(&str, &str); 4] = [
+    ("set-col-size", "settings.column.size"),
+    ("set-col-kind", "settings.column.kind"),
+    ("set-col-modified", "settings.column.modified"),
+    ("set-col-created", "settings.column.created"),
 ];
 const START_KEYS: [&str; 2] = ["settings.start.last", "settings.start.home"];
 
@@ -62,6 +71,12 @@ impl BrowserView {
             SettingChange::SortBy(key) => options.sort.key = key,
             SettingChange::Ascending(on) => options.sort.ascending = on,
             SettingChange::View(view) => options.view = view,
+            SettingChange::Column(key, on) => {
+                let width = ListColumns::default()
+                    .width_of(key)
+                    .unwrap_or(LIST_CREATED_WIDTH);
+                options.columns = options.columns.with_width(key, on.then_some(width));
+            }
             SettingChange::PreviewColumn => return self.toggle_preview_column(cx),
             SettingChange::RestoreTabs(on) => {
                 self.settings.restore_tabs = on;
@@ -142,10 +157,29 @@ impl BrowserView {
         ]
     }
 
+    fn column_items(&self) -> Vec<SettingItem> {
+        COLUMN_LABELS
+            .iter()
+            .zip(ListColumns::KEYS)
+            .map(|((id, label), key)| {
+                let on = self.options.columns.width_of(key).is_some();
+                SettingItem {
+                    id,
+                    label,
+                    control: SettingControl::Toggle {
+                        on,
+                        change: SettingChange::Column(key, !on),
+                    },
+                }
+            })
+            .collect()
+    }
+
     fn settings_rows(&self, cx: &Context<Self>) -> Vec<AnyElement> {
         let view = cx.entity().downgrade();
         let mut items = self.list_items();
         items.extend(self.layout_items());
+        items.extend(self.column_items());
         items
             .into_iter()
             .map(|item| {

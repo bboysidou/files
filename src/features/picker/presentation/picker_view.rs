@@ -58,6 +58,7 @@ impl PickerView {
             show_hidden: false,
             sort: SortOrder::by_name(),
             view: ViewMode::List,
+            columns: Default::default(),
         };
         let pane_start = PaneStart {
             tab: TabSnapshot::fresh(PlaceTarget::Directory(start)),

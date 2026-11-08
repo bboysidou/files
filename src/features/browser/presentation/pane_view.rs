@@ -3,14 +3,14 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 use gpui::{
-    App, Context, Div, Entity, EventEmitter, FocusHandle, Focusable, IntoElement, MouseButton,
-    MouseDownEvent, Render, SharedString, Subscription, Task, UniformListScrollHandle, Window, div,
-    prelude::*,
+    Context, Div, Entity, FocusHandle, Focusable, IntoElement, MouseButton, MouseDownEvent, Render,
+    SharedString, Subscription, Task, UniformListScrollHandle, Window, div, prelude::*,
 };
 use rust_i18n::t;
 
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::file_entry::FileEntry;
+use crate::features::browser::domain::entities::list_columns::ListColumns;
 use crate::features::browser::domain::entities::navigation_history::NavigationHistory;
 use crate::features::browser::domain::entities::selection::Selection;
 use crate::features::browser::domain::entities::sort_order::SortOrder;
@@ -26,7 +26,6 @@ use crate::features::browser::presentation::state::column_state::ColumnState;
 use crate::features::browser::presentation::state::folder_sizes::FolderSizes;
 use crate::features::browser::presentation::state::load_state::LoadState;
 use crate::features::browser::presentation::state::overview_state::OverviewState;
-use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::pane_start::PaneStart;
 use crate::features::browser::presentation::state::search_state::SearchState;
 use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
@@ -63,6 +62,7 @@ pub struct PaneView {
     pub(super) watch_task: Option<Task<()>>,
     pub(super) compact: bool,
     pub(super) view: ViewMode,
+    pub(super) list_columns: ListColumns,
     pub(super) columns: ColumnState,
     pub(super) overview: OverviewState,
     pub(super) columns_task: Option<Task<()>>,
@@ -116,6 +116,7 @@ impl PaneView {
             watch_task: None,
             compact: false,
             view: start.options.view,
+            list_columns: start.options.columns,
             columns: ColumnState::default(),
             overview: OverviewState::default(),
             columns_task: None,
@@ -287,13 +288,5 @@ impl Render for PaneView {
         let body = self.drop_zone(self.body(cx), cx);
         Self::with_size_actions(Self::with_tag_actions(Self::with_actions(root, cx), cx), cx)
             .child(body)
-    }
-}
-
-impl EventEmitter<PaneEvent> for PaneView {}
-
-impl Focusable for PaneView {
-    fn focus_handle(&self, _cx: &App) -> FocusHandle {
-        self.focus_handle.clone()
     }
 }

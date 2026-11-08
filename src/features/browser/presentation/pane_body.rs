@@ -97,7 +97,8 @@ impl PaneView {
             .child(ListHeader {
                 sort: self.sort,
                 on_sort,
-                compact: self.compact,
+                columns: self.list_columns.visible(self.compact),
+                on_resize: Self::resize_handler(cx),
             })
             .child(self.band_area(rows, cx))
             .into_any_element()
@@ -128,7 +129,7 @@ impl PaneView {
                     now,
                     on_click: on_click.clone(),
                     on_right: on_right.clone(),
-                    compact: self.compact,
+                    columns: self.list_columns.visible(self.compact),
                     name_only: self.view == ViewMode::Columns,
                     context: self.search_context(&self.entries.get(index)?.path),
                 })

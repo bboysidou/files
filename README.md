@@ -60,6 +60,8 @@ Early development. Working today:
 - Drag and drop: drag rows or tiles onto a folder, the open folder or a sidebar place; same disk
   moves, another disk copies, `Ctrl` while dropping always copies. Files dragged out of the window
   go to other apps, and files dropped in from other apps are copied or moved the same way
+- List columns: Size, Kind, Modified and Created can each be shown or hidden in settings and
+  resized by dragging the left edge of their header; a narrow pane drops Kind and Created
 - Extension badges coloured from a hash of the extension, so every type gets a stable colour
 - Opening files with your default applications (`xdg-open`), or with any other app that lists the
   file type (`o`, default app first; terminal apps open in your terminal)

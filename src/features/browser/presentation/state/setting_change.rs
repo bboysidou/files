@@ -10,4 +10,5 @@ pub enum SettingChange {
     View(ViewMode),
     PreviewColumn,
     RestoreTabs(bool),
+    Column(SortKey, bool),
 }
