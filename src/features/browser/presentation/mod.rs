@@ -23,6 +23,7 @@ pub mod browser_pdf_pages;
 pub mod browser_preview;
 pub mod browser_properties;
 pub mod browser_quick_look;
+pub mod browser_server_edit;
 pub mod browser_settings;
 pub mod browser_settings_items;
 pub mod browser_tab_order;

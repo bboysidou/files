@@ -2,6 +2,7 @@ use gpui::{Context, Window};
 
 use crate::core::enums::network::network_protocol::NetworkProtocol;
 use crate::features::browser::presentation::state::browser_event::BrowserEvent;
+use crate::features::network::domain::entities::saved_server::SavedServer;
 use crate::features::network::domain::usecases::server_key::server_key;
 use crate::features::network::domain::usecases::server_label::server_label;
 use crate::features::shell::presentation::shell_view::ShellView;
@@ -12,9 +13,15 @@ impl ShellView {
         self.network.saved = self.saved.servers.clone();
         let browser = self.browser.clone();
         self.network.events = Some(cx.subscribe(&browser, |this, _, event, cx| match event {
-            BrowserEvent::ServerConnected { uri, replaces } => {
-                this.remember_server(uri, replaces.as_deref(), cx)
+            BrowserEvent::ServerConnected { uri, edit } => {
+                let server = SavedServer {
+                    uri: uri.clone(),
+                    name: edit.as_ref().and_then(|edit| edit.name.clone()),
+                };
+                let replaces = edit.as_ref().map(|edit| edit.replaces.as_str());
+                this.remember_server(server, replaces, cx)
             }
+            BrowserEvent::ServerRenamed(server) => this.rename_server(server, cx),
         }));
     }
 
@@ -23,61 +30,86 @@ impl ShellView {
             .network
             .saved
             .iter()
-            .filter_map(|uri| {
-                let label = server_label(uri)?;
+            .filter_map(|server| {
+                let address = server_label(&server.uri)?;
                 let mount = self
                     .network
                     .mounts
                     .iter()
-                    .find(|mount| server_key(&mount.label) == server_key(&label))
+                    .find(|mount| server_key(&mount.label) == server_key(&address))
                     .map(|mount| mount.path.clone());
                 Some(NetworkEntry {
-                    label,
-                    protocol: NetworkProtocol::from_uri(uri),
-                    uri: Some(uri.clone()),
+                    label: server.name.clone().unwrap_or(address),
+                    protocol: NetworkProtocol::from_uri(&server.uri),
+                    uri: Some(server.uri.clone()),
                     mount,
                 })
             })
             .collect();
-        let unsaved: Vec<NetworkEntry> = self
+        let saved_keys: Vec<String> = self
             .network
-            .mounts
+            .saved
             .iter()
-            .filter(|mount| {
-                !entries
-                    .iter()
-                    .any(|entry| server_key(&entry.label) == server_key(&mount.label))
-            })
-            .map(|mount| NetworkEntry {
-                label: mount.label.clone(),
-                uri: None,
-                mount: Some(mount.path.clone()),
-                protocol: mount.protocol,
-            })
+            .filter_map(|server| server_label(&server.uri))
             .collect();
-        entries.extend(unsaved);
+        entries.extend(
+            self.network
+                .mounts
+                .iter()
+                .filter(|mount| {
+                    !saved_keys
+                        .iter()
+                        .any(|key| server_key(key) == server_key(&mount.label))
+                })
+                .map(|mount| NetworkEntry {
+                    label: mount.label.clone(),
+                    uri: None,
+                    mount: Some(mount.path.clone()),
+                    protocol: mount.protocol,
+                }),
+        );
         entries
     }
 
-    fn remember_server(&mut self, uri: &str, replaces: Option<&str>, cx: &mut Context<Self>) {
-        let label = server_label(uri);
-        if label.is_none() {
+    fn remember_server(
+        &mut self,
+        server: SavedServer,
+        replaces: Option<&str>,
+        cx: &mut Context<Self>,
+    ) {
+        let Some(label) = server_label(&server.uri) else {
             return;
+        };
+        let saved = &mut self.network.saved;
+        let slot = replaces.and_then(|old| saved.iter().position(|entry| entry.uri == old));
+        match slot {
+            Some(slot) => saved[slot] = server,
+            None if saved
+                .iter()
+                .any(|entry| server_label(&entry.uri).as_ref() == Some(&label)) => {}
+            None => saved.push(server),
         }
-        let slot = replaces
-            .and_then(|old| self.network.saved.iter().position(|saved| saved == old))
-            .unwrap_or(self.network.saved.len());
-        let mut saved: Vec<String> = self.network.saved.clone();
-        saved.insert(slot, uri.to_owned());
         let mut seen = Vec::new();
         saved.retain(|entry| {
-            let keep = Some(entry.as_str()) != replaces || entry == uri;
-            let fresh = !seen.contains(&server_label(entry));
-            seen.push(server_label(entry));
-            keep && fresh
+            let key = server_label(&entry.uri);
+            let fresh = !seen.contains(&key);
+            seen.push(key);
+            fresh
         });
-        self.network.saved = saved;
         self.refresh_network(cx);
+        self.persist(cx);
+        cx.notify();
+    }
+
+    fn rename_server(&mut self, server: &SavedServer, cx: &mut Context<Self>) {
+        if let Some(entry) = self
+            .network
+            .saved
+            .iter_mut()
+            .find(|entry| entry.uri == server.uri)
+        {
+            entry.name = server.name.clone();
+        }
         self.persist(cx);
         cx.notify();
     }
@@ -96,12 +128,22 @@ impl ShellView {
         else {
             return;
         };
-        self.browser
-            .update(cx, |browser, cx| browser.edit_server(uri, window, cx));
+        let Some(server) = self
+            .network
+            .saved
+            .iter()
+            .find(|server| server.uri == uri)
+            .cloned()
+        else {
+            return;
+        };
+        self.browser.update(cx, |browser, cx| {
+            browser.open_server_edit(server, window, cx)
+        });
     }
 
     pub(super) fn forget_server(&mut self, uri: &str, cx: &mut Context<Self>) {
-        self.network.saved.retain(|saved| saved != uri);
+        self.network.saved.retain(|saved| saved.uri != uri);
         self.persist(cx);
         cx.notify();
     }

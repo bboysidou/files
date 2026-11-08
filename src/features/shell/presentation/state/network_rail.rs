@@ -3,6 +3,7 @@ use std::sync::Arc;
 use gpui::{Subscription, Task};
 
 use crate::features::network::domain::entities::network_mount::NetworkMount;
+use crate::features::network::domain::entities::saved_server::SavedServer;
 use crate::features::network::domain::repositories::network_mounter::NetworkMounter;
 use crate::features::places::domain::entities::place::PlaceTarget;
 
@@ -12,7 +13,7 @@ pub struct NetworkRail {
     pub seen: Option<PlaceTarget>,
     pub task: Option<Task<()>>,
     pub unmount_task: Option<Task<()>>,
-    pub saved: Vec<String>,
+    pub saved: Vec<SavedServer>,
     pub events: Option<Subscription>,
 }
 

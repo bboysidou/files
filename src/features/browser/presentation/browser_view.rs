@@ -27,6 +27,7 @@ use crate::features::browser::presentation::state::network_login_state::{
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::pane_start::PaneStart;
 use crate::features::browser::presentation::state::properties_state::PropertiesState;
+use crate::features::browser::presentation::state::server_edit_state::ServerEditState;
 use crate::features::browser::presentation::state::settings_sheet::SettingsSheet;
 use crate::features::browser::presentation::state::tab::Tab;
 use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
@@ -51,6 +52,7 @@ pub struct BrowserView {
     pub(super) settings: SettingsSheet,
     pub(super) bulk: Option<BulkRenameState>,
     pub(super) network_login: Option<NetworkLoginState>,
+    pub(super) server_edit: Option<ServerEditState>,
     pub(super) properties: Option<PropertiesState>,
     pub(super) keymap_open: bool,
     pub(super) keymap_focus: FocusHandle,
@@ -88,6 +90,7 @@ impl BrowserView {
             open_with_task: None,
             bulk: None,
             network_login: None,
+            server_edit: None,
             properties: None,
             settings: SettingsSheet::closed(cx.focus_handle(), &restore),
             keymap_open: false,
@@ -186,9 +189,9 @@ impl BrowserView {
                 PaneEvent::BulkRenameRequested(paths) => {
                     this.open_bulk_rename(paths.clone(), window, cx)
                 }
-                PaneEvent::Connected { uri, replaces } => cx.emit(BrowserEvent::ServerConnected {
+                PaneEvent::Connected { uri, edit } => cx.emit(BrowserEvent::ServerConnected {
                     uri: uri.clone(),
-                    replaces: replaces.clone(),
+                    edit: edit.clone(),
                 }),
                 PaneEvent::Picked(_) | PaneEvent::PickCancelled => {}
             },
@@ -223,7 +226,7 @@ impl Render for BrowserView {
             self.keymap_overlay(window, cx),
             self.settings_overlay(window, cx),
             self.bulk_overlay(window, cx),
-            self.network_login_overlay(window, cx),
+            self.network_dialogs(window, cx),
             self.properties_overlay(window, cx),
         ];
         let confirm = self.confirm_overlay(window, cx);

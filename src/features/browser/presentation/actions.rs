@@ -91,6 +91,7 @@ actions!(
         BulkNextField,
         LoginNextField,
         ConnectServer,
+        ServerEditNextField,
         CompressZip,
         CompressTarGz,
         BrowseArchive,

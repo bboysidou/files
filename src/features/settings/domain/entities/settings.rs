@@ -8,6 +8,7 @@ use crate::core::enums::browser::sort_key::SortKey;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::folder_views::FolderViews;
 use crate::features::browser::domain::entities::list_columns::ListColumns;
+use crate::features::network::domain::entities::saved_server::SavedServer;
 
 #[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
@@ -47,7 +48,7 @@ pub struct Settings {
     pub view_mode: ViewMode,
     pub columns: ListColumns,
     pub folder_views: FolderViews,
-    pub servers: Vec<String>,
+    pub servers: Vec<SavedServer>,
     pub sidebar_open: bool,
     pub preview_open: bool,
     pub dual_split: u16,

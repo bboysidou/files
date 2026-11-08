@@ -1,5 +1,10 @@
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub struct PendingEdit {
+    pub replaces: String,
+    pub name: Option<String>,
+}
+
 #[derive(Default)]
 pub struct ServerEdit {
-    pub editing: Option<String>,
-    pub pending: Option<String>,
+    pub pending: Option<PendingEdit>,
 }

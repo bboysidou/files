@@ -39,8 +39,36 @@ pub struct RailDeviceItem {
     pub on_edit: Option<ClickHandler>,
 }
 
+impl RailDeviceItem {
+    fn actions(&self, index: usize) -> Div {
+        let reveal = self.protocol.is_none() || self.cursor || self.active;
+        div()
+            .flex()
+            .flex_shrink_0()
+            .items_center()
+            .when(!reveal, |actions| {
+                actions.hidden().group_hover(GROUP, |style| style.flex())
+            })
+            .when_some(self.on_edit.clone(), |actions, on_edit| {
+                actions.child(
+                    IconButton::new(("edit", index), Icon::Edit)
+                        .radius(CONTROL_RADIUS)
+                        .on_click(on_edit),
+                )
+            })
+            .when_some(self.trailing, |actions, icon| {
+                actions.child(
+                    IconButton::new(("trailing", index), icon)
+                        .radius(CONTROL_RADIUS)
+                        .on_click(self.on_eject.clone()),
+                )
+            })
+    }
+}
+
 impl RenderOnce for RailDeviceItem {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
+        let actions = self.actions(self.index);
         let (index, on_select) = (self.index, self.on_select);
         let color = if self.active { ON_ACCENT } else { FG_NAV };
         let item = div()
@@ -70,24 +98,15 @@ impl RenderOnce for RailDeviceItem {
         item.w_full()
             .h(px(NAV_HEIGHT))
             .child(glyph)
-            .child(RailLabel::new("device-label", self.label, self.motion))
+            .child(RailLabel::new(
+                "device-label",
+                self.label.clone(),
+                self.motion,
+            ))
             .when_some(self.protocol, |item, protocol| {
                 item.child(protocol_badge(protocol))
             })
-            .when_some(self.on_edit, |item, on_edit| {
-                item.child(
-                    IconButton::new(("edit", index), Icon::Edit)
-                        .radius(CONTROL_RADIUS)
-                        .on_click(on_edit),
-                )
-            })
-            .when_some(self.trailing, |item, icon| {
-                item.child(
-                    IconButton::new(("trailing", index), icon)
-                        .radius(CONTROL_RADIUS)
-                        .on_click(self.on_eject),
-                )
-            })
+            .child(actions)
     }
 }
 

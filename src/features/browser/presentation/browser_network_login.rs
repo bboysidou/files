@@ -213,12 +213,6 @@ impl BrowserView {
         });
     }
 
-    pub fn edit_server(&mut self, uri: String, window: &mut Window, cx: &mut Context<Self>) {
-        self.active_pane()
-            .clone()
-            .update(cx, |pane, cx| pane.edit_server_entry(uri, window, cx));
-    }
-
     pub(super) fn start_connect_entry(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.active_pane()
             .clone()

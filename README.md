@@ -27,8 +27,9 @@ Early development. Working today:
   Network in the sidebar, with a button to disconnect. A server you connect to is remembered
   there (in `settings.toml`, never its password): click it (or `Ctrl+0`, then `Enter`) to connect
   again, `×` or `x` forgets it, each entry carries a protocol badge (SFTP, FTP, FTPS, SMB, DAV, DAVS, NFS, one colour
-  each) after a key for encrypted protocols or a red warning triangle for FTP, DAV and NFS, the pencil or `e` edits its address (the new address replaces the
-  old one once it connects). `Ctrl+K` opens the path bar with `sftp://` ready to type a server
+  each) after a key for encrypted protocols or a red warning triangle for FTP, DAV and NFS, the pencil or `e` opens an editor for its name and address (a new name is
+  saved at once, a new address once it connects; the sidebar shows the name). The pencil and `×`
+  appear on hover or under the keyboard cursor. `Ctrl+K` opens the path bar with `sftp://` ready to type a server
 - Context menu on right click or `m`, and a searchable keymap sheet (`?`)
 - Seven colour tags stored in the `user.xdg.tags` attribute (the one Dolphin reads); `tag:red` in
   search, or a click on a sidebar dot, lists every tagged file under Home

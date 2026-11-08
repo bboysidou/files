@@ -31,11 +31,8 @@ impl PaneView {
                 .await;
             let _ = this.update(cx, |this, cx| match mounted {
                 Ok(path) => {
-                    let replaces = this.server_edit.pending.take();
-                    cx.emit(PaneEvent::Connected {
-                        uri: saved,
-                        replaces,
-                    });
+                    let edit = this.server_edit.pending.take();
+                    cx.emit(PaneEvent::Connected { uri: saved, edit });
                     this.navigate(PlaceTarget::Directory(path), cx)
                 }
                 Err(NetworkMountError::NeedsCredentials) => {

@@ -4,6 +4,7 @@ use gpui::{Pixels, Point};
 
 use crate::features::browser::domain::entities::view_options::ViewOptions;
 use crate::features::browser::presentation::state::drop_request::DropRequest;
+use crate::features::browser::presentation::state::server_edit::PendingEdit;
 use crate::features::operations::domain::entities::file_operation::Transfer;
 
 #[derive(Clone, PartialEq, Eq, Debug)]
@@ -24,6 +25,6 @@ pub enum PaneEvent {
     },
     Connected {
         uri: String,
-        replaces: Option<String>,
+        edit: Option<PendingEdit>,
     },
 }

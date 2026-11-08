@@ -16,6 +16,7 @@ pub const CONFIRM_CONTEXT: &str = "Confirm";
 pub const SETTINGS_CONTEXT: &str = "Settings";
 pub const BULK_CONTEXT: &str = "BulkRename";
 pub const LOGIN_CONTEXT: &str = "NetworkLogin";
+pub const SERVER_EDIT_CONTEXT: &str = "ServerEdit";
 pub const PROPERTIES_CONTEXT: &str = "Properties";
 pub(super) const PANE_KEYS: &str = "Pane && !TextField";
 
@@ -151,6 +152,7 @@ fn overlay_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("escape", CloseSettings, Some(SETTINGS_CONTEXT)),
         KeyBinding::new("tab", BulkNextField, Some(BULK_CONTEXT)),
         KeyBinding::new("tab", LoginNextField, Some(LOGIN_CONTEXT)),
+        KeyBinding::new("tab", ServerEditNextField, Some(SERVER_EDIT_CONTEXT)),
         KeyBinding::new("escape", CloseProperties, Some(PROPERTIES_CONTEXT)),
         KeyBinding::new("enter", ConfirmAccept, Some(CONFIRM_CONTEXT)),
         KeyBinding::new("escape", ConfirmCancel, Some(CONFIRM_CONTEXT)),
