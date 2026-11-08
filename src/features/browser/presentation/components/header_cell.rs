@@ -3,7 +3,7 @@ use rust_i18n::t;
 
 use crate::core::enums::browser::sort_key::SortKey;
 use crate::core::theme::colors::{ACCENT, FG_BRIGHT};
-use crate::core::theme::metrics::{LIST_CELL_PAD_X, SORT_ARROW_GAP};
+use crate::core::theme::metrics::{LIST_CELL_PAD_X, LIST_NAME_MIN_WIDTH, SORT_ARROW_GAP};
 use crate::features::browser::domain::entities::sort_order::SortOrder;
 use crate::features::browser::presentation::state::handlers::SortHandler;
 
@@ -34,8 +34,8 @@ impl RenderOnce for HeaderCell {
             .on_click(move |_, window, cx| on_sort(key, window, cx))
             .child(t!(key.label_key()).to_string());
         let cell = match self.width {
-            Some(width) => cell.flex_shrink_0().w(px(width)),
-            None => cell.flex_1().min_w_0(),
+            Some(width) => cell.min_w_0().w(px(width)),
+            None => cell.flex_1().min_w(px(LIST_NAME_MIN_WIDTH)),
         };
         let cell = if self.align_end {
             cell.justify_end()

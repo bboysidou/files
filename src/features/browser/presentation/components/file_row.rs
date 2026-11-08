@@ -28,6 +28,7 @@ pub struct FileRow {
     pub rename: Option<Entity<TextField>>,
     pub now: SystemTime,
     pub on_click: IndexClickHandler,
+    pub compact: bool,
 }
 
 impl FileRow {
@@ -37,7 +38,7 @@ impl FileRow {
 
     fn cell(width: f32, text: impl Into<SharedString>) -> gpui::Div {
         div()
-            .flex_shrink_0()
+            .min_w_0()
             .w(px(width))
             .px(px(LIST_CELL_PAD_X))
             .overflow_hidden()
@@ -83,7 +84,9 @@ impl RenderOnce for FileRow {
                 rename: self.rename,
             })
             .child(Self::cell(LIST_SIZE_WIDTH, size).flex().justify_end())
-            .child(Self::cell(LIST_KIND_WIDTH, kind))
+            .when(!self.compact, |row| {
+                row.child(Self::cell(LIST_KIND_WIDTH, kind))
+            })
             .child(Self::cell(LIST_MODIFIED_WIDTH, modified)),
         )
     }

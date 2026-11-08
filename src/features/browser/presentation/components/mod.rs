@@ -7,6 +7,8 @@ pub mod filter_field;
 pub mod header_cell;
 pub mod list_header;
 pub mod name_cell;
+pub mod preview_column;
+pub mod preview_column_header;
 pub mod preview_folder;
 pub mod preview_image;
 pub mod preview_line;

@@ -33,6 +33,7 @@ actions!(
         QuickLookPrevious,
         ZoomIn,
         ZoomOut,
+        TogglePreview,
         NewTab,
         CloseTab,
         NextTab,

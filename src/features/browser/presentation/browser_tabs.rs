@@ -12,6 +12,7 @@ impl BrowserView {
         let tab = self.open_pane(target, window, cx);
         self.tabs.push(tab);
         self.sync_cut(cx);
+        self.sync_compact(cx);
         self.activate(self.tabs.len() - 1, window, cx);
     }
 
@@ -44,6 +45,7 @@ impl BrowserView {
         };
         self.active = index;
         window.focus(&tab.pane.focus_handle(cx), cx);
+        self.sync_preview_column(cx);
         cx.notify();
     }
 

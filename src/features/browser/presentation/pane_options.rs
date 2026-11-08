@@ -22,6 +22,13 @@ impl PaneView {
         self.rearrange(cx);
     }
 
+    pub(super) fn set_compact(&mut self, compact: bool, cx: &mut Context<Self>) {
+        if self.compact != compact {
+            self.compact = compact;
+            cx.notify();
+        }
+    }
+
     pub(super) fn toggle_hidden(&mut self, cx: &mut Context<Self>) {
         self.show_hidden = !self.show_hidden;
         self.rearrange(cx);

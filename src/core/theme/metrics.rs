@@ -126,3 +126,7 @@ pub const FACTS_GAP: f32 = 10.0;
 pub const FOLDER_PREVIEW_GAP: f32 = 10.0;
 pub const FOLDER_PREVIEW_PAD_X: f32 = 6.0;
 pub const FOLDER_PREVIEW_PAD_Y: f32 = 4.0;
+pub const PREVIEW_COLUMN_WIDTH: f32 = 360.0;
+pub const BODY_GAP: f32 = 14.0;
+pub const CARD_RADIUS: f32 = 12.0;
+pub const LIST_NAME_MIN_WIDTH: f32 = 180.0;

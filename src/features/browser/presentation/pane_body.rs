@@ -79,6 +79,7 @@ impl PaneView {
             .child(ListHeader {
                 sort: self.sort,
                 on_sort,
+                compact: self.compact,
             })
             .child(rows)
             .into_any_element()
@@ -104,6 +105,7 @@ impl PaneView {
                         .then(|| self.rename_field.clone()),
                     now,
                     on_click: on_click.clone(),
+                    compact: self.compact,
                 })
             })
             .collect()

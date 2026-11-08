@@ -1,5 +1,7 @@
 pub mod actions;
+pub mod browser_chrome;
 pub mod browser_operations;
+pub mod browser_preview;
 pub mod browser_quick_look;
 pub mod browser_tabs;
 pub mod browser_view;
@@ -14,5 +16,6 @@ pub mod pane_rename;
 pub mod pane_selection;
 pub mod pane_view;
 pub mod pane_watch;
+pub mod preview_render;
 pub mod quick_look_render;
 pub mod state;

@@ -16,6 +16,7 @@ impl ShellView {
         BrowserSnapshot {
             active: settings.active_tab.min(tabs.len().saturating_sub(1)),
             tabs,
+            preview_open: settings.preview_open,
             options: ViewOptions {
                 show_hidden: settings.show_hidden,
                 sort: SortOrder {
@@ -33,6 +34,7 @@ impl ShellView {
             sort_key: snapshot.options.sort.key,
             sort_ascending: snapshot.options.sort.ascending,
             sidebar_open: self.rail.open,
+            preview_open: snapshot.preview_open,
             active_tab: snapshot.active,
             tabs: snapshot.tabs.iter().map(saved_tab).collect(),
         }

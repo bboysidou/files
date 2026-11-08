@@ -7,11 +7,14 @@ use crate::features::browser::presentation::components::breadcrumbs::Breadcrumbs
 use crate::features::browser::presentation::components::filter_field::FilterField;
 use crate::features::browser::presentation::components::view_switcher::ViewSwitcher;
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
+use crate::global_components::handlers::ClickHandler;
 use crate::global_components::icon_button::IconButton;
 
 #[derive(IntoElement)]
 pub struct Toolbar {
     pub model: ToolbarModel,
+    pub preview_open: bool,
+    pub on_preview: ClickHandler,
 }
 
 impl RenderOnce for Toolbar {
@@ -58,7 +61,11 @@ impl RenderOnce for Toolbar {
             .child(ViewSwitcher {
                 active: ViewMode::List,
             })
-            .child(IconButton::new("preview", Icon::Panel))
+            .child(
+                IconButton::new("preview", Icon::Panel)
+                    .active(self.preview_open)
+                    .on_click(self.on_preview),
+            )
             .child(IconButton::new("keys", Icon::Keys))
             .child(IconButton::new("settings", Icon::Sliders))
     }

@@ -1,12 +1,13 @@
 use gpui::{AnyElement, App, IntoElement, RenderOnce, Window, div, prelude::*, px, rgb};
 
 use crate::core::theme::colors::SHEET;
-use crate::core::theme::metrics::{BODY_PAD_BOTTOM, BODY_PAD_X, SHEET_RADIUS};
+use crate::core::theme::metrics::{BODY_GAP, BODY_PAD_BOTTOM, BODY_PAD_X, SHEET_RADIUS};
 use crate::features::browser::presentation::components::status_bar::StatusBar;
 use crate::features::browser::presentation::components::tab_strip::TabStrip;
 use crate::features::browser::presentation::components::toolbar::Toolbar;
 use crate::features::browser::presentation::state::tab_strip_model::TabStripModel;
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
+use crate::global_components::handlers::ClickHandler;
 
 #[derive(IntoElement)]
 pub struct Sheet {
@@ -15,6 +16,9 @@ pub struct Sheet {
     pub body: AnyElement,
     pub item_count: usize,
     pub selected_count: usize,
+    pub side: Option<AnyElement>,
+    pub preview_open: bool,
+    pub on_preview: ClickHandler,
 }
 
 impl RenderOnce for Sheet {
@@ -32,16 +36,19 @@ impl RenderOnce for Sheet {
             .child(TabStrip { model: self.tabs })
             .child(Toolbar {
                 model: self.toolbar,
+                preview_open: self.preview_open,
+                on_preview: self.on_preview,
             })
             .child(
                 div()
                     .flex()
-                    .flex_col()
                     .flex_1()
                     .min_h_0()
+                    .gap(px(BODY_GAP))
                     .px(px(BODY_PAD_X))
                     .pb(px(BODY_PAD_BOTTOM))
-                    .child(self.body),
+                    .child(div().flex().flex_col().flex_1().min_w_0().child(self.body))
+                    .children(self.side),
             )
             .child(StatusBar {
                 location: location.into(),

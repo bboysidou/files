@@ -35,6 +35,7 @@ icons! {
     Document => "doc",
     Download => "download",
     Drive => "drive",
+    Eye => "eye",
     Dual => "dual",
     Filter => "filter",
     Folder => "folder",

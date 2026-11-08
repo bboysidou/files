@@ -19,6 +19,7 @@ pub struct Settings {
     pub sort_key: SortKey,
     pub sort_ascending: bool,
     pub sidebar_open: bool,
+    pub preview_open: bool,
     pub active_tab: usize,
     pub tabs: Vec<SavedTab>,
 }
@@ -30,6 +31,7 @@ impl Default for Settings {
             sort_key: SortKey::Name,
             sort_ascending: true,
             sidebar_open: true,
+            preview_open: true,
             active_tab: 0,
             tabs: Vec::new(),
         }

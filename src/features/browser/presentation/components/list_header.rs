@@ -21,17 +21,22 @@ const COLUMNS: [(SortKey, Option<f32>, bool); 4] = [
 pub struct ListHeader {
     pub sort: SortOrder,
     pub on_sort: SortHandler,
+    pub compact: bool,
 }
 
 impl RenderOnce for ListHeader {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
-        let cells = COLUMNS.iter().map(|(key, width, align_end)| HeaderCell {
-            key: *key,
-            sort: self.sort,
-            width: *width,
-            align_end: *align_end,
-            on_sort: self.on_sort.clone(),
-        });
+        let compact = self.compact;
+        let cells = COLUMNS
+            .iter()
+            .filter(move |(key, _, _)| !(compact && *key == SortKey::Kind))
+            .map(|(key, width, align_end)| HeaderCell {
+                key: *key,
+                sort: self.sort,
+                width: *width,
+                align_end: *align_end,
+                on_sort: self.on_sort.clone(),
+            });
         div()
             .flex()
             .flex_shrink_0()

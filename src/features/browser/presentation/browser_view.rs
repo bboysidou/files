@@ -1,19 +1,18 @@
 use std::rc::Rc;
 
 use gpui::{
-    AnyElement, App, Context, Div, Entity, FocusHandle, Focusable, IntoElement, Render,
-    SharedString, Task, UniformListScrollHandle, Window, div, prelude::*, px,
+    App, Context, Div, Entity, FocusHandle, Focusable, IntoElement, Render, Task,
+    UniformListScrollHandle, Window, div, prelude::*,
 };
 
 use crate::features::browser::presentation::actions::{
     ActivateTab1, ActivateTab2, ActivateTab3, ActivateTab4, ActivateTab5, ActivateTab6,
     ActivateTab7, ActivateTab8, ActivateTab9, CloseTab, CopySelection, CutSelection, NewFolder,
-    NewTab, NextTab, PasteClipboard, PreviousTab, QuickLook, Redo, TrashSelection, Undo,
+    NewTab, NextTab, PasteClipboard, PreviousTab, QuickLook, Redo, TogglePreview, TrashSelection,
+    Undo,
 };
-use rust_i18n::t;
 
 use crate::core::enums::operations::clipboard_mode::ClipboardMode;
-use crate::core::theme::metrics::TOAST_OFFSET;
 use crate::features::browser::domain::entities::view_options::ViewOptions;
 use crate::features::browser::presentation::components::sheet::Sheet;
 use crate::features::browser::presentation::key_bindings::BROWSER_CONTEXT;
@@ -22,15 +21,13 @@ use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::pane_start::PaneStart;
-use crate::features::browser::presentation::state::quick_look_state::QuickLookState;
+use crate::features::browser::presentation::state::preview_state::PreviewState;
 use crate::features::browser::presentation::state::tab::Tab;
-use crate::features::browser::presentation::state::tab_strip_model::TabStripModel;
 use crate::features::browser::presentation::state::toast_model::ToastModel;
 use crate::features::operations::domain::entities::clipboard::Clipboard;
 use crate::features::operations::domain::entities::operation_history::OperationHistory;
 use crate::features::places::domain::entities::place::PlaceTarget;
-use crate::global_components::handlers::{ClickHandler, IndexHandler};
-use crate::global_components::toast::Toast;
+use crate::global_components::handlers::ClickHandler;
 
 pub struct BrowserView {
     pub(super) setup: Rc<BrowserSetup>,
@@ -43,11 +40,16 @@ pub struct BrowserView {
     pub(super) toast_generation: usize,
     pub(super) toast_task: Option<Task<()>>,
     pub(super) operation_task: Option<Task<()>>,
-    pub(super) quick_look: Option<QuickLookState>,
+    pub(super) quick_look: Option<PreviewState>,
     pub(super) quick_look_focus: FocusHandle,
     pub(super) quick_look_task: Option<Task<()>>,
     pub(super) quick_look_generation: usize,
     pub(super) preview_scroll: UniformListScrollHandle,
+    pub(super) column_open: bool,
+    pub(super) column_preview: Option<PreviewState>,
+    pub(super) column_task: Option<Task<()>>,
+    pub(super) column_generation: usize,
+    pub(super) column_scroll: UniformListScrollHandle,
 }
 
 impl BrowserView {
@@ -73,6 +75,11 @@ impl BrowserView {
             quick_look_task: None,
             quick_look_generation: 0,
             preview_scroll: UniformListScrollHandle::new(),
+            column_open: restore.preview_open,
+            column_preview: None,
+            column_task: None,
+            column_generation: 0,
+            column_scroll: UniformListScrollHandle::new(),
         };
         let targets = if restore.tabs.is_empty() {
             vec![view.setup.home_target.clone()]
@@ -84,6 +91,8 @@ impl BrowserView {
             view.tabs.push(tab);
         }
         view.active = restore.active.min(view.tabs.len() - 1);
+        view.sync_preview_column(cx);
+        view.sync_compact(cx);
         view
     }
 
@@ -96,6 +105,7 @@ impl BrowserView {
                 .collect(),
             active: self.active,
             options: self.options,
+            preview_open: self.column_open,
         }
     }
 
@@ -130,7 +140,10 @@ impl BrowserView {
             options: self.options,
         };
         let pane = cx.new(|cx| PaneView::new(setup, start, window, cx));
-        let changes = cx.observe(&pane, |_, _, cx| cx.notify());
+        let changes = cx.observe(&pane, |this, _, cx| {
+            this.sync_preview_column(cx);
+            cx.notify();
+        });
         let events = cx.subscribe(&pane, |this, _, event: &PaneEvent, cx| match event {
             PaneEvent::RenameRequested(transfer) => this.rename(transfer.clone(), cx),
             PaneEvent::ViewOptionsChanged(options) => this.apply_view_options(*options, cx),
@@ -146,59 +159,6 @@ impl BrowserView {
         &self.tabs[self.active].pane
     }
 
-    fn tab_strip_model(&self, cx: &mut Context<Self>) -> TabStripModel {
-        let (select_view, close_view, new_view) = (
-            cx.entity().downgrade(),
-            cx.entity().downgrade(),
-            cx.entity().downgrade(),
-        );
-        let on_select: IndexHandler = Rc::new(move |index, window, cx| {
-            let _ = select_view.update(cx, |this, cx| this.activate(index, window, cx));
-        });
-        let on_close: IndexHandler = Rc::new(move |index, window, cx| {
-            let _ = close_view.update(cx, |this, cx| this.close_tab(index, window, cx));
-        });
-        let on_new: ClickHandler = Rc::new(move |window, cx| {
-            let _ = new_view.update(cx, |this, cx| this.new_tab(window, cx));
-        });
-        TabStripModel {
-            titles: self
-                .tabs
-                .iter()
-                .map(|tab| tab.pane.read(cx).title())
-                .collect(),
-            active: self.active,
-            on_select,
-            on_close,
-            on_new,
-        }
-    }
-
-    fn toast_element(&self, cx: &mut Context<Self>) -> Option<AnyElement> {
-        let toast = self.toast.clone()?;
-        let view = cx.entity().downgrade();
-        let undo: ClickHandler = Rc::new(move |_, cx| {
-            let _ = view.update(cx, |this, cx| this.undo(cx));
-        });
-        let action = toast
-            .can_undo
-            .then(|| (SharedString::from(t!("op.undo").to_string()), undo));
-        Some(
-            div()
-                .absolute()
-                .bottom(px(TOAST_OFFSET))
-                .left_0()
-                .right_0()
-                .flex()
-                .justify_center()
-                .child(Toast {
-                    message: toast.message,
-                    action,
-                })
-                .into_any_element(),
-        )
-    }
-
     fn with_actions(element: Div, cx: &mut Context<Self>) -> Div {
         element
             .on_action(cx.listener(|this, _: &CopySelection, _, cx| {
@@ -211,6 +171,7 @@ impl BrowserView {
             .on_action(cx.listener(|this, _: &TrashSelection, _, cx| this.trash_selection(cx)))
             .on_action(cx.listener(|this, _: &NewFolder, _, cx| this.new_folder(cx)))
             .on_action(cx.listener(|this, _: &Undo, _, cx| this.undo(cx)))
+            .on_action(cx.listener(|this, _: &TogglePreview, _, cx| this.toggle_preview_column(cx)))
             .on_action(
                 cx.listener(|this, _: &QuickLook, window, cx| this.open_quick_look(window, cx)),
             )
@@ -266,11 +227,19 @@ impl Render for BrowserView {
             .flex_1()
             .min_w_0()
             .h_full();
+        let side = self.preview_column(cx);
+        let view = cx.entity().downgrade();
+        let on_preview: ClickHandler = Rc::new(move |_, cx| {
+            let _ = view.update(cx, |this, cx| this.toggle_preview_column(cx));
+        });
         Self::with_actions(root, cx)
             .child(Sheet {
                 tabs: self.tab_strip_model(cx),
                 toolbar,
                 body: pane.into_any_element(),
+                side,
+                preview_open: self.column_open,
+                on_preview,
                 item_count,
                 selected_count,
             })

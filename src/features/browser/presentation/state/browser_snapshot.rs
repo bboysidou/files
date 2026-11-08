@@ -6,4 +6,5 @@ pub struct BrowserSnapshot {
     pub tabs: Vec<PlaceTarget>,
     pub active: usize,
     pub options: ViewOptions,
+    pub preview_open: bool,
 }

@@ -1,9 +1,9 @@
-use gpui::{Context, Focusable, UniformListScrollHandle, Window};
+use gpui::{Context, Focusable, Window};
 
-use crate::core::constants::preview::{ZOOM_DEFAULT, ZOOM_MAX, ZOOM_MIN};
+use crate::core::constants::preview::{ZOOM_MAX, ZOOM_MIN};
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::browser_view::BrowserView;
-use crate::features::browser::presentation::state::quick_look_state::QuickLookState;
+use crate::features::browser::presentation::state::preview_surface::PreviewSurface;
 
 impl BrowserView {
     pub(super) fn open_quick_look(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -44,30 +44,6 @@ impl BrowserView {
     }
 
     fn show_preview(&mut self, entry: FileEntry, cx: &mut Context<Self>) {
-        self.quick_look = Some(QuickLookState {
-            entry: entry.clone(),
-            content: None,
-            zoom: ZOOM_DEFAULT,
-        });
-        self.preview_scroll = UniformListScrollHandle::new();
-        self.quick_look_generation += 1;
-        let generation = self.quick_look_generation;
-        let source = self.setup.preview.clone();
-        self.quick_look_task = Some(cx.spawn(async move |this, cx| {
-            let content = cx
-                .background_executor()
-                .spawn(async move { source.load(&entry) })
-                .await;
-            let _ = this.update(cx, |this, cx| {
-                if this.quick_look_generation != generation {
-                    return;
-                }
-                if let Some(state) = this.quick_look.as_mut() {
-                    state.content = Some(content);
-                    cx.notify();
-                }
-            });
-        }));
-        cx.notify();
+        self.begin_preview(entry, PreviewSurface::QuickLook, cx);
     }
 }

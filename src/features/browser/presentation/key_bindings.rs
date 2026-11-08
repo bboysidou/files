@@ -96,6 +96,7 @@ fn tab_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("ctrl-w", CloseTab, browser),
         KeyBinding::new("ctrl-tab", NextTab, browser),
         KeyBinding::new("ctrl-shift-tab", PreviousTab, browser),
+        KeyBinding::new("f3", TogglePreview, browser),
     ]
 }
 

@@ -54,6 +54,7 @@ pub struct PaneView {
     pub(super) _rename_events: Subscription,
     pub(super) watched: Option<PathBuf>,
     pub(super) watch_task: Option<Task<()>>,
+    pub(super) compact: bool,
 }
 
 impl PaneView {
@@ -97,6 +98,7 @@ impl PaneView {
             _rename_events: rename_events,
             watched: None,
             watch_task: None,
+            compact: false,
         };
         view.load(cx);
         view
