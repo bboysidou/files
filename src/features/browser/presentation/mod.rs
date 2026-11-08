@@ -21,6 +21,7 @@ pub mod pane_inputs;
 pub mod pane_navigation;
 pub mod pane_operations;
 pub mod pane_options;
+pub mod pane_overview;
 pub mod pane_path;
 pub mod pane_rename;
 pub mod pane_search;

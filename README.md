@@ -33,6 +33,8 @@ Early development. Working today:
 - Preview column beside the list that follows the cursor (`F3`)
 - Columns view (`Ctrl+2`): the parent folder on the left, the open folder in the middle, the
   folder under the cursor on the right; click a side column to move there
+- Overview page (sidebar): disk usage per device, your home folder by file type, and recent files
+  from `recently-used.xbel` (click one to open its folder with the file selected)
 - Dual pane (`Ctrl+4`): two folders side by side, `Tab` moves between them, `F6` copies the
   selection to the other side and `Shift+F6` moves it
 - Grid view with image thumbnails (`Ctrl+3`, back to the list with `Ctrl+1`), cached in the shared

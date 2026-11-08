@@ -50,6 +50,9 @@ impl PaneView {
             self.load = LoadState::Unlisted;
             self.load_task = None;
             self.entries.clear();
+            if self.location == PlaceTarget::Overview {
+                self.start_overview(cx);
+            }
             cx.notify();
             return;
         };

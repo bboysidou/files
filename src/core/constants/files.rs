@@ -16,3 +16,21 @@ pub const TRASH_INFO_EXTENSION: &str = "trashinfo";
 pub const COPY_BUFFER_BYTES: usize = 1024 * 1024;
 pub const XDG_TAGS_ATTRIBUTE: &str = "user.xdg.tags";
 pub const XDG_TAGS_SEPARATOR: char = ',';
+pub const OVERVIEW_WALK_LIMIT: usize = 100_000;
+pub const OVERVIEW_RECENT_LIMIT: usize = 12;
+pub const DF_COMMAND: &str = "df";
+pub const DF_ARGUMENTS: [&str; 12] = [
+    "-B1",
+    "--output=source,target,size,used",
+    "-x",
+    "tmpfs",
+    "-x",
+    "devtmpfs",
+    "-x",
+    "efivarfs",
+    "-x",
+    "overlay",
+    "-x",
+    "squashfs",
+];
+pub const RECENT_FILES_NAME: &str = "recently-used.xbel";

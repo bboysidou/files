@@ -17,6 +17,7 @@ use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::handlers::SortHandler;
 use crate::features::browser::presentation::state::load_state::LoadState;
 use crate::features::browser::presentation::state::row_click::RowClick;
+use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::global_components::empty_state::EmptyState;
 use crate::global_components::handlers::IndexClickHandler;
 
@@ -44,6 +45,7 @@ impl PaneView {
 
     pub(super) fn body(&self, cx: &mut Context<Self>) -> AnyElement {
         match &self.load {
+            LoadState::Unlisted if self.location == PlaceTarget::Overview => self.overview_page(cx),
             LoadState::Unlisted => Self::empty_state(Icon::Overview, "empty.overview"),
             LoadState::Failed(ListError::PermissionDenied) => {
                 Self::empty_state(Icon::Folder, "empty.denied")

@@ -23,6 +23,7 @@ use crate::features::browser::presentation::key_bindings::{PANE_CONTEXT, PANE_GR
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::column_state::ColumnState;
 use crate::features::browser::presentation::state::load_state::LoadState;
+use crate::features::browser::presentation::state::overview_state::OverviewState;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::pane_start::PaneStart;
 use crate::features::browser::presentation::state::search_state::SearchState;
@@ -61,6 +62,7 @@ pub struct PaneView {
     pub(super) compact: bool,
     pub(super) view: ViewMode,
     pub(super) columns: ColumnState,
+    pub(super) overview: OverviewState,
     pub(super) columns_task: Option<Task<()>>,
     pub(super) grid_width: f32,
     pub(super) picker: bool,
@@ -111,6 +113,7 @@ impl PaneView {
             compact: false,
             view: start.options.view,
             columns: ColumnState::default(),
+            overview: OverviewState::default(),
             columns_task: None,
             grid_width: 0.0,
             picker: false,
