@@ -34,7 +34,7 @@ impl PaneView {
             .children(self.band_overlay())
     }
 
-    fn viewport(&self) -> (Bounds<Pixels>, Point<Pixels>, Pixels) {
+    pub(super) fn viewport(&self) -> (Bounds<Pixels>, Point<Pixels>, Pixels) {
         let state = self.scroll.0.borrow();
         let pitch = state
             .last_item_size
@@ -72,7 +72,9 @@ impl PaneView {
         self.band = Some(BandState {
             origin,
             current: origin,
+            pointer: event.position,
             base,
+            ticker: None,
         });
         cx.notify();
     }
@@ -81,7 +83,18 @@ impl PaneView {
         if self.band.is_none() || !event.dragging() {
             return;
         }
-        let current = self.content_point(event.position);
+        if let Some(band) = self.band.as_mut() {
+            band.pointer = event.position;
+        }
+        self.update_band(cx);
+        self.follow_band_edge(cx);
+    }
+
+    pub(super) fn update_band(&mut self, cx: &mut Context<Self>) {
+        let Some(pointer) = self.band.as_ref().map(|band| band.pointer) else {
+            return;
+        };
+        let current = self.content_point(pointer);
         let Some(band) = self.band.as_mut() else {
             return;
         };

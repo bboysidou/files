@@ -210,3 +210,6 @@ pub const PERMISSION_LABEL_WIDTH: f32 = 90.0;
 pub const PERMISSION_CELL_WIDTH: f32 = 90.0;
 pub const TREE_INDENT: f32 = 18.0;
 pub const QUICK_LOOK_SCROLL_STEP: f32 = 96.0;
+pub const BAND_SCROLL_EDGE: f32 = 40.0;
+pub const BAND_SCROLL_GAIN: f32 = 0.5;
+pub const BAND_SCROLL_MAX_STEP: f32 = 24.0;
