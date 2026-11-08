@@ -9,7 +9,7 @@ use crate::core::theme::metrics::{FOLDER_PREVIEW_GAP, FOLDER_PREVIEW_PAD_X, TOOL
 use crate::features::browser::presentation::components::preview_image::PreviewImage;
 use crate::features::preview::domain::entities::media_facts::MediaFacts;
 
-const KILO: u64 = 1000;
+const KILO: f64 = 1000.0;
 
 #[derive(IntoElement)]
 pub struct PreviewMedia {
@@ -29,7 +29,9 @@ impl PreviewMedia {
             rows.push((t!("media.video").to_string(), value));
         }
         if let Some(audio) = &facts.audio {
-            let rate = audio.sample_rate / KILO;
+            let rate = format!("{:.1}", audio.sample_rate as f64 / KILO)
+                .trim_end_matches(".0")
+                .to_owned();
             let value = t!(
                 "media.audio_value",
                 codec = audio.codec,

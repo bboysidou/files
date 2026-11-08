@@ -29,6 +29,13 @@ impl Default for ListColumns {
 }
 
 impl ListColumns {
+    const DROP_ORDER: [SortKey; 4] = [
+        SortKey::Created,
+        SortKey::Kind,
+        SortKey::Modified,
+        SortKey::Size,
+    ];
+
     pub const KEYS: [SortKey; 4] = [
         SortKey::Size,
         SortKey::Kind,
@@ -67,5 +74,23 @@ impl ListColumns {
             .filter(|key| !(compact && matches!(key, SortKey::Kind | SortKey::Created)))
             .filter_map(|key| Some((*key, self.width_of(*key)?)))
             .collect()
+    }
+
+    pub fn fitting(&self, compact: bool, available: f32, reserved: f32) -> Vec<(SortKey, u16)> {
+        let mut shown = self.visible(compact);
+        let total = |shown: &[(SortKey, u16)]| {
+            reserved
+                + shown
+                    .iter()
+                    .map(|(_, width)| f32::from(*width))
+                    .sum::<f32>()
+        };
+        for key in Self::DROP_ORDER {
+            if available <= 0.0 || total(&shown) <= available {
+                break;
+            }
+            shown.retain(|(shown_key, _)| *shown_key != key);
+        }
+        shown
     }
 }

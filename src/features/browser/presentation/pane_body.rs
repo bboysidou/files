@@ -3,13 +3,14 @@ use std::rc::Rc;
 use std::time::SystemTime;
 
 use gpui::{
-    AnyElement, Context, IntoElement, ParentElement, Styled, UniformList, div, uniform_list,
+    AnyElement, Context, IntoElement, ParentElement, Styled, UniformList, div, px, uniform_list,
 };
 use rust_i18n::t;
 
 use crate::core::enums::assets::icon::Icon;
 use crate::core::enums::browser::sort_key::SortKey;
 use crate::core::enums::view::view_mode::ViewMode;
+use crate::core::theme::metrics::{LIST_CELL_PAD_X, LIST_NAME_MIN_WIDTH};
 use crate::features::browser::domain::entities::list_error::ListError;
 use crate::features::browser::presentation::components::file_row::FileRow;
 use crate::features::browser::presentation::components::list_header::ListHeader;
@@ -97,7 +98,7 @@ impl PaneView {
             .child(ListHeader {
                 sort: self.sort,
                 on_sort,
-                columns: self.list_columns.visible(self.compact),
+                columns: self.shown_columns(),
                 on_resize: Self::resize_handler(cx),
             })
             .child(self.band_area(rows, cx))
@@ -129,12 +130,18 @@ impl PaneView {
                     now,
                     on_click: on_click.clone(),
                     on_right: on_right.clone(),
-                    columns: self.list_columns.visible(self.compact),
+                    columns: self.shown_columns(),
                     name_only: self.view == ViewMode::Columns,
                     context: self.search_context(&self.entries.get(index)?.path),
                 })
             })
             .collect()
+    }
+
+    fn shown_columns(&self) -> Vec<(SortKey, u16)> {
+        let available = self.scroll.0.borrow().base_handle.bounds().size.width / px(1.0);
+        let reserved = LIST_NAME_MIN_WIDTH + LIST_CELL_PAD_X * 2.0;
+        self.list_columns.fitting(self.compact, available, reserved)
     }
 
     fn search_empty(&self) -> AnyElement {
