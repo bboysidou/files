@@ -2,6 +2,8 @@
 name = "files"
 version = "0.1.0"
 edition = "2024"
+description = "A fast, keyboard-friendly file manager for any Linux desktop"
+license = "GPL-3.0-or-later"
 
 [dependencies]
 anyhow = "1.0.104"
