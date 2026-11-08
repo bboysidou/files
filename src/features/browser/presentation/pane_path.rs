@@ -6,6 +6,7 @@ use rust_i18n::t;
 use crate::core::constants::paths::HOME_SHORTHAND;
 use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::pane_event::PaneEvent;
+use crate::features::network::domain::usecases::network_uri::network_uri;
 use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::global_components::text_field::text_field_view::TextFieldEvent;
 
@@ -51,6 +52,9 @@ impl PaneView {
         self.stop_path_entry(window, cx);
         if typed.is_empty() {
             return;
+        }
+        if let Some(uri) = network_uri(&typed) {
+            return self.connect_network(uri, cx);
         }
         match self.resolve_typed(&typed).filter(|path| Path::is_dir(path)) {
             Some(path) => self.navigate(PlaceTarget::Directory(path), cx),

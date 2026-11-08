@@ -8,6 +8,7 @@ use crate::features::archives::domain::repositories::archive_tool::ArchiveTool;
 use crate::features::browser::domain::repositories::directory_repository::DirectoryRepository;
 use crate::features::browser::domain::repositories::directory_watcher::DirectoryWatcher;
 use crate::features::browser::domain::repositories::file_launcher::FileLauncher;
+use crate::features::network::domain::repositories::network_mounter::NetworkMounter;
 use crate::features::operations::domain::repositories::file_operations::FileOperations;
 use crate::features::operations::domain::repositories::system_clipboard::SystemClipboard;
 use crate::features::operations::domain::repositories::trash_bin::TrashBin;
@@ -33,6 +34,7 @@ pub struct BrowserSetup {
     pub indexer: Arc<dyn SearchIndexer>,
     pub content: Arc<dyn ContentSearcher>,
     pub properties: Arc<dyn PropertiesSource>,
+    pub network: Arc<dyn NetworkMounter>,
     pub places: Vec<Place>,
     pub home: Option<PathBuf>,
     pub home_target: PlaceTarget,

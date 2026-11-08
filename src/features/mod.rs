@@ -3,6 +3,7 @@ pub mod archives;
 pub mod browser;
 pub mod devices;
 pub mod integration;
+pub mod network;
 pub mod operations;
 pub mod overview;
 pub mod picker;

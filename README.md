@@ -19,7 +19,9 @@ Early development. Working today:
 - Search inside files: start the search with `text:` (for example `text:TODO`); text files up to
   2 MB are scanned in the background, binary files skipped, and each hit shows its folder and the
   first matching line. Typing again cancels the running scan
-- Type a path to jump there (`:` or `Ctrl+L`, `~` for home)
+- Type a path to jump there (`:` or `Ctrl+L`, `~` for home); network locations work too (`sftp://`, `smb://`,
+  `ftp://`, `dav://` or `user@host:/path`), mounted with `gio mount` (gvfs; each protocol needs its
+  gvfs backend)
 - Context menu on right click or `m`, and a searchable keymap sheet (`?`)
 - Seven colour tags stored in the `user.xdg.tags` attribute (the one Dolphin reads); `tag:red` in
   search, or a click on a sidebar dot, lists every tagged file under Home

@@ -1,0 +1,10 @@
+pub const NETWORK_SCHEMES: [&str; 8] = ["sftp", "ssh", "smb", "ftp", "ftps", "dav", "davs", "nfs"];
+pub const SCHEME_SEPARATOR: &str = "://";
+pub const SCP_HOST_SEPARATOR: char = ':';
+pub const SCP_USER_SEPARATOR: char = '@';
+pub const SFTP_PREFIX: &str = "sftp://";
+pub const GIO_COMMAND: &str = "gio";
+pub const GIO_MOUNT: &str = "mount";
+pub const GIO_INFO: &str = "info";
+pub const LOCAL_PATH_PREFIX: &str = "local path:";
+pub const MOUNT_ALREADY: &str = "already mounted";

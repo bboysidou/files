@@ -7,6 +7,7 @@ pub mod hash;
 pub mod i18n;
 pub mod integration;
 pub mod keymap;
+pub mod network;
 pub mod operations;
 pub mod paths;
 pub mod preview;

@@ -35,6 +35,7 @@ pub mod pane_filter;
 pub mod pane_grid;
 pub mod pane_inputs;
 pub mod pane_navigation;
+pub mod pane_network;
 pub mod pane_operations;
 pub mod pane_options;
 pub mod pane_overview;
