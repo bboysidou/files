@@ -54,6 +54,7 @@ pub mod pane_selection;
 pub mod pane_sizes;
 pub mod pane_tags;
 pub mod pane_thumbnails;
+pub mod pane_title;
 pub mod pane_tree;
 pub mod pane_tree_watch;
 pub mod pane_type_ahead;

@@ -35,6 +35,7 @@ pub mod row_click;
 pub mod search_state;
 pub mod server_edit;
 pub mod server_edit_state;
+pub mod server_names;
 pub mod setting_change;
 pub mod setting_item;
 pub mod settings_sheet;

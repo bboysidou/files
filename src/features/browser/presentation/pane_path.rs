@@ -14,7 +14,7 @@ use crate::global_components::text_field::text_field_view::TextFieldEvent;
 
 impl PaneView {
     pub(super) fn start_path_entry(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let trail = self.trail();
+        let trail = self.trail(cx);
         let text = match (&self.location, trail.root) {
             (PlaceTarget::Directory(path), CrumbRoot::Network) => {
                 path.to_string_lossy().into_owned()

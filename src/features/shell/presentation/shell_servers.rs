@@ -2,6 +2,7 @@ use gpui::{Context, Window};
 
 use crate::core::enums::network::network_protocol::NetworkProtocol;
 use crate::features::browser::presentation::state::browser_event::BrowserEvent;
+use crate::features::browser::presentation::state::server_names::ServerNames;
 use crate::features::network::domain::entities::saved_server::SavedServer;
 use crate::features::network::domain::usecases::server_key::server_key;
 use crate::features::network::domain::usecases::server_label::server_label;
@@ -11,6 +12,7 @@ use crate::features::shell::presentation::state::network_entry::NetworkEntry;
 impl ShellView {
     pub(super) fn watch_servers(&mut self, cx: &mut Context<Self>) {
         self.network.saved = self.saved.servers.clone();
+        self.publish_server_names(cx);
         let browser = self.browser.clone();
         self.network.events = Some(cx.subscribe(&browser, |this, _, event, cx| match event {
             BrowserEvent::ServerConnected { uri, edit } => {
@@ -97,8 +99,14 @@ impl ShellView {
             fresh
         });
         self.refresh_network(cx);
+        self.publish_server_names(cx);
         self.persist(cx);
         cx.notify();
+    }
+
+    fn publish_server_names(&self, cx: &mut Context<Self>) {
+        cx.set_global(ServerNames(self.network.saved.clone()));
+        cx.refresh_windows();
     }
 
     fn rename_server(&mut self, server: &SavedServer, cx: &mut Context<Self>) {
@@ -110,6 +118,7 @@ impl ShellView {
         {
             entry.name = server.name.clone();
         }
+        self.publish_server_names(cx);
         self.persist(cx);
         cx.notify();
     }
@@ -144,6 +153,7 @@ impl ShellView {
 
     pub(super) fn forget_server(&mut self, uri: &str, cx: &mut Context<Self>) {
         self.network.saved.retain(|saved| saved.uri != uri);
+        self.publish_server_names(cx);
         self.persist(cx);
         cx.notify();
     }

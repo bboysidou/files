@@ -35,7 +35,7 @@ impl BrowserView {
             titles: self
                 .tabs
                 .iter()
-                .map(|tab| tab.pane.read(cx).title())
+                .map(|tab| tab.pane.read(cx).title(cx))
                 .collect(),
             active: self.active,
             on_select,

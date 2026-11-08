@@ -4,9 +4,8 @@ use std::rc::Rc;
 
 use gpui::{
     Context, Div, Entity, FocusHandle, Focusable, IntoElement, MouseButton, MouseDownEvent, Render,
-    SharedString, Subscription, Task, UniformListScrollHandle, Window, div, prelude::*,
+    Subscription, Task, UniformListScrollHandle, Window, div, prelude::*,
 };
-use rust_i18n::t;
 
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::file_entry::FileEntry;
@@ -34,8 +33,6 @@ use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::browser::presentation::state::toolbar_model::ToolbarModel;
 use crate::features::browser::presentation::state::tree_state::TreeState;
 use crate::features::browser::presentation::state::type_ahead::TypeAhead;
-use crate::features::network::domain::usecases::network_mount_root::network_mount_root;
-use crate::features::places::domain::entities::crumb_trail::CrumbTrail;
 use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::global_components::handlers::{ClickHandler, IndexHandler};
 use crate::global_components::text_field::text_field_view::TextField;
@@ -158,35 +155,6 @@ impl PaneView {
         self.selection.marked_count()
     }
 
-    pub(super) fn title(&self) -> SharedString {
-        if self.search.is_some() {
-            return t!("search.title").to_string().into();
-        }
-        if let Some(place) = self
-            .setup
-            .places
-            .iter()
-            .find(|place| place.target == self.location)
-        {
-            return t!(place.kind.label_key()).to_string().into();
-        }
-        match &self.location {
-            PlaceTarget::Directory(path) => match network_mount_root(path) {
-                Some((mount, label)) if mount == *path => label,
-                _ => path.file_name().map_or_else(
-                    || self.trail().display_path(),
-                    |name| name.to_string_lossy().into_owned(),
-                ),
-            },
-            _ => self.trail().display_path(),
-        }
-        .into()
-    }
-
-    pub(super) fn trail(&self) -> CrumbTrail {
-        CrumbTrail::for_target(&self.location, self.setup.home.as_deref())
-    }
-
     fn handler(cx: &mut Context<Self>, action: fn(&mut Self, &mut Context<Self>)) -> ClickHandler {
         let view = cx.entity().downgrade();
         Rc::new(move |_, cx| {
@@ -195,7 +163,7 @@ impl PaneView {
     }
 
     pub(super) fn toolbar_model(&self, cx: &mut Context<Self>) -> ToolbarModel {
-        let trail = self.trail();
+        let trail = self.trail(cx);
         let view = cx.entity().downgrade();
         let targets = trail.targets.clone();
         let targets_for_drop = trail.targets.clone();
