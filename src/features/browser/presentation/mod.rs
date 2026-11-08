@@ -15,6 +15,7 @@ pub mod browser_trash;
 pub mod browser_view;
 pub mod components;
 pub mod key_bindings;
+pub mod pane_band;
 pub mod pane_body;
 pub mod pane_columns;
 pub mod pane_drag;

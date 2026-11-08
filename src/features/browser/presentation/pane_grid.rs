@@ -60,7 +60,7 @@ impl PaneView {
             .relative()
             .size_full()
             .child(probe)
-            .child(list)
+            .child(self.band_area(list, cx))
             .into_any_element()
     }
 

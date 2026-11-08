@@ -32,6 +32,10 @@ impl Selection {
         self.marked.iter().copied()
     }
 
+    pub fn set_marked(&mut self, marked: impl IntoIterator<Item = usize>) {
+        self.marked = marked.into_iter().collect();
+    }
+
     pub fn mark_all(&mut self, len: usize) {
         self.marked = (0..len).collect();
     }

@@ -99,7 +99,7 @@ impl PaneView {
                 on_sort,
                 compact: self.compact,
             })
-            .child(rows)
+            .child(self.band_area(rows, cx))
             .into_any_element()
     }
 

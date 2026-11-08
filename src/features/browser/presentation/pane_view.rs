@@ -20,6 +20,7 @@ use crate::features::browser::presentation::actions::{
     SelectFirst, SelectLast, StartSearch, ToggleHidden, ToggleMark,
 };
 use crate::features::browser::presentation::key_bindings::{PANE_CONTEXT, PANE_GRID_CONTEXT};
+use crate::features::browser::presentation::state::band_state::BandState;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::column_state::ColumnState;
 use crate::features::browser::presentation::state::load_state::LoadState;
@@ -65,6 +66,7 @@ pub struct PaneView {
     pub(super) overview: OverviewState,
     pub(super) columns_task: Option<Task<()>>,
     pub(super) grid_width: f32,
+    pub(super) band: Option<BandState>,
     pub(super) picker: bool,
     pub(super) thumbs: HashMap<PathBuf, ThumbEntry>,
     pub(super) thumb_queue: VecDeque<ThumbRequest>,
@@ -116,6 +118,7 @@ impl PaneView {
             overview: OverviewState::default(),
             columns_task: None,
             grid_width: 0.0,
+            band: None,
             picker: false,
             thumbs: HashMap::new(),
             thumb_queue: VecDeque::new(),

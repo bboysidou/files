@@ -39,6 +39,8 @@ Early development. Working today:
   selection to the other side and `Shift+F6` moves it
 - Grid view with image thumbnails (`Ctrl+3`, back to the list with `Ctrl+1`), cached in the shared
   freedesktop thumbnail cache (`~/.cache/thumbnails`) that other file managers also use
+- Rubber-band selection in the list and grid: drag from empty space; `Ctrl` or `Shift` adds to the
+  current selection
 - Drag and drop: drag rows or tiles onto a folder, the open folder or a sidebar place; same disk
   moves, another disk copies, `Ctrl` while dropping always copies. Files dragged out of the window
   go to other apps, and files dropped in from other apps are copied or moved the same way
