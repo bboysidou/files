@@ -7,7 +7,7 @@ use crate::core::dependency_injection::browser::{
 };
 use crate::core::dependency_injection::operations::{file_operations, system_clipboard, trash_bin};
 use crate::core::dependency_injection::preview::preview_source;
-use crate::core::dependency_injection::search::search_indexer;
+use crate::core::dependency_injection::search::{content_searcher, search_indexer};
 use crate::core::dependency_injection::thumbnails::thumbnail_store;
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::places::domain::entities::place::{Place, PlaceTarget};
@@ -22,6 +22,7 @@ pub fn browser_setup(
         preview: preview_source(repository.clone()),
         thumbnails: thumbnail_store(),
         indexer: search_indexer(),
+        content: content_searcher(),
         repository,
         launcher: file_launcher(),
         apps: app_catalog(),

@@ -13,6 +13,7 @@ use crate::features::operations::domain::repositories::system_clipboard::SystemC
 use crate::features::operations::domain::repositories::trash_bin::TrashBin;
 use crate::features::places::domain::entities::place::{Place, PlaceTarget};
 use crate::features::preview::domain::repositories::preview_source::PreviewSource;
+use crate::features::search::domain::repositories::content_searcher::ContentSearcher;
 use crate::features::search::domain::repositories::search_indexer::SearchIndexer;
 use crate::features::thumbnails::domain::repositories::thumbnail_store::ThumbnailStore;
 
@@ -29,6 +30,7 @@ pub struct BrowserSetup {
     pub preview: Arc<dyn PreviewSource>,
     pub thumbnails: Arc<dyn ThumbnailStore>,
     pub indexer: Arc<dyn SearchIndexer>,
+    pub content: Arc<dyn ContentSearcher>,
     pub places: Vec<Place>,
     pub home: Option<PathBuf>,
     pub home_target: PlaceTarget,

@@ -6,12 +6,13 @@ use std::time::Duration;
 use gpui::{Context, Focusable, Window};
 use rust_i18n::t;
 
-use crate::core::constants::search::{SEARCH_DEBOUNCE_MS, SEARCH_RESULT_LIMIT};
+use crate::core::constants::search::{CONTEXT_SEPARATOR, SEARCH_DEBOUNCE_MS, SEARCH_RESULT_LIMIT};
 use crate::core::dependency_injection::tags::tag_store;
 use crate::core::enums::tags::tag_color::TagColor;
 use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::filter_model::FilterModel;
 use crate::features::browser::presentation::state::search_state::SearchState;
+use crate::features::search::domain::usecases::content_needle::content_needle;
 use crate::features::search::domain::usecases::find_matches::find_matches;
 use crate::features::tags::domain::usecases::parse_tag_query::tag_query;
 use crate::global_components::handlers::ClickHandler;
@@ -55,6 +56,8 @@ impl PaneView {
             index: None,
             results: Vec::new(),
             return_focus: self.current_entry_path(),
+            snippets: Default::default(),
+            cancel: Default::default(),
         });
         self.build_index(root, cx);
         self.rearrange(cx);
@@ -115,6 +118,13 @@ impl PaneView {
         else {
             return;
         };
+        if content_needle(&query).is_some() {
+            return self.rerun_content_search(index, query, cx);
+        }
+        self.cancel_content_search();
+        if let Some(search) = self.search.as_mut() {
+            search.snippets.clear();
+        }
         let repository = self.setup.repository.clone();
         let wanted = query.clone();
         let store = tag_store();
@@ -143,6 +153,7 @@ impl PaneView {
     }
 
     pub(super) fn end_search(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.cancel_content_search();
         let Some(search) = self.search.take() else {
             return;
         };
@@ -167,7 +178,12 @@ impl PaneView {
     pub(super) fn search_context(&self, path: &std::path::Path) -> Option<String> {
         let search = self.search.as_ref()?;
         let parent = path.parent()?.strip_prefix(&search.root).ok()?;
-        Some(parent.to_string_lossy().into_owned()).filter(|text| !text.is_empty())
+        let folder = parent.to_string_lossy().into_owned();
+        match search.snippets.get(path) {
+            Some(snippet) if folder.is_empty() => Some(snippet.clone()),
+            Some(snippet) => Some(format!("{folder}{CONTEXT_SEPARATOR}{snippet}")),
+            None => Some(folder).filter(|text| !text.is_empty()),
+        }
     }
 
     pub(super) fn start_search_handler(cx: &mut Context<Self>) -> ClickHandler {

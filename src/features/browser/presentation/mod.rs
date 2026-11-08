@@ -22,6 +22,7 @@ pub mod key_bindings;
 pub mod pane_band;
 pub mod pane_body;
 pub mod pane_columns;
+pub mod pane_content_search;
 pub mod pane_drag;
 pub mod pane_filter;
 pub mod pane_grid;
