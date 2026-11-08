@@ -1,0 +1,10 @@
+pub const MIME_GNOME_FILES: &str = "x-special/gnome-copied-files";
+pub const MIME_URI_LIST: &str = "text/uri-list";
+pub const MIME_KDE_CUT: &str = "application/x-kde-cutselection";
+pub const MIME_TEXT: &str = "text/plain;charset=utf-8";
+pub const GNOME_COPY: &str = "copy";
+pub const GNOME_CUT: &str = "cut";
+pub const KDE_CUT_FLAG: &str = "1";
+pub const KDE_COPY_FLAG: &str = "0";
+pub const URI_LIST_SEPARATOR: &str = "\r\n";
+pub const LINE_SEPARATOR: &str = "\n";

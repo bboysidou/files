@@ -12,7 +12,7 @@ use crate::core::constants::paths::PATH_SEPARATOR;
 use crate::core::dependency_injection::browser::{
     directory_repository, directory_watcher, file_launcher,
 };
-use crate::core::dependency_injection::operations::file_operations;
+use crate::core::dependency_injection::operations::{file_operations, system_clipboard};
 use crate::core::dependency_injection::preview::preview_source;
 use crate::core::dependency_injection::settings::settings_repository;
 use crate::core::dependency_injection::thumbnails::thumbnail_store;
@@ -61,6 +61,7 @@ impl ShellView {
             launcher: file_launcher(),
             watcher: directory_watcher(),
             operations: file_operations(),
+            system_clipboard: system_clipboard(),
             places: places.clone(),
             home,
             home_target,

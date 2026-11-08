@@ -30,13 +30,29 @@ impl BrowserView {
             ClipboardMode::Copy => t!("op.clipboard_copy", items = items),
             ClipboardMode::Cut => t!("op.clipboard_cut", items = items),
         };
-        self.clipboard = Some(Clipboard { mode, paths });
+        let clipboard = Clipboard { mode, paths };
+        let (system, published) = (self.setup.system_clipboard.clone(), clipboard.clone());
+        cx.background_executor()
+            .spawn(async move { system.write(&published) })
+            .detach();
+        self.clipboard = Some(clipboard);
         self.sync_cut(cx);
         self.show_toast(message.to_string(), false, cx);
     }
 
     pub(super) fn paste(&mut self, cx: &mut Context<Self>) {
-        let Some(clipboard) = self.clipboard.clone() else {
+        let system = self.setup.system_clipboard.clone();
+        self.paste_task = Some(cx.spawn(async move |this, cx| {
+            let external = cx
+                .background_executor()
+                .spawn(async move { system.read() })
+                .await;
+            let _ = this.update(cx, |this, cx| this.paste_contents(external, cx));
+        }));
+    }
+
+    fn paste_contents(&mut self, external: Option<Clipboard>, cx: &mut Context<Self>) {
+        let Some(clipboard) = external.or_else(|| self.clipboard.clone()) else {
             return self.show_toast(t!("op.clipboard_empty").to_string(), false, cx);
         };
         let Some(directory) = self.active_pane().read(cx).directory() else {
@@ -50,6 +66,10 @@ impl BrowserView {
                 if clipboard.mode == ClipboardMode::Cut {
                     self.clipboard = None;
                     self.sync_cut(cx);
+                    let system = self.setup.system_clipboard.clone();
+                    cx.background_executor()
+                        .spawn(async move { system.clear() })
+                        .detach();
                 }
                 self.execute(operation, OperationIntent::Fresh, cx);
             }

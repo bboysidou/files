@@ -18,7 +18,8 @@ Early development. Working today:
 - Filter the current folder as you type
 - Folders refresh by themselves when files change on disk
 - Remembers hidden files, sort order, the sidebar, the preview column, the view mode and your open tabs
-- Copy, cut, paste, rename, new folder and move to Trash, all with undo and redo
+- Copy, cut, paste, rename, new folder and move to Trash, all with undo and redo; copy and paste work
+  with other file managers and apps through the system clipboard (Wayland)
 - Quick Look for images, any text file and folders (`Space`)
 - Preview column beside the list that follows the cursor (`F3`)
 - Grid view with image thumbnails (`Ctrl+3`, back to the list with `Ctrl+1`), cached in the shared

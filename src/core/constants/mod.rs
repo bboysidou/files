@@ -1,4 +1,5 @@
 pub mod app;
+pub mod clipboard;
 pub mod files;
 pub mod hash;
 pub mod i18n;
