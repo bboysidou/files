@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use gpui::{Context, Focusable, Pixels, Point, Size, Window, px};
 
-use crate::core::constants::preview::{PAN_HALF, ZOOM_DEFAULT, ZOOM_MAX, ZOOM_MIN};
+use crate::core::constants::preview::{PAN_HALF, ZOOM_DEFAULT, ZOOM_MAX, ZOOM_MIN, ZOOM_STEP};
 use crate::core::theme::metrics::QUICK_LOOK_STAGE_PAD;
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::browser_view::BrowserView;
@@ -118,7 +118,8 @@ impl BrowserView {
     }
 
     pub(super) fn pan_gestures(&self, cx: &mut Context<Self>) -> PanGestures {
-        let (press, drag, release) = (
+        let (press, drag, release, wheel) = (
+            cx.entity().downgrade(),
             cx.entity().downgrade(),
             cx.entity().downgrade(),
             cx.entity().downgrade(),
@@ -133,6 +134,11 @@ impl BrowserView {
             }),
             on_release: Rc::new(move |_, cx| {
                 let _ = release.update(cx, |this, _| this.quick_look.pan_from = None);
+            }),
+            on_wheel: Rc::new(move |steps, _, cx| {
+                let _ = wheel.update(cx, |this, cx| {
+                    this.zoom_quick_look(ZOOM_STEP.powf(steps), cx)
+                });
             }),
         }
     }

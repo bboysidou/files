@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use gpui::{Pixels, Size};
 
-use crate::global_components::handlers::{ClickHandler, PointHandler};
+use crate::global_components::handlers::{AmountHandler, ClickHandler, PointHandler};
 
 #[derive(Clone)]
 pub struct PanGestures {
@@ -11,4 +11,5 @@ pub struct PanGestures {
     pub on_press: PointHandler,
     pub on_drag: PointHandler,
     pub on_release: ClickHandler,
+    pub on_wheel: AmountHandler,
 }

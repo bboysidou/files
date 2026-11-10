@@ -5,9 +5,10 @@ use gpui::{
     prelude::*, px, relative,
 };
 
-use gpui::Stateful;
+use gpui::{ScrollDelta, Stateful};
 use rust_i18n::t;
 
+use crate::core::constants::preview::WHEEL_PIXELS_PER_ZOOM_STEP;
 use crate::core::enums::assets::icon::Icon;
 use crate::core::theme::metrics::QUICK_LOOK_STAGE_PAD;
 use crate::features::browser::presentation::state::pan_gestures::PanGestures;
@@ -63,6 +64,7 @@ fn with_gestures(stage: Stateful<Div>, gestures: PanGestures) -> Stateful<Div> {
         on_press,
         on_drag,
         on_release,
+        on_wheel,
     } = gestures;
     stage
         .child(
@@ -81,5 +83,12 @@ fn with_gestures(stage: Stateful<Div>, gestures: PanGestures) -> Stateful<Div> {
         })
         .on_mouse_up(MouseButton::Left, move |_, window, cx| {
             on_release(window, cx)
+        })
+        .on_scroll(move |event, window, cx| {
+            let steps = match event.delta {
+                ScrollDelta::Lines(lines) => lines.y,
+                ScrollDelta::Pixels(pixels) => f32::from(pixels.y) / WHEEL_PIXELS_PER_ZOOM_STEP,
+            };
+            on_wheel(steps, window, cx);
         })
 }
