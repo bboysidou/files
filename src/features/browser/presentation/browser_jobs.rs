@@ -9,7 +9,9 @@ use crate::core::enums::operations::job_phase::JobPhase;
 use crate::core::helpers::format::file_size::file_size;
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::job_card_model::JobCardModel;
+use crate::features::browser::presentation::state::job_note::JobNote;
 use crate::features::browser::presentation::state::job_state::JobState;
+use crate::features::browser::presentation::state::note_outcome::NoteOutcome;
 use crate::features::browser::presentation::state::operation_intent::OperationIntent;
 use crate::features::operations::domain::entities::file_operation::FileOperation;
 use crate::features::operations::domain::entities::job_counter::JobCounter;
@@ -45,6 +47,7 @@ impl BrowserView {
             counter: counter.clone(),
             title_key: Self::title_key(&operation),
             started: Instant::now(),
+            note: JobNote::default(),
         });
         let files = self.setup.operations.clone();
         self.jobs.operation_task = Some(cx.spawn(async move |this, cx| {
@@ -64,6 +67,7 @@ impl BrowserView {
                     .timer(Duration::from_millis(JOB_TICK_MS))
                     .await;
                 let running = this.update(cx, |this, cx| {
+                    this.note_tick();
                     cx.notify();
                     this.jobs.job.is_some()
                 });
@@ -81,10 +85,21 @@ impl BrowserView {
         cx: &mut Context<Self>,
     ) {
         self.jobs.operation_task = None;
-        self.jobs.job = None;
+        let job = self.jobs.job.take();
         match result {
-            Ok(done) => self.record(intent, done, cx),
+            Ok(done) => {
+                let message = self.record(intent, done, cx);
+                Self::note_finish(job, NoteOutcome::Done(message));
+            }
             Err(error) => {
+                Self::note_finish(
+                    job,
+                    if error == OperationError::Cancelled {
+                        NoteOutcome::Cancelled
+                    } else {
+                        NoteOutcome::Failed(t!(error.label_key()).to_string())
+                    },
+                );
                 match intent {
                     OperationIntent::Undo(operation) => self.history.push_undo(operation),
                     OperationIntent::Redo(operation) => self.history.push_redo(operation),
@@ -101,7 +116,12 @@ impl BrowserView {
         }
     }
 
-    fn record(&mut self, intent: OperationIntent, done: FileOperation, cx: &mut Context<Self>) {
+    fn record(
+        &mut self,
+        intent: OperationIntent,
+        done: FileOperation,
+        cx: &mut Context<Self>,
+    ) -> String {
         let rename = intent == OperationIntent::FreshThenRename;
         let (message, can_undo, landing) = match intent {
             OperationIntent::Fresh | OperationIntent::FreshThenRename => {
@@ -127,8 +147,9 @@ impl BrowserView {
                 )
             }
         };
-        self.show_toast(message, can_undo, cx);
+        self.show_toast(message.clone(), can_undo, cx);
         self.reload_all(landing, rename, cx);
+        message
     }
 
     pub fn cancel_job(&mut self) {

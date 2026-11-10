@@ -14,6 +14,7 @@ pub mod browser_dual;
 pub mod browser_dual_split;
 pub mod browser_extract;
 pub mod browser_folder_views;
+pub mod browser_job_note;
 pub mod browser_jobs;
 pub mod browser_keymap;
 pub mod browser_menu;

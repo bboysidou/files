@@ -8,6 +8,7 @@ pub mod i18n;
 pub mod integration;
 pub mod keymap;
 pub mod network;
+pub mod notifications;
 pub mod operations;
 pub mod paths;
 pub mod preview;

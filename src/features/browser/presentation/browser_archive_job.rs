@@ -7,7 +7,9 @@ use rust_i18n::t;
 use crate::features::archives::domain::entities::archive_error::ArchiveError;
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::archive_job::ArchiveJob;
+use crate::features::browser::presentation::state::job_note::JobNote;
 use crate::features::browser::presentation::state::job_state::JobState;
+use crate::features::browser::presentation::state::note_outcome::NoteOutcome;
 use crate::features::operations::domain::entities::job_counter::JobCounter;
 
 impl BrowserView {
@@ -30,6 +32,7 @@ impl BrowserView {
             counter: counter.clone(),
             title_key,
             started: Instant::now(),
+            note: JobNote::default(),
         });
         self.jobs.archive_task = Some(cx.spawn_in(window, async move |this, cx| {
             let outcome = cx
@@ -38,7 +41,8 @@ impl BrowserView {
                 .await;
             let _ = this.update_in(cx, |this, window, cx| {
                 this.jobs.archive_task = None;
-                this.jobs.job = None;
+                let job = this.jobs.job.take();
+                Self::note_archive(job, &outcome);
                 match outcome {
                     Ok(()) => done(this, window, cx),
                     Err(ArchiveError::Cancelled) => {
@@ -57,5 +61,18 @@ impl BrowserView {
             });
         }));
         self.start_job_ticker(cx);
+    }
+
+    fn note_archive(job: Option<JobState>, outcome: &Result<(), ArchiveError>) {
+        let verb = job
+            .as_ref()
+            .map(|job| t!(format!("note.{}", job.title_key)).to_string())
+            .unwrap_or_default();
+        let result = match outcome {
+            Ok(()) => NoteOutcome::Done(t!("note.job_finished", what = verb).to_string()),
+            Err(ArchiveError::Cancelled) => NoteOutcome::Cancelled,
+            Err(ArchiveError::Failed(reason)) => NoteOutcome::Failed(reason.clone()),
+        };
+        Self::note_finish(job, result);
     }
 }

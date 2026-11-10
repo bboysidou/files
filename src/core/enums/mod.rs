@@ -3,6 +3,7 @@ pub mod assets;
 pub mod browser;
 pub mod files;
 pub mod network;
+pub mod notifications;
 pub mod operations;
 pub mod places;
 pub mod preview;

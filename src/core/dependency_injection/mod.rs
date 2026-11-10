@@ -5,6 +5,7 @@ pub mod browser_setup;
 pub mod devices;
 pub mod integration;
 pub mod network;
+pub mod notifications;
 pub mod operations;
 pub mod overview;
 pub mod picker;
