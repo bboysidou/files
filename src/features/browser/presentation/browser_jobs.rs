@@ -5,6 +5,7 @@ use gpui::{Context, SharedString};
 use rust_i18n::t;
 
 use crate::core::constants::operations::{JOB_CARD_DELAY_MS, JOB_TICK_MS};
+use crate::core::enums::operations::job_phase::JobPhase;
 use crate::core::helpers::format::file_size::file_size;
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::job_card_model::JobCardModel;
@@ -155,7 +156,12 @@ impl BrowserView {
             file_size(done)
         };
         Some(JobCardModel {
-            title: t!(job.title_key).to_string().into(),
+            title: t!(match job.counter.phase() {
+                JobPhase::Working => job.title_key,
+                JobPhase::Flushing => "job.flushing",
+            })
+            .to_string()
+            .into(),
             item: SharedString::from(job.counter.item()),
             detail: detail.into(),
             fraction,

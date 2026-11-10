@@ -7,7 +7,10 @@ use trash::TrashItem;
 use trash::os_limited;
 
 use crate::core::constants::files::COPY_BUFFER_BYTES;
+use crate::core::enums::operations::job_phase::JobPhase;
 use crate::core::helpers::files::has_no_trash::has_no_trash;
+use crate::core::helpers::files::same_device::same_device;
+use crate::features::operations::data::repositories::writeback::Writeback;
 use crate::features::operations::domain::entities::operation_error::OperationError;
 use crate::features::operations::domain::repositories::file_operations::FileOperations;
 use crate::features::operations::domain::repositories::progress_sink::ProgressSink;
@@ -25,7 +28,12 @@ impl LocalFileOperations {
         }
     }
 
-    fn copy_file(from: &Path, to: &Path, sink: &dyn ProgressSink) -> io::Result<()> {
+    fn copy_file(
+        from: &Path,
+        to: &Path,
+        sink: &dyn ProgressSink,
+        writeback: &mut Writeback,
+    ) -> io::Result<()> {
         let mut source = File::open(from)?;
         let mut target = OpenOptions::new().write(true).create_new(true).open(to)?;
         let mut buffer = vec![0_u8; COPY_BUFFER_BYTES];
@@ -40,25 +48,40 @@ impl LocalFileOperations {
                 break;
             }
             target.write_all(&buffer[..read])?;
-            sink.advance(read as u64);
+            writeback.wrote(read as u64, sink)?;
         }
         fs::set_permissions(to, fs::metadata(from)?.permissions())
     }
 
-    fn copy_tree(from: &Path, to: &Path, sink: &dyn ProgressSink) -> io::Result<()> {
+    fn copy_tree(
+        from: &Path,
+        to: &Path,
+        sink: &dyn ProgressSink,
+        writeback: &mut Writeback,
+    ) -> io::Result<()> {
         let metadata = fs::symlink_metadata(from)?;
         if metadata.file_type().is_symlink() {
             return symlink(fs::read_link(from)?, to);
         }
         if !metadata.is_dir() {
-            return Self::copy_file(from, to, sink);
+            return Self::copy_file(from, to, sink, writeback);
         }
         fs::create_dir(to)?;
         for item in fs::read_dir(from)? {
             let item = item?;
-            Self::copy_tree(&item.path(), &to.join(item.file_name()), sink)?;
+            Self::copy_tree(&item.path(), &to.join(item.file_name()), sink, writeback)?;
         }
         Ok(())
+    }
+
+    fn copy_flushed(from: &Path, to: &Path, sink: &dyn ProgressSink) -> io::Result<()> {
+        let mut writeback = Writeback::for_destination(to);
+        sink.set_phase(JobPhase::Working);
+        let copied = Self::copy_tree(from, to, sink, &mut writeback);
+        sink.set_phase(JobPhase::Flushing);
+        let flushed = writeback.flush(sink);
+        sink.set_phase(JobPhase::Working);
+        copied.and(flushed)
     }
 
     fn remove_tree(path: &Path) -> io::Result<()> {
@@ -104,7 +127,16 @@ impl FileOperations for LocalFileOperations {
 
     fn copy(&self, from: &Path, to: &Path, sink: &dyn ProgressSink) -> Result<(), OperationError> {
         self.ensure_free(to)?;
-        Self::copy_tree(from, to, sink).map_err(|error| Self::error_of(&error))
+        Self::copy_flushed(from, to, sink).map_err(|error| Self::error_of(&error))
+    }
+
+    fn transfer_bytes(&self, from: &Path, to: &Path) -> u64 {
+        let folder = to.parent().unwrap_or(to);
+        if same_device(from, folder) {
+            0
+        } else {
+            self.size_of(from)
+        }
     }
 
     fn size_of(&self, path: &Path) -> u64 {
@@ -134,7 +166,7 @@ impl FileOperations for LocalFileOperations {
         match fs::rename(from, to) {
             Ok(()) => Ok(()),
             Err(error) if error.kind() == ErrorKind::CrossesDevices => {
-                Self::copy_tree(from, to, sink).map_err(|error| Self::error_of(&error))?;
+                Self::copy_flushed(from, to, sink).map_err(|error| Self::error_of(&error))?;
                 if self.size_of(from) != self.size_of(to) {
                     return Err(OperationError::Failed);
                 }

@@ -30,6 +30,12 @@ pub fn run_operation(
             }
         }
         FileOperation::Move(transfers) => {
+            sink.begin(
+                transfers
+                    .iter()
+                    .map(|transfer| files.transfer_bytes(&transfer.from, &transfer.to))
+                    .sum(),
+            );
             for transfer in transfers {
                 sink.set_item(&item_name(transfer));
                 files.move_path(&transfer.from, &transfer.to, sink)?;

@@ -1525,6 +1525,7 @@ dependencies = [
  "png 0.18.1",
  "pulldown-cmark",
  "rust-i18n",
+ "rustix",
  "serde",
  "serde_json",
  "syntect",

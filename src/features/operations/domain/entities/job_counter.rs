@@ -1,6 +1,7 @@
 use std::sync::Mutex;
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU8, AtomicU64, Ordering};
 
+use crate::core::enums::operations::job_phase::JobPhase;
 use crate::features::operations::domain::repositories::progress_sink::ProgressSink;
 
 #[derive(Debug, Default)]
@@ -8,6 +9,7 @@ pub struct JobCounter {
     total: AtomicU64,
     done: AtomicU64,
     cancelled: AtomicBool,
+    phase: AtomicU8,
     item: Mutex<String>,
 }
 
@@ -25,6 +27,10 @@ impl JobCounter {
             .lock()
             .map(|item| item.clone())
             .unwrap_or_default()
+    }
+
+    pub fn phase(&self) -> JobPhase {
+        JobPhase::from_code(self.phase.load(Ordering::Relaxed))
     }
 
     pub fn cancel(&self) {
@@ -45,6 +51,10 @@ impl ProgressSink for JobCounter {
         if let Ok(mut item) = self.item.lock() {
             name.clone_into(&mut item);
         }
+    }
+
+    fn set_phase(&self, phase: JobPhase) {
+        self.phase.store(phase.code(), Ordering::Relaxed);
     }
 
     fn is_cancelled(&self) -> bool {

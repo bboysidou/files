@@ -6,6 +6,9 @@ use crate::core::constants::preview::{
     ARCHIVE_COMMAND, ARCHIVE_CREATE_ARGUMENTS, ARCHIVE_DESTINATION_FLAG, ARCHIVE_EXTRACT_ARGUMENTS,
     ARCHIVE_STAGING_NAME,
 };
+use crate::core::enums::operations::job_phase::JobPhase;
+use crate::core::helpers::files::slow_destination::slow_destination;
+use crate::core::helpers::files::sync_folder::sync_folder;
 use crate::core::helpers::files::tree_size::tree_size;
 use crate::core::helpers::process::sandbox_access::SandboxAccess;
 use crate::core::helpers::process::sandboxed_command::sandboxed_command;
@@ -62,6 +65,7 @@ impl ArchiveTool for BsdtarArchiveTool {
             },
             sink,
         );
+        let outcome = outcome.and_then(|()| flush_slow(parent, sink));
         if outcome.is_err() {
             let _ = fs::remove_file(archive);
         }
@@ -94,13 +98,22 @@ impl ArchiveTool for BsdtarArchiveTool {
             sink,
         ) {
             Ok(()) => flatten_single_folder(destination)
-                .map_err(|error| ArchiveError::Failed(error.to_string())),
+                .map_err(|error| ArchiveError::Failed(error.to_string()))
+                .and_then(|()| flush_slow(destination, sink)),
             Err(error) => {
                 let _ = fs::remove_dir_all(destination);
                 Err(error)
             }
         }
     }
+}
+
+fn flush_slow(folder: &Path, sink: &dyn ProgressSink) -> Result<(), ArchiveError> {
+    if !slow_destination(folder) {
+        return Ok(());
+    }
+    sink.set_phase(JobPhase::Flushing);
+    sync_folder(folder).map_err(|error| ArchiveError::Failed(error.to_string()))
 }
 
 fn flatten_single_folder(destination: &Path) -> std::io::Result<()> {

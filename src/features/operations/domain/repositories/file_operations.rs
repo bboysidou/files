@@ -15,6 +15,7 @@ pub trait FileOperations: Send + Sync {
         sink: &dyn ProgressSink,
     ) -> Result<(), OperationError>;
     fn size_of(&self, path: &Path) -> u64;
+    fn transfer_bytes(&self, from: &Path, to: &Path) -> u64;
     fn trash(&self, paths: &[PathBuf]) -> Result<(), OperationError>;
     fn delete(&self, paths: &[PathBuf]) -> Result<(), OperationError>;
     fn restore(&self, paths: &[PathBuf]) -> Result<(), OperationError>;
