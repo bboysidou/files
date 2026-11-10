@@ -46,6 +46,7 @@ impl RenderOnce for ConfirmDialog {
             .child(
                 div()
                     .flex()
+                    .flex_wrap()
                     .justify_end()
                     .gap(px(CONFIRM_GAP))
                     .children(self.buttons),

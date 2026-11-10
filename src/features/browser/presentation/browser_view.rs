@@ -180,6 +180,7 @@ impl BrowserView {
                 }
                 PaneEvent::DropRequested(request) => this.drop_files(request.clone(), cx),
                 PaneEvent::Navigated(folder) => this.recall_folder_view(folder, cx),
+                PaneEvent::OpenRequested(path) => this.open_file(path.clone(), cx),
                 PaneEvent::CredentialsRequested { uri, rejected } => this.open_network_login(
                     NetworkLoginRequest {
                         pane: pane.downgrade(),

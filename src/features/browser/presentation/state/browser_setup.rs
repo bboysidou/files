@@ -10,6 +10,7 @@ use crate::features::browser::domain::repositories::directory_watcher::Directory
 use crate::features::browser::domain::repositories::file_launcher::FileLauncher;
 use crate::features::network::domain::repositories::network_mounter::NetworkMounter;
 use crate::features::operations::domain::repositories::file_operations::FileOperations;
+use crate::features::operations::domain::repositories::run_inspector::RunInspector;
 use crate::features::operations::domain::repositories::system_clipboard::SystemClipboard;
 use crate::features::operations::domain::repositories::trash_bin::TrashBin;
 use crate::features::places::domain::entities::place::{Place, PlaceTarget};
@@ -27,6 +28,7 @@ pub struct BrowserSetup {
     pub archives: Arc<dyn ArchiveTool>,
     pub watcher: Arc<dyn DirectoryWatcher>,
     pub operations: Arc<dyn FileOperations>,
+    pub run_inspector: Arc<dyn RunInspector>,
     pub system_clipboard: Arc<dyn SystemClipboard>,
     pub trash_bin: Arc<dyn TrashBin>,
     pub preview: Arc<dyn PreviewSource>,

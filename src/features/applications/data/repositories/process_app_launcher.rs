@@ -35,6 +35,22 @@ impl AppLauncher for ProcessAppLauncher {
         }
         spawn_detached(&argv, Some(directory))
     }
+
+    fn run_program(&self, program: &Path, in_terminal: bool) -> Result<(), LaunchError> {
+        let target = vec![program.to_string_lossy().into_owned()];
+        let argv = if in_terminal {
+            let terminal = resolve_terminal().ok_or(LaunchError::NoTerminal)?;
+            terminal
+                .command
+                .into_iter()
+                .chain(terminal.run)
+                .chain(target)
+                .collect()
+        } else {
+            target
+        };
+        spawn_detached(&argv, program.parent())
+    }
 }
 
 fn spawn_detached(argv: &[String], directory: Option<&Path>) -> Result<(), LaunchError> {

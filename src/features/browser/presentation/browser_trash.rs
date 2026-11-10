@@ -22,13 +22,13 @@ use crate::global_components::modal_scrim::ModalScrim;
 
 const CONFIRM_PRIORITY: usize = 3;
 
-type Choice = fn(&mut BrowserView, &mut Window, &mut Context<BrowserView>);
+pub(super) type Choice = fn(&mut BrowserView, &mut Window, &mut Context<BrowserView>);
 
-struct ButtonSpec {
-    id: &'static str,
-    label_key: &'static str,
-    danger: bool,
-    choice: Choice,
+pub(super) struct ButtonSpec {
+    pub(super) id: &'static str,
+    pub(super) label_key: &'static str,
+    pub(super) danger: bool,
+    pub(super) choice: Choice,
 }
 
 impl BrowserView {
@@ -68,7 +68,7 @@ impl BrowserView {
         cx.notify();
     }
 
-    fn take_confirm(
+    pub(super) fn take_confirm(
         &mut self,
         window: &mut Window,
         cx: &mut Context<Self>,
@@ -103,6 +103,9 @@ impl BrowserView {
     }
 
     pub(super) fn accept_confirm(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if matches!(self.confirm, Some(ConfirmState::Run(_))) {
+            return self.cancel_confirm(window, cx);
+        }
         if matches!(self.confirm, Some(ConfirmState::Collision(..))) {
             return self.keep_both(window, cx);
         }
@@ -139,7 +142,7 @@ impl BrowserView {
         }));
     }
 
-    fn button(&self, spec: ButtonSpec, cx: &mut Context<Self>) -> DialogButton {
+    pub(super) fn button(&self, spec: ButtonSpec, cx: &mut Context<Self>) -> DialogButton {
         let view = cx.entity().downgrade();
         let choice = spec.choice;
         let on_click: ClickHandler = Rc::new(move |window, cx| {
@@ -157,7 +160,7 @@ impl BrowserView {
         }
     }
 
-    fn cancel_button(&self, cx: &mut Context<Self>) -> DialogButton {
+    pub(super) fn cancel_button(&self, cx: &mut Context<Self>) -> DialogButton {
         self.button(
             ButtonSpec {
                 id: "confirm-cancel",
@@ -244,6 +247,7 @@ impl BrowserView {
     fn dialog(&self, request: &ConfirmState, cx: &mut Context<Self>) -> ConfirmDialog {
         match request {
             ConfirmState::Collision(_, count) => self.collision_dialog(*count, cx),
+            ConfirmState::Run(plan) => self.run_dialog(plan, cx),
             ConfirmState::Purge(entries) => self.destructive_dialog(
                 t!("confirm.purge.title", items = item_count(entries.len())).to_string(),
                 t!("confirm.purge.body").to_string(),

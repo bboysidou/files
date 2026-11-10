@@ -6,7 +6,9 @@ use crate::core::dependency_injection::browser::{
     directory_repository, directory_watcher, file_launcher,
 };
 use crate::core::dependency_injection::network::network_mounter;
-use crate::core::dependency_injection::operations::{file_operations, system_clipboard, trash_bin};
+use crate::core::dependency_injection::operations::{
+    file_operations, run_inspector, system_clipboard, trash_bin,
+};
 use crate::core::dependency_injection::preview::preview_source;
 use crate::core::dependency_injection::properties::properties_source;
 use crate::core::dependency_injection::search::{content_searcher, search_indexer};
@@ -34,6 +36,7 @@ pub fn browser_setup(
         archives: archive_tool(),
         watcher: directory_watcher(),
         operations: file_operations(),
+        run_inspector: run_inspector(),
         system_clipboard: system_clipboard(),
         trash_bin: trash_bin(),
         places,

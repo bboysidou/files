@@ -217,7 +217,7 @@ impl PaneView {
         } else if entry.is_dir {
             self.navigate(PlaceTarget::Directory(entry.path.clone()), cx);
         } else {
-            self.setup.launcher.launch(&entry.path);
+            cx.emit(PaneEvent::OpenRequested(entry.path.clone()));
         }
     }
 
