@@ -1,7 +1,10 @@
+use std::rc::Rc;
+
 use gpui::{Context, Window};
 
 use crate::features::shell::presentation::components::rail::Rail;
 use crate::features::shell::presentation::shell_view::ShellView;
+use crate::global_components::handlers::ClickHandler;
 
 impl ShellView {
     pub(super) fn rail_view(&self, window: &mut Window, cx: &mut Context<Self>) -> Rail {
@@ -29,6 +32,7 @@ impl ShellView {
             on_select,
             on_drop_place: self.place_drop_handler(),
             on_search,
+            on_connect: self.connect_handler(),
             devices: self.device_items(&location),
             on_device,
             on_eject,
@@ -48,5 +52,12 @@ impl ShellView {
             focus: self.rail_keys.focus.clone(),
             cursor: rail_cursor,
         }
+    }
+
+    fn connect_handler(&self) -> ClickHandler {
+        let browser = self.browser.downgrade();
+        Rc::new(move |window, cx| {
+            let _ = browser.update(cx, |browser, cx| browser.open_server_edit(None, window, cx));
+        })
     }
 }

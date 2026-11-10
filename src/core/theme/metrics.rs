@@ -40,6 +40,7 @@ pub const SEARCH_HEIGHT: f32 = 38.0;
 pub const SEARCH_PAD_LEFT: f32 = 12.0;
 pub const SEARCH_PAD_RIGHT: f32 = 10.0;
 pub const SEARCH_GAP: f32 = 10.0;
+pub const RAIL_PILL_GAP: f32 = 8.0;
 pub const TAG_DOT: f32 = 16.0;
 pub const TAG_GAP: f32 = 8.0;
 pub const TAG_PAD_Y: f32 = 4.0;

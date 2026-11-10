@@ -8,7 +8,9 @@ use gpui::{
 
 use crate::core::enums::assets::icon::Icon;
 use crate::core::helpers::motion::lerp::lerp;
-use crate::core::theme::metrics::{JOB_SECTION_PAD_TOP, RAIL_PAD_BOTTOM, RAIL_PAD_TOP, RAIL_PAD_X};
+use crate::core::theme::metrics::{
+    JOB_SECTION_PAD_TOP, RAIL_PAD_BOTTOM, RAIL_PAD_TOP, RAIL_PAD_X, RAIL_PILL_GAP,
+};
 use crate::features::browser::presentation::state::job_card_model::JobCardModel;
 use crate::features::places::domain::entities::place::{Place, PlaceSection, PlaceTarget};
 use crate::features::shell::presentation::components::rail_brand::RailBrand;
@@ -16,7 +18,9 @@ use crate::features::shell::presentation::components::rail_device_item::RailDevi
 use crate::features::shell::presentation::components::rail_group::{PHONES, RailGroup, SSH};
 use crate::features::shell::presentation::components::rail_job_card::RailJobCard;
 use crate::features::shell::presentation::components::rail_nav_item::RailNavItem;
-use crate::features::shell::presentation::components::rail_search::RailSearch;
+use crate::features::shell::presentation::components::rail_pill::{
+    CONNECT_PILL, RailPill, SEARCH_PILL,
+};
 use crate::features::shell::presentation::components::rail_section_label::RailSectionLabel;
 use crate::features::shell::presentation::components::rail_tags::RailTags;
 use crate::features::shell::presentation::state::device_item::DeviceItem;
@@ -41,6 +45,7 @@ pub struct Rail {
     pub on_select: IndexHandler,
     pub on_drop_place: IndexPathsHandler,
     pub on_search: ClickHandler,
+    pub on_connect: ClickHandler,
     pub devices: Vec<DeviceItem>,
     pub on_device: IndexHandler,
     pub on_eject: IndexHandler,
@@ -244,10 +249,16 @@ impl RenderOnce for Rail {
                 motion,
                 on_toggle: self.on_toggle,
             })
-            .child(RailSearch {
+            .child(RailPill {
+                spec: SEARCH_PILL,
                 motion,
-                on_search: self.on_search,
+                on_click: self.on_search,
             })
+            .child(div().mt(px(RAIL_PILL_GAP)).child(RailPill {
+                spec: CONNECT_PILL,
+                motion,
+                on_click: self.on_connect,
+            }))
             .children(sections);
         let rail = div()
             .id("rail")
