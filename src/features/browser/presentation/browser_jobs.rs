@@ -89,8 +89,9 @@ impl BrowserView {
         let job = self.jobs.job.take();
         match result {
             Ok(done) => {
-                let message = self.record(intent, done, cx);
-                Self::note_finish(job, NoteOutcome::Done(message));
+                let summary = Self::done_summary(&done);
+                self.record(intent, done, cx);
+                Self::note_finish(job, NoteOutcome::Done(summary));
             }
             Err(error) => {
                 Self::note_finish(
@@ -117,12 +118,7 @@ impl BrowserView {
         }
     }
 
-    fn record(
-        &mut self,
-        intent: OperationIntent,
-        done: FileOperation,
-        cx: &mut Context<Self>,
-    ) -> String {
+    fn record(&mut self, intent: OperationIntent, done: FileOperation, cx: &mut Context<Self>) {
         let rename = intent == OperationIntent::FreshThenRename;
         let (message, can_undo, landing) = match intent {
             OperationIntent::Fresh | OperationIntent::FreshThenRename => {
@@ -148,9 +144,8 @@ impl BrowserView {
                 )
             }
         };
-        self.show_toast(message.clone(), can_undo, cx);
+        self.show_toast(message, can_undo, cx);
         self.reload_all(landing, rename, cx);
-        message
     }
 
     pub fn cancel_job(&mut self) {

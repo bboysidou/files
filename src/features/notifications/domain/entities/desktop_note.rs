@@ -1,8 +1,9 @@
-use crate::core::constants::notifications::NOTE_DEFAULT_TIMEOUT;
+use crate::core::constants::notifications::{NOTE_APP_ICON, NOTE_DEFAULT_TIMEOUT};
 use crate::core::enums::notifications::note_urgency::NoteUrgency;
 
 #[derive(Clone, Debug)]
 pub struct DesktopNote {
+    pub icon: &'static str,
     pub summary: String,
     pub body: String,
     pub progress: Option<u8>,
@@ -17,6 +18,7 @@ pub struct DesktopNote {
 impl DesktopNote {
     pub fn new(summary: String, body: String) -> Self {
         Self {
+            icon: NOTE_APP_ICON,
             summary,
             body,
             progress: None,

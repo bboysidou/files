@@ -6,6 +6,8 @@ use crate::core::constants::devices::{
     SWAP_FILESYSTEM, UDISKS_BLOCK_FLAG, UDISKS_COMMAND, UDISKS_MOUNT, UDISKS_MOUNTED_AT,
     UDISKS_NO_PROMPT, UDISKS_POWER_OFF, UDISKS_UNMOUNT,
 };
+use crate::core::helpers::files::sync_folder::sync_folder;
+use crate::core::helpers::process::mount_users::mount_users;
 use crate::features::devices::data::models::lsblk_node::{LsblkNode, LsblkReport};
 use crate::features::devices::domain::entities::device::Device;
 use crate::features::devices::domain::entities::device_error::DeviceError;
@@ -94,5 +96,13 @@ impl DeviceRepository for UdisksDeviceRepository {
             let _ = Self::udisks(UDISKS_POWER_OFF, drive);
         }
         Ok(())
+    }
+
+    fn flush(&self, mount: &Path) -> Result<(), DeviceError> {
+        sync_folder(mount).map_err(|_| DeviceError::Failed)
+    }
+
+    fn users(&self, mount: &Path) -> Vec<String> {
+        mount_users(mount)
     }
 }

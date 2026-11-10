@@ -3,6 +3,7 @@ pub mod app_key_bindings;
 pub mod components;
 pub mod rail_key_bindings;
 pub mod shell_devices;
+pub mod shell_eject;
 pub mod shell_job_guard;
 pub mod shell_launch;
 pub mod shell_network;

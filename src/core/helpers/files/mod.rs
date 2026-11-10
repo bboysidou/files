@@ -8,6 +8,7 @@ pub mod has_no_trash;
 pub mod is_archive;
 pub mod is_image;
 pub mod path_from_uri;
+pub mod pending_writeback;
 pub mod prune_cache;
 pub mod removable_device;
 pub mod resolved_path;

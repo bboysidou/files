@@ -7,8 +7,7 @@ use zbus::zvariant::Value;
 use crate::core::constants::app::APP_ID;
 use crate::core::constants::notifications::{
     CLOSE_METHOD, HINT_DESKTOP_ENTRY, HINT_RESIDENT, HINT_STICKY, HINT_TAG, HINT_URGENCY,
-    HINT_VALUE, NOTE_APP_ICON, NOTE_APP_NAME, NOTIFY_BUS_NAME, NOTIFY_BUS_PATH, NOTIFY_INTERFACE,
-    NOTIFY_METHOD,
+    HINT_VALUE, NOTE_APP_NAME, NOTIFY_BUS_NAME, NOTIFY_BUS_PATH, NOTIFY_INTERFACE, NOTIFY_METHOD,
 };
 use crate::features::notifications::domain::entities::desktop_note::DesktopNote;
 use crate::features::notifications::domain::repositories::desktop_notifier::DesktopNotifier;
@@ -59,7 +58,7 @@ impl DesktopNotifier for DbusDesktopNotifier {
                 &(
                     NOTE_APP_NAME,
                     note.replaces,
-                    NOTE_APP_ICON,
+                    note.icon,
                     note.summary.as_str(),
                     note.body.as_str(),
                     actions,

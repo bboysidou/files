@@ -4,8 +4,9 @@ use std::time::Instant;
 use rust_i18n::t;
 
 use crate::core::constants::notifications::{
-    NOTE_JOB_TAG_PREFIX, NOTE_NEVER_EXPIRES, NOTE_PART_SEPARATOR, NOTE_PERCENT_MAX,
-    NOTE_SPEED_WINDOW_MS, NOTE_UPDATE_MIN_MS, NOTE_UPDATE_MIN_STEP,
+    NOTE_APP_ICON, NOTE_DONE_ICON, NOTE_FAILED_ICON, NOTE_JOB_TAG_PREFIX, NOTE_NEVER_EXPIRES,
+    NOTE_PART_SEPARATOR, NOTE_PERCENT_MAX, NOTE_SPEED_WINDOW_MS, NOTE_UPDATE_MIN_MS,
+    NOTE_UPDATE_MIN_STEP,
 };
 use crate::core::constants::operations::JOB_CARD_DELAY_MS;
 use crate::core::dependency_injection::notifications::live_notes;
@@ -13,10 +14,12 @@ use crate::core::enums::notifications::note_urgency::NoteUrgency;
 use crate::core::enums::operations::job_phase::JobPhase;
 use crate::core::helpers::format::duration_text::duration_text;
 use crate::core::helpers::format::file_size::file_size;
+use crate::core::helpers::format::item_count::item_count;
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::job_state::JobState;
 use crate::features::browser::presentation::state::note_outcome::NoteOutcome;
 use crate::features::notifications::domain::entities::desktop_note::DesktopNote;
+use crate::features::operations::domain::entities::file_operation::FileOperation;
 
 const MS_PER_SECOND: u128 = 1000;
 
@@ -74,6 +77,18 @@ fn body(job: &JobState, done: u64, total: u64, speed: u64) -> String {
 }
 
 impl BrowserView {
+    pub(super) fn done_summary(operation: &FileOperation) -> String {
+        let items = item_count(operation.item_count());
+        match operation {
+            FileOperation::Batch(steps) => steps.last().map(Self::done_summary).unwrap_or_default(),
+            FileOperation::Copy(_) => t!("note.done.copied", items = items).to_string(),
+            FileOperation::Move(_) => t!("note.done.moved", items = items).to_string(),
+            FileOperation::Trash(_) => t!("note.done.trashed", items = items).to_string(),
+            FileOperation::Restore(_) => t!("note.done.restored", items = items).to_string(),
+            _ => t!("note.done.other", what = Self::describe(operation)).to_string(),
+        }
+    }
+
     pub(super) fn note_tick(&mut self) {
         let Some(job) = self.jobs.job.as_mut() else {
             return;
@@ -119,21 +134,29 @@ impl BrowserView {
             return;
         }
         let what = verb(&job);
-        let (summary, body, urgency) = match outcome {
-            NoteOutcome::Done(message) => (message, job.counter.item(), NoteUrgency::Normal),
+        let (summary, body, urgency, icon) = match outcome {
+            NoteOutcome::Done(message) => (
+                message,
+                job.counter.item(),
+                NoteUrgency::Normal,
+                NOTE_DONE_ICON,
+            ),
             NoteOutcome::Failed(reason) => (
                 t!("note.job_failed", what = what).to_string(),
                 reason,
                 NoteUrgency::Critical,
+                NOTE_FAILED_ICON,
             ),
             NoteOutcome::Cancelled => (
                 t!("note.job_cancelled", what = what).to_string(),
                 job.counter.item(),
                 NoteUrgency::Low,
+                NOTE_APP_ICON,
             ),
         };
         let mut note = DesktopNote::new(summary, body);
         note.urgency = urgency;
+        note.icon = icon;
         note.tag = Some(tag(job.note.slot));
         live_notes().finish(job.note.slot, Some(note));
         job.note.shown = false;

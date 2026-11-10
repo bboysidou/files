@@ -71,7 +71,7 @@ impl BrowserView {
             .map(|job| t!(format!("note.{}", job.title_key)).to_string())
             .unwrap_or_default();
         let result = match outcome {
-            Ok(()) => NoteOutcome::Done(t!("note.job_finished", what = verb).to_string()),
+            Ok(()) => NoteOutcome::Done(t!("note.done.archive", what = verb).to_string()),
             Err(ArchiveError::Cancelled) => NoteOutcome::Cancelled,
             Err(ArchiveError::Failed(reason)) => NoteOutcome::Failed(reason.clone()),
         };

@@ -72,7 +72,7 @@ impl ShellView {
             .update(cx, |browser, cx| browser.notify_message(message, cx));
     }
 
-    fn failure(device: &Device, error: DeviceError) -> String {
+    pub(super) fn failure(device: &Device, error: DeviceError) -> String {
         t!(
             "device.failed",
             label = device.label,
@@ -100,39 +100,6 @@ impl ShellView {
                     this.refresh_devices(cx);
                 }
                 Err(error) => this.report(Self::failure(&device, error), cx),
-            });
-        }));
-    }
-
-    pub(super) fn eject_device(&mut self, index: usize, cx: &mut Context<Self>) {
-        let Some(device) = self.devices.get(index).cloned() else {
-            return;
-        };
-        if let Some(mount) = device.mount.clone() {
-            if self.refuse_busy(&device.label, &mount, cx) {
-                return;
-            }
-            let inside = matches!(self.browser.read(cx).location(cx), PlaceTarget::Directory(path) if path.starts_with(&mount));
-            if inside {
-                let home = self.home_target.clone();
-                self.browser
-                    .update(cx, |browser, cx| browser.navigate(home, cx));
-            }
-        }
-        let repository = self.device_repository.clone();
-        self.device_task = Some(cx.spawn(async move |this, cx| {
-            let probe = device.clone();
-            let ejected = cx
-                .background_executor()
-                .spawn(async move { repository.eject(&probe) })
-                .await;
-            let _ = this.update(cx, |this, cx| {
-                let message = match ejected {
-                    Ok(()) => t!("device.ejected", label = device.label).to_string(),
-                    Err(error) => Self::failure(&device, error),
-                };
-                this.report(message, cx);
-                this.refresh_devices(cx);
             });
         }));
     }
