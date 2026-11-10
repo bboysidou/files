@@ -41,7 +41,9 @@ impl BrowserView {
             on_select,
             on_close,
             on_move,
-            on_tear: Self::tear_handler(cx),
+            on_tear: Self::park_handler(cx),
+            on_drag_end: Self::drag_end_handler(cx),
+            on_drag_home: Self::drag_home_handler(cx),
             on_new,
         }
     }

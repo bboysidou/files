@@ -29,6 +29,7 @@ pub mod browser_quick_look;
 pub mod browser_server_edit;
 pub mod browser_settings;
 pub mod browser_settings_items;
+pub mod browser_tab_handoff;
 pub mod browser_tab_order;
 pub mod browser_tabs;
 pub mod browser_tear;

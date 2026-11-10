@@ -1,7 +1,7 @@
 use gpui::{
     App, IntoElement, MouseButton, RenderOnce, SharedString, Window, div, prelude::*, px, rgb,
 };
-use gpui::{AppContext, Div, Stateful};
+use gpui::{AppContext, Div, ExternalDragPayload, FileDragPaths, Stateful};
 
 use crate::core::theme::colors::{ACCENT, CARD, FG_BRIGHT, FG_MUTED, FG_SOFT};
 use crate::core::theme::metrics::{
@@ -10,7 +10,7 @@ use crate::core::theme::metrics::{
 use crate::features::browser::presentation::components::tab_close_button::TabCloseButton;
 use crate::global_components::drag::drag_preview::DragPreview;
 use crate::global_components::drag::dragged_tab::DraggedTab;
-use crate::global_components::handlers::{IndexHandler, IndexPairHandler};
+use crate::global_components::handlers::{IndexHandler, IndexPairHandler, IndexPathHandler};
 
 #[derive(IntoElement)]
 pub struct SheetTab {
@@ -20,7 +20,7 @@ pub struct SheetTab {
     pub on_select: IndexHandler,
     pub on_close: IndexHandler,
     pub on_move: IndexPairHandler,
-    pub on_tear: IndexHandler,
+    pub on_tear: IndexPathHandler,
 }
 
 impl RenderOnce for SheetTab {
@@ -73,15 +73,15 @@ impl RenderOnce for SheetTab {
 fn tab_drag(
     tab: Stateful<Div>,
     (index, title): (usize, SharedString),
-    (on_move, on_tear): (IndexPairHandler, IndexHandler),
+    (on_move, on_tear): (IndexPairHandler, IndexPathHandler),
 ) -> Stateful<Div> {
     tab.on_drag(DraggedTab { index }, move |_, _, _, cx| {
         let label = title.clone();
         cx.new(|_| DragPreview { label })
     })
     .external_drag_payload(move |dragged: &DraggedTab, window, cx| {
-        on_tear(dragged.index, window, cx);
-        None
+        on_tear(dragged.index, window, cx)
+            .map(|marker| ExternalDragPayload::Files(FileDragPaths::new([(marker, false)])))
     })
     .drag_over::<DraggedTab>(|style, _, _, _| style.bg(rgb(CARD)))
     .on_drop(move |dragged: &DraggedTab, window, cx| on_move((dragged.index, index), window, cx))

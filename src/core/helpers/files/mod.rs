@@ -15,6 +15,8 @@ pub mod resolved_path;
 pub mod same_device;
 pub mod slow_destination;
 pub mod sync_folder;
+pub mod tab_marker_path;
+pub mod tab_marker_token;
 pub mod tree_size;
 pub mod write_xdg_tags;
 pub mod xdg_tags;

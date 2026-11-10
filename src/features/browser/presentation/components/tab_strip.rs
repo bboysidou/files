@@ -1,10 +1,12 @@
-use gpui::{App, IntoElement, RenderOnce, Window, div, prelude::*, px, rgb};
+use gpui::{App, ExternalPaths, IntoElement, RenderOnce, Window, div, prelude::*, px, rgb};
 
 use crate::core::enums::assets::icon::Icon;
 use crate::core::theme::colors::DIVIDER;
 use crate::core::theme::metrics::{NEW_TAB_OFFSET, TABS_GAP, TABS_PAD_TOP, TABS_PAD_X};
 use crate::features::browser::presentation::components::sheet_tab::SheetTab;
 use crate::features::browser::presentation::state::tab_strip_model::TabStripModel;
+use crate::global_components::drag::drag_end_listener::DragEndListener;
+use crate::global_components::drag::marker_drop::drop_marker;
 use crate::global_components::icon_button::IconButton;
 
 #[derive(IntoElement)]
@@ -15,6 +17,10 @@ pub struct TabStrip {
 impl RenderOnce for TabStrip {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
         let model = self.model;
+        let listener = DragEndListener {
+            on_end: model.on_drag_end.clone(),
+            on_release: model.on_drag_home.clone(),
+        };
         let tabs = model
             .titles
             .into_iter()
@@ -39,6 +45,10 @@ impl RenderOnce for TabStrip {
             .overflow_x_scroll()
             .border_b_1()
             .border_color(rgb(DIVIDER))
+            .on_drop(|paths: &ExternalPaths, window, cx| {
+                drop_marker(paths.paths(), window, cx);
+            })
+            .child(listener)
             .children(tabs)
             .child(
                 div()

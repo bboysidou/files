@@ -1,6 +1,7 @@
 use std::path::Path;
+use std::rc::Rc;
 
-use gpui::{Context, Window};
+use gpui::{App, Context, Window};
 
 use crate::features::integration::domain::entities::launch_request::LaunchRequest;
 use crate::features::places::domain::entities::place::PlaceTarget;
@@ -9,6 +10,7 @@ use crate::features::shell::presentation::shell_windows::open_shell_window;
 use crate::features::shell::presentation::state::open_shells::{OpenShell, OpenShells};
 use crate::features::shell::presentation::state::saved_tab_mapping::restored_tab;
 use crate::features::shell::presentation::state::shell_start::{ShellStart, WindowRole};
+use crate::global_components::drag::marker_drop::MarkerDrop;
 
 impl ShellView {
     pub(super) fn start(
@@ -53,6 +55,9 @@ impl ShellView {
             window: window.window_handle(),
         };
         cx.default_global::<OpenShells>().0.push(shell);
+        if !cx.has_global::<MarkerDrop>() {
+            cx.set_global(MarkerDrop(Rc::new(adopt_dropped_tab)));
+        }
     }
 
     pub(super) fn handle_launch(
@@ -75,4 +80,19 @@ impl ShellView {
             browser.open_tab((PlaceTarget::Directory(folder), focus), window, cx)
         });
     }
+}
+
+fn adopt_dropped_tab(token: u64, window: &mut Window, cx: &mut App) {
+    let handle = window.window_handle();
+    let Some(browser) = cx.try_global::<OpenShells>().and_then(|shells| {
+        shells
+            .0
+            .iter()
+            .find(|shell| shell.window == handle)
+            .and_then(|shell| shell.view.upgrade())
+            .map(|view| view.read(cx).browser.clone())
+    }) else {
+        return;
+    };
+    browser.update(cx, |browser, cx| browser.adopt_tab(token, window, cx));
 }
