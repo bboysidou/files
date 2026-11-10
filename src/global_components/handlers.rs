@@ -4,6 +4,8 @@ use std::path::PathBuf;
 
 use gpui::{App, ClickEvent, Pixels, Point, Window};
 
+pub type PointHandler = Rc<dyn Fn(Point<Pixels>, &mut Window, &mut App)>;
+
 pub type ClickHandler = Rc<dyn Fn(&mut Window, &mut App)>;
 pub type IndexHandler = Rc<dyn Fn(usize, &mut Window, &mut App)>;
 pub type IndexPathHandler = Rc<dyn Fn(usize, &mut Window, &mut App) -> Option<PathBuf>>;

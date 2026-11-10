@@ -36,6 +36,8 @@ impl BrowserView {
             return PreviewImage {
                 path: path.clone(),
                 zoom: state.zoom,
+                pan: (state.pan_x, state.pan_y),
+                gestures: (surface == PreviewSurface::QuickLook).then(|| self.pan_gestures(cx)),
             }
             .into_any_element();
         }

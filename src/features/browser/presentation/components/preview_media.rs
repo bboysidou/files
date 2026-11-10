@@ -63,6 +63,8 @@ impl RenderOnce for PreviewMedia {
                 stage.child(div().flex_1().min_h_0().child(PreviewImage {
                     path: frame,
                     zoom: self.zoom,
+                    pan: (0.0, 0.0),
+                    gestures: None,
                 }))
             })
             .children(rows)

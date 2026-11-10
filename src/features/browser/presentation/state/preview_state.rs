@@ -6,4 +6,6 @@ pub struct PreviewState {
     pub entry: FileEntry,
     pub content: Option<PreviewContent>,
     pub zoom: f32,
+    pub pan_x: f32,
+    pub pan_y: f32,
 }

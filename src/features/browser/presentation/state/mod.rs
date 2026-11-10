@@ -27,6 +27,7 @@ pub mod network_login_state;
 pub mod note_outcome;
 pub mod operation_intent;
 pub mod overview_state;
+pub mod pan_gestures;
 pub mod pane_event;
 pub mod pane_inputs;
 pub mod pane_parts;

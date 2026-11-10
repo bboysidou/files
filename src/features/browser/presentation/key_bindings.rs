@@ -127,6 +127,15 @@ fn quick_look_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("+", ZoomIn, context),
         KeyBinding::new("=", ZoomIn, context),
         KeyBinding::new("-", ZoomOut, context),
+        KeyBinding::new("0", ZoomReset, context),
+        KeyBinding::new("shift-h", PanLeft, context),
+        KeyBinding::new("shift-left", PanLeft, context),
+        KeyBinding::new("shift-l", PanRight, context),
+        KeyBinding::new("shift-right", PanRight, context),
+        KeyBinding::new("shift-k", PanUp, context),
+        KeyBinding::new("shift-up", PanUp, context),
+        KeyBinding::new("shift-j", PanDown, context),
+        KeyBinding::new("shift-down", PanDown, context),
     ]
 }
 

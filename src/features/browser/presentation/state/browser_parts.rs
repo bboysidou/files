@@ -1,6 +1,8 @@
+use std::cell::Cell;
 use std::collections::VecDeque;
+use std::rc::Rc;
 
-use gpui::{FocusHandle, Task, UniformListScrollHandle};
+use gpui::{FocusHandle, Pixels, Point, Size, Task, UniformListScrollHandle};
 
 use crate::features::browser::presentation::state::job_state::JobState;
 use crate::features::browser::presentation::state::operation_intent::OperationIntent;
@@ -31,6 +33,8 @@ pub struct QuickLookSlot {
     pub task: Option<Task<()>>,
     pub generation: usize,
     pub scroll: UniformListScrollHandle,
+    pub pan_from: Option<Point<Pixels>>,
+    pub stage: Rc<Cell<Size<Pixels>>>,
 }
 
 impl QuickLookSlot {
@@ -41,6 +45,8 @@ impl QuickLookSlot {
             task: None,
             generation: 0,
             scroll: UniformListScrollHandle::new(),
+            pan_from: None,
+            stage: Rc::default(),
         }
     }
 }

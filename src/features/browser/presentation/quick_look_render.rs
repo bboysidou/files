@@ -5,14 +5,14 @@ use gpui::{
     Stateful, Window, anchored, deferred, div, point, prelude::*, px, rgba,
 };
 
-use crate::core::constants::preview::ZOOM_STEP;
+use crate::core::constants::preview::{PAN_STEP, ZOOM_STEP};
 use crate::core::theme::colors::SCRIM;
 use crate::core::theme::metrics::{
     QUICK_LOOK_HEIGHT, QUICK_LOOK_MARGIN, QUICK_LOOK_SCROLL_STEP, QUICK_LOOK_WIDTH,
 };
 use crate::features::browser::presentation::actions::{
-    CloseQuickLook, QuickLookNext, QuickLookPrevious, QuickLookScrollDown, QuickLookScrollUp,
-    ZoomIn, ZoomOut,
+    CloseQuickLook, PanDown, PanLeft, PanRight, PanUp, QuickLookNext, QuickLookPrevious,
+    QuickLookScrollDown, QuickLookScrollUp, ZoomIn, ZoomOut, ZoomReset,
 };
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::components::entry_icon::EntryIcon;
@@ -128,6 +128,19 @@ impl BrowserView {
             .on_action(cx.listener(|this, _: &ZoomIn, _, cx| this.zoom_quick_look(ZOOM_STEP, cx)))
             .on_action(
                 cx.listener(|this, _: &ZoomOut, _, cx| this.zoom_quick_look(1.0 / ZOOM_STEP, cx)),
+            )
+            .on_action(cx.listener(|this, _: &ZoomReset, _, cx| this.reset_quick_look_zoom(cx)))
+            .on_action(
+                cx.listener(|this, _: &PanLeft, _, cx| this.pan_quick_look((-PAN_STEP, 0.0), cx)),
+            )
+            .on_action(
+                cx.listener(|this, _: &PanRight, _, cx| this.pan_quick_look((PAN_STEP, 0.0), cx)),
+            )
+            .on_action(
+                cx.listener(|this, _: &PanUp, _, cx| this.pan_quick_look((0.0, -PAN_STEP), cx)),
+            )
+            .on_action(
+                cx.listener(|this, _: &PanDown, _, cx| this.pan_quick_look((0.0, PAN_STEP), cx)),
             )
     }
 }

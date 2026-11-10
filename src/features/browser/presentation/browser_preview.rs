@@ -29,6 +29,8 @@ impl BrowserView {
             entry: entry.clone(),
             content: None,
             zoom: ZOOM_DEFAULT,
+            pan_x: 0.0,
+            pan_y: 0.0,
         };
         let generation = match surface {
             PreviewSurface::QuickLook => {
