@@ -48,6 +48,7 @@ impl BrowserView {
             title_key: Self::title_key(&operation),
             started: Instant::now(),
             note: JobNote::default(),
+            paths: Self::resolve_job_paths(operation.touched_paths()),
         });
         let files = self.setup.operations.clone();
         self.jobs.operation_task = Some(cx.spawn(async move |this, cx| {

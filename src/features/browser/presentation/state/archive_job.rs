@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use gpui::{Context, Window};
 
 use crate::features::archives::domain::entities::archive_error::ArchiveError;
@@ -9,6 +11,7 @@ pub type ArchiveDone = Box<dyn FnOnce(&mut BrowserView, &mut Window, &mut Contex
 
 pub struct ArchiveJob {
     pub title_key: &'static str,
+    pub paths: Vec<PathBuf>,
     pub work: ArchiveWork,
     pub done: ArchiveDone,
 }

@@ -29,6 +29,7 @@ impl BrowserView {
         );
         let job = ArchiveJob {
             title_key: "job.extracting",
+            paths: vec![archive.clone(), destination.clone()],
             work: Box::new(move |counter| tool.extract(&archive, &destination, counter)),
             done: Box::new(move |this, _, cx| {
                 let message = Self::describe(&FileOperation::Extract(done.clone()));

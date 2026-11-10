@@ -24,6 +24,7 @@ impl BrowserView {
         }
         let ArchiveJob {
             title_key,
+            paths,
             work,
             done,
         } = job;
@@ -33,6 +34,7 @@ impl BrowserView {
             title_key,
             started: Instant::now(),
             note: JobNote::default(),
+            paths: Self::resolve_job_paths(paths),
         });
         self.jobs.archive_task = Some(cx.spawn_in(window, async move |this, cx| {
             let outcome = cx

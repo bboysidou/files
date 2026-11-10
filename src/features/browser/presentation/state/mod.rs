@@ -17,6 +17,7 @@ pub mod folder_sizes;
 pub mod handlers;
 pub mod job_card_model;
 pub mod job_note;
+pub mod job_on_target;
 pub mod job_state;
 pub mod keymap_rows;
 pub mod kinetic_state;

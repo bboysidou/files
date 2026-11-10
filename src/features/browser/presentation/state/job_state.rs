@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -9,4 +10,5 @@ pub struct JobState {
     pub title_key: &'static str,
     pub started: Instant,
     pub note: JobNote,
+    pub paths: Vec<PathBuf>,
 }

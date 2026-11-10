@@ -76,6 +76,26 @@ impl FileOperation {
         }
     }
 
+    pub fn touched_paths(&self) -> Vec<PathBuf> {
+        match self {
+            FileOperation::Copy(transfers)
+            | FileOperation::Move(transfers)
+            | FileOperation::Link(transfers) => transfers
+                .iter()
+                .flat_map(|transfer| [transfer.from.clone(), transfer.to.clone()])
+                .collect(),
+            FileOperation::Rename(transfer) => vec![transfer.from.clone(), transfer.to.clone()],
+            FileOperation::Trash(paths) | FileOperation::Restore(paths) => paths.clone(),
+            FileOperation::CreateFolder(path)
+            | FileOperation::RemoveFolder(path)
+            | FileOperation::Extract(path)
+            | FileOperation::Compress(path)
+            | FileOperation::CreateFile(path) => vec![path.clone()],
+            FileOperation::SetMode(change) => vec![change.path.clone()],
+            FileOperation::Batch(steps) => steps.iter().flat_map(Self::touched_paths).collect(),
+        }
+    }
+
     pub fn item_count(&self) -> usize {
         match self {
             FileOperation::Copy(transfers)

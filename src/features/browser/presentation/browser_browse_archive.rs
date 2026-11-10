@@ -38,6 +38,7 @@ impl BrowserView {
         let destination = folder.clone();
         let job = ArchiveJob {
             title_key: "job.extracting",
+            paths: vec![archive.clone(), destination.clone()],
             work: Box::new(move |counter| {
                 fs::create_dir_all(&root)
                     .map_err(|error| ArchiveError::Failed(error.to_string()))?;

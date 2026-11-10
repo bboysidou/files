@@ -10,6 +10,7 @@ pub mod is_image;
 pub mod path_from_uri;
 pub mod prune_cache;
 pub mod removable_device;
+pub mod resolved_path;
 pub mod same_device;
 pub mod slow_destination;
 pub mod sync_folder;

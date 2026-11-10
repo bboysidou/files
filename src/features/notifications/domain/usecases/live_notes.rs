@@ -35,6 +35,10 @@ impl LiveNotes {
         self.send(NoteCommand::Finish(slot, note));
     }
 
+    pub fn post(&self, note: DesktopNote) {
+        self.finish(Self::next_slot(), Some(note));
+    }
+
     fn send(&self, command: NoteCommand) {
         if let Ok(sender) = self.sender.lock() {
             let _ = sender.send(command);

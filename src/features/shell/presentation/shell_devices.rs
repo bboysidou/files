@@ -109,6 +109,9 @@ impl ShellView {
             return;
         };
         if let Some(mount) = device.mount.clone() {
+            if self.refuse_busy(&device.label, &mount, cx) {
+                return;
+            }
             let inside = matches!(self.browser.read(cx).location(cx), PlaceTarget::Directory(path) if path.starts_with(&mount));
             if inside {
                 let home = self.home_target.clone();

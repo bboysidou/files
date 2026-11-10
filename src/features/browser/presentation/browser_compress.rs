@@ -42,6 +42,7 @@ impl BrowserView {
         let (tool, done) = (self.setup.archives.clone(), target.clone());
         let job = ArchiveJob {
             title_key: "job.compressing",
+            paths: sources.iter().cloned().chain([target.clone()]).collect(),
             work: Box::new(move |counter| tool.compress(&sources, &target, counter)),
             done: Box::new(move |this, _, cx| {
                 let message = Self::describe(&FileOperation::Compress(done.clone()));
