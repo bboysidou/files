@@ -4,8 +4,10 @@ use gpui::{Subscription, Task};
 
 use crate::features::network::domain::entities::network_mount::NetworkMount;
 use crate::features::network::domain::entities::saved_server::SavedServer;
+use crate::features::network::domain::entities::ssh_host::SshHost;
 use crate::features::network::domain::repositories::mount_watcher::MountWatcher;
 use crate::features::network::domain::repositories::network_mounter::NetworkMounter;
+use crate::features::network::domain::repositories::ssh_host_source::SshHostSource;
 use crate::features::places::domain::entities::place::PlaceTarget;
 
 pub struct NetworkRail {
@@ -18,10 +20,16 @@ pub struct NetworkRail {
     pub events: Option<Subscription>,
     pub watcher: Arc<dyn MountWatcher>,
     pub watch: Option<Task<()>>,
+    pub ssh_hosts: Vec<SshHost>,
+    pub ssh: Arc<dyn SshHostSource>,
 }
 
 impl NetworkRail {
-    pub fn new(mounter: Arc<dyn NetworkMounter>, watcher: Arc<dyn MountWatcher>) -> Self {
+    pub fn new(
+        mounter: Arc<dyn NetworkMounter>,
+        watcher: Arc<dyn MountWatcher>,
+        ssh: Arc<dyn SshHostSource>,
+    ) -> Self {
         Self {
             mounts: Vec::new(),
             mounter,
@@ -32,6 +40,8 @@ impl NetworkRail {
             events: None,
             watcher,
             watch: None,
+            ssh_hosts: Vec::new(),
+            ssh,
         }
     }
 }

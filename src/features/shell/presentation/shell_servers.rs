@@ -63,6 +63,7 @@ impl ShellView {
                     !saved_keys
                         .iter()
                         .any(|key| server_key(key) == server_key(&mount.label))
+                        && !self.is_ssh_mount(mount)
                 })
                 .map(|mount| NetworkEntry {
                     label: mount.label.clone(),
@@ -83,6 +84,9 @@ impl ShellView {
         let Some(label) = server_label(&server.uri) else {
             return;
         };
+        if self.is_ssh_uri(&server.uri) {
+            return self.refresh_network(cx);
+        }
         let saved = &mut self.network.saved;
         let slot = replaces.and_then(|old| saved.iter().position(|entry| entry.uri == old));
         match slot {

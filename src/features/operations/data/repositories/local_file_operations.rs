@@ -18,6 +18,7 @@ use crate::core::helpers::files::has_file_over::has_file_over;
 use crate::core::helpers::files::has_no_trash::has_no_trash;
 use crate::core::helpers::files::same_device::same_device;
 use crate::features::operations::data::repositories::copy_run::CopyRun;
+use crate::features::operations::data::repositories::scp_route::scp_route;
 use crate::features::operations::domain::entities::operation_error::OperationError;
 use crate::features::operations::domain::repositories::file_operations::FileOperations;
 use crate::features::operations::domain::repositories::progress_sink::ProgressSink;
@@ -79,8 +80,11 @@ impl LocalFileOperations {
     }
 
     fn copy_flushed(from: &Path, to: &Path, sink: &dyn ProgressSink) -> io::Result<()> {
-        let mut run = CopyRun::for_destination(to, sink);
         sink.set_phase(JobPhase::Working);
+        if let Some(result) = scp_route(from, to, sink) {
+            return result;
+        }
+        let mut run = CopyRun::for_destination(to, sink);
         let copied = Self::copy_tree(from, to, &mut run);
         sink.set_phase(JobPhase::Flushing);
         let flushed = run.writeback.flush(sink);

@@ -4,4 +4,6 @@ pub mod job_counter;
 pub mod operation_error;
 pub mod operation_history;
 pub mod run_plan;
+pub mod scp_job;
+pub mod scp_progress;
 pub mod transfer_request;

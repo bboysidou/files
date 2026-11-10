@@ -16,5 +16,6 @@ pub mod preview;
 pub mod sandbox;
 pub mod search;
 pub mod settings;
+pub mod ssh;
 pub mod thumbnails;
 pub mod time;

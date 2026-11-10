@@ -13,6 +13,7 @@ use crate::features::browser::presentation::state::job_card_model::JobCardModel;
 use crate::features::places::domain::entities::place::{Place, PlaceSection, PlaceTarget};
 use crate::features::shell::presentation::components::rail_brand::RailBrand;
 use crate::features::shell::presentation::components::rail_device_item::RailDeviceItem;
+use crate::features::shell::presentation::components::rail_group::{PHONES, RailGroup, SSH};
 use crate::features::shell::presentation::components::rail_job_card::RailJobCard;
 use crate::features::shell::presentation::components::rail_nav_item::RailNavItem;
 use crate::features::shell::presentation::components::rail_search::RailSearch;
@@ -29,8 +30,6 @@ const TAGS_SECTION_KEY: &str = "rail.section.tags";
 const DEVICE_ID: &str = "device";
 const NETWORK_ID: &str = "network";
 const NETWORK_SECTION_KEY: &str = "rail.section.network";
-const PHONE_ID: &str = "phone";
-const PHONES_SECTION_KEY: &str = "rail.section.phones";
 pub const RAIL_CONTEXT: &str = "Rail";
 
 #[derive(IntoElement)]
@@ -48,6 +47,9 @@ pub struct Rail {
     pub phones: Vec<DeviceItem>,
     pub on_phone: IndexHandler,
     pub on_phone_eject: IndexHandler,
+    pub ssh: Vec<DeviceItem>,
+    pub on_ssh: IndexHandler,
+    pub on_ssh_eject: IndexHandler,
     pub network: Vec<DeviceItem>,
     pub on_network: IndexHandler,
     pub on_unmount: IndexHandler,
@@ -115,30 +117,35 @@ impl Rail {
             .collect()
     }
 
-    fn phones_section(&self) -> Vec<AnyElement> {
-        if self.phones.is_empty() {
+    fn group(
+        &self,
+        group: RailGroup,
+        items: &[DeviceItem],
+        (on_select, on_eject): (&IndexHandler, &IndexHandler),
+    ) -> Vec<AnyElement> {
+        if items.is_empty() {
             return Vec::new();
         }
-        let label = RailSectionLabel::new(PHONES_SECTION_KEY, self.motion).into_any_element();
-        let items = self.phones.iter().enumerate().map(|(index, phone)| {
-            let on_eject = self.on_phone_eject.clone();
+        let label = RailSectionLabel::new(group.label_key, self.motion).into_any_element();
+        let rows = items.iter().enumerate().map(|(index, item)| {
+            let on_eject = on_eject.clone();
             RailDeviceItem {
                 index,
-                id: PHONE_ID,
-                icon: Icon::Phone,
-                label: phone.label.clone(),
-                trailing: phone.mounted.then_some(Icon::Eject),
+                id: group.id,
+                icon: group.icon,
+                label: item.label.clone(),
+                trailing: item.mounted.then_some(Icon::Eject),
                 protocol: None,
-                active: phone.active,
-                cursor: self.cursor == Some(RailStop::Phone(index)),
+                active: item.active,
+                cursor: self.cursor == Some((group.stop)(index)),
                 motion: self.motion,
-                on_select: self.on_phone.clone(),
+                on_select: on_select.clone(),
                 on_eject: Rc::new(move |window, cx| on_eject(index, window, cx)),
                 on_edit: None,
             }
             .into_any_element()
         });
-        iter::once(label).chain(items).collect()
+        iter::once(label).chain(rows).collect()
     }
 
     fn network_section(&self) -> Vec<AnyElement> {
@@ -204,17 +211,24 @@ impl Rail {
     }
 }
 
+impl Rail {
+    fn sections(&self) -> Vec<AnyElement> {
+        PlaceSection::ALL
+            .iter()
+            .flat_map(|section| self.section(*section))
+            .chain(self.group(PHONES, &self.phones, (&self.on_phone, &self.on_phone_eject)))
+            .chain(self.group(SSH, &self.ssh, (&self.on_ssh, &self.on_ssh_eject)))
+            .chain(self.network_section())
+            .chain(self.tags_section())
+            .collect()
+    }
+}
+
 impl RenderOnce for Rail {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
         let motion = self.motion;
         let job = self.job_section();
-        let sections: Vec<AnyElement> = PlaceSection::ALL
-            .iter()
-            .flat_map(|section| self.section(*section))
-            .chain(self.phones_section())
-            .chain(self.network_section())
-            .chain(self.tags_section())
-            .collect();
+        let sections = self.sections();
         let content = div()
             .id("rail-content")
             .flex()

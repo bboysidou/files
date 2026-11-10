@@ -3,6 +3,7 @@ pub enum RailStop {
     Place(usize),
     Device(usize),
     Phone(usize),
+    Ssh(usize),
     Network(usize),
     Tag(usize),
 }

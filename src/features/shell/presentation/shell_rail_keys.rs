@@ -41,6 +41,7 @@ impl ShellView {
             if section == PlaceSection::Devices {
                 order.extend((0..self.devices.len()).map(RailStop::Device));
                 order.extend((0..self.phones.phones.len()).map(RailStop::Phone));
+                order.extend((0..self.network.ssh_hosts.len()).map(RailStop::Ssh));
                 order.extend((0..self.network_entries().len()).map(RailStop::Network));
             }
         }
@@ -70,6 +71,13 @@ impl ShellView {
             .position(|item| item.active)
         {
             return RailStop::Phone(index);
+        }
+        if let Some(index) = self
+            .ssh_items(&location)
+            .iter()
+            .position(|item| item.active)
+        {
+            return RailStop::Ssh(index);
         }
         if let Some(index) = self
             .network_items(&location)
@@ -112,6 +120,7 @@ impl ShellView {
             RailStop::Place(index) => self.select_place(index, cx),
             RailStop::Device(index) => self.open_device(index, cx),
             RailStop::Phone(index) => self.open_phone(index, cx),
+            RailStop::Ssh(index) => self.open_ssh(index, cx),
             RailStop::Network(index) => self.open_network(index, cx),
             RailStop::Tag(index) => {
                 let Some(tag) = TagColor::ALL.get(index).copied() else {
@@ -129,6 +138,7 @@ impl ShellView {
         match self.rail_keys.cursor {
             RailStop::Device(index) => self.eject_device(index, cx),
             RailStop::Phone(index) => self.eject_phone(index, cx),
+            RailStop::Ssh(index) => self.eject_ssh(index, cx),
             RailStop::Network(index) => self.network_trailing(index, cx),
             RailStop::Place(_) | RailStop::Tag(_) => {}
         }

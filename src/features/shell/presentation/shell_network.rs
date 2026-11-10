@@ -33,15 +33,16 @@ impl ShellView {
     }
 
     pub(super) fn refresh_network(&mut self, cx: &mut Context<Self>) {
-        let mounter = self.network.mounter.clone();
+        let (mounter, ssh) = (self.network.mounter.clone(), self.network.ssh.clone());
         self.network.task = Some(cx.spawn(async move |this, cx| {
-            let mounts = cx
+            let (mounts, hosts) = cx
                 .background_executor()
-                .spawn(async move { mounter.mounts() })
+                .spawn(async move { (mounter.mounts(), ssh.hosts()) })
                 .await;
             let _ = this.update(cx, |this, cx| {
-                if this.network.mounts != mounts {
+                if this.network.mounts != mounts || this.network.ssh_hosts != hosts {
                     this.network.mounts = mounts;
+                    this.network.ssh_hosts = hosts;
                     cx.notify();
                 }
             });
@@ -89,7 +90,12 @@ impl ShellView {
         }
     }
 
-    fn unmount_network(&mut self, label: String, mount: PathBuf, cx: &mut Context<Self>) {
+    pub(super) fn unmount_network(
+        &mut self,
+        label: String,
+        mount: PathBuf,
+        cx: &mut Context<Self>,
+    ) {
         if self.refuse_busy(&label, &mount, cx) {
             return;
         }

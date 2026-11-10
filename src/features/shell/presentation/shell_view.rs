@@ -13,7 +13,7 @@ use crate::core::dependency_injection::browser::directory_watcher;
 use crate::core::dependency_injection::browser_setup::browser_setup;
 use crate::core::dependency_injection::devices::device_repository;
 use crate::core::dependency_injection::network::mount_watcher;
-use crate::core::dependency_injection::network::network_mounter;
+use crate::core::dependency_injection::network::{network_mounter, ssh_host_source};
 use crate::core::dependency_injection::phones::{phone_repository, volume_watcher};
 use crate::core::dependency_injection::settings::settings_repository;
 use crate::core::enums::places::place_kind::PlaceKind;
@@ -30,7 +30,6 @@ use crate::features::places::domain::repositories::places_repository::PlacesRepo
 use crate::features::settings::domain::entities::settings::Settings;
 use crate::features::settings::domain::repositories::settings_repository::SettingsRepository;
 use crate::features::shell::presentation::actions::ToggleRail;
-use crate::features::shell::presentation::components::rail::Rail;
 use crate::features::shell::presentation::state::network_rail::NetworkRail;
 use crate::features::shell::presentation::state::open_shells::{OpenShell, OpenShells};
 use crate::features::shell::presentation::state::phone_rail::PhoneRail;
@@ -106,7 +105,7 @@ impl ShellView {
             device_task: None,
             device_list_task: None,
             device_watch: None,
-            network: NetworkRail::new(network_mounter(), mount_watcher()),
+            network: NetworkRail::new(network_mounter(), mount_watcher(), ssh_host_source()),
             phones: PhoneRail::new(phone_repository(), volume_watcher()),
             role: start.role,
             _browser_changes: browser_changes,
@@ -143,7 +142,7 @@ impl ShellView {
             .update(cx, |browser, cx| browser.navigate(target, cx));
     }
 
-    fn place_drop_handler(&self) -> IndexPathsHandler {
+    pub(super) fn place_drop_handler(&self) -> IndexPathsHandler {
         let targets: Vec<PlaceTarget> = self
             .places
             .iter()
@@ -163,7 +162,7 @@ impl ShellView {
         })
     }
 
-    fn handlers(cx: &mut Context<Self>) -> (ClickHandler, IndexHandler) {
+    pub(super) fn handlers(cx: &mut Context<Self>) -> (ClickHandler, IndexHandler) {
         let view = cx.entity().downgrade();
         let toggle_view = view.clone();
         let on_toggle: ClickHandler = Rc::new(move |_, cx| {
@@ -177,7 +176,7 @@ impl ShellView {
 }
 
 impl ShellView {
-    fn browser_handlers(&self) -> (ClickHandler, ClickHandler, IndexHandler) {
+    pub(super) fn browser_handlers(&self) -> (ClickHandler, ClickHandler, IndexHandler) {
         let job_browser = self.browser.downgrade();
         let on_cancel_job: ClickHandler = Rc::new(move |_, cx| {
             let _ = job_browser.update(cx, |browser, _| browser.cancel_job());
@@ -199,21 +198,7 @@ impl ShellView {
 
 impl Render for ShellView {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let (on_toggle, on_select) = Self::handlers(cx);
-        let (on_device, on_eject) = Self::device_handlers(cx);
-        let (on_network, on_unmount) = Self::network_handlers(cx);
-        let (on_phone, on_phone_eject) = Self::phone_handlers(cx);
-        let (on_cancel_job, on_search, on_tag) = self.browser_handlers();
-        let location = self.browser.read(cx).location(cx);
-        let active = self
-            .places
-            .iter()
-            .position(|place| place.target == location);
-        let rail_cursor = self
-            .rail_keys
-            .focus
-            .is_focused(window)
-            .then_some(self.rail_keys.cursor);
+        let rail = self.rail_view(window, cx);
         Self::with_window_actions(Self::with_rail_actions(div(), cx), cx)
             .on_action(cx.listener(|this, _: &ToggleRail, _, cx| this.toggle_rail(cx)))
             .size_full()
@@ -224,30 +209,7 @@ impl Render for ShellView {
             .font_family(FONT_FAMILY)
             .text_size(px(TEXT_BASE))
             .text_color(rgb(FG))
-            .child(Rail {
-                places: self.places.clone(),
-                active,
-                motion: self.rail,
-                on_toggle,
-                on_select,
-                on_drop_place: self.place_drop_handler(),
-                on_search,
-                devices: self.device_items(&location),
-                on_device,
-                on_eject,
-                phones: self.phone_items(&location),
-                on_phone,
-                on_phone_eject,
-                network: self.network_items(&location),
-                on_network,
-                on_unmount,
-                on_edit_network: Self::network_edit_handler(cx),
-                job: self.browser.read(cx).job_card(),
-                on_cancel_job,
-                on_tag,
-                focus: self.rail_keys.focus.clone(),
-                cursor: rail_cursor,
-            })
+            .child(rail)
             .child(self.browser.clone())
     }
 }
