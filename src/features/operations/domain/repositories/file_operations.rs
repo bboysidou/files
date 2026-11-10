@@ -1,10 +1,12 @@
 use std::path::{Path, PathBuf};
 
+use crate::core::enums::files::filesystem_kind::FilesystemKind;
 use crate::features::operations::domain::entities::operation_error::OperationError;
 use crate::features::operations::domain::repositories::progress_sink::ProgressSink;
 
 pub trait FileOperations: Send + Sync {
     fn exists(&self, path: &Path) -> bool;
+    fn is_same_file(&self, first: &Path, second: &Path) -> bool;
     fn is_dir(&self, path: &Path) -> bool;
     fn children(&self, path: &Path) -> Vec<PathBuf>;
     fn copy(&self, from: &Path, to: &Path, sink: &dyn ProgressSink) -> Result<(), OperationError>;
@@ -15,6 +17,8 @@ pub trait FileOperations: Send + Sync {
         sink: &dyn ProgressSink,
     ) -> Result<(), OperationError>;
     fn size_of(&self, path: &Path) -> u64;
+    fn filesystem_kind(&self, path: &Path) -> FilesystemKind;
+    fn has_file_over(&self, path: &Path, limit: u64) -> bool;
     fn transfer_bytes(&self, from: &Path, to: &Path) -> u64;
     fn trash(&self, paths: &[PathBuf]) -> Result<(), OperationError>;
     fn delete(&self, paths: &[PathBuf]) -> Result<(), OperationError>;

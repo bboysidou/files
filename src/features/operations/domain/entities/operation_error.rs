@@ -7,6 +7,7 @@ pub enum OperationError {
     Failed,
     Cancelled,
     NotEmpty,
+    TooLargeForFat,
 }
 
 impl OperationError {
@@ -19,6 +20,7 @@ impl OperationError {
             OperationError::Failed => "op.error.failed",
             OperationError::Cancelled => "op.error.cancelled",
             OperationError::NotEmpty => "op.error.not_empty",
+            OperationError::TooLargeForFat => "op.error.too_large_for_fat",
         }
     }
 }

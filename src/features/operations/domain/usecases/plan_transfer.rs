@@ -2,8 +2,11 @@ use std::path::{Path, PathBuf};
 
 use super::plan_merge::{MergePlan, plan_merge};
 use super::unique_target::unique_target;
+use crate::core::constants::files::FAT_MAX_FILE_BYTES;
+use crate::core::enums::files::filesystem_kind::FilesystemKind;
 use crate::core::enums::operations::clipboard_mode::ClipboardMode;
 use crate::core::enums::operations::collision_policy::CollisionPolicy;
+use crate::core::helpers::files::fat_safe_name::fat_safe_name;
 use crate::features::operations::domain::entities::file_operation::{FileOperation, Transfer};
 use crate::features::operations::domain::entities::operation_error::OperationError;
 use crate::features::operations::domain::entities::transfer_request::TransferRequest;
@@ -22,12 +25,44 @@ pub fn count_collisions(request: &TransferRequest, exists: &dyn Fn(&Path) -> boo
         .count()
 }
 
+fn fits_on(
+    kind: FilesystemKind,
+    request: &TransferRequest,
+    files: &dyn FileOperations,
+) -> Result<(), OperationError> {
+    let too_large = kind == FilesystemKind::Fat
+        && request
+            .sources
+            .iter()
+            .any(|source| files.has_file_over(source, FAT_MAX_FILE_BYTES));
+    if too_large {
+        Err(OperationError::TooLargeForFat)
+    } else {
+        Ok(())
+    }
+}
+
+fn target_name(source: &Path, kind: FilesystemKind) -> Result<String, OperationError> {
+    let name = source
+        .file_name()
+        .ok_or(OperationError::Failed)?
+        .to_string_lossy()
+        .into_owned();
+    Ok(if kind.restricts_names() {
+        fat_safe_name(&name)
+    } else {
+        name
+    })
+}
+
 pub fn plan_transfer(
     request: &TransferRequest,
     files: &dyn FileOperations,
 ) -> Result<FileOperation, OperationError> {
     let exists = |path: &Path| files.exists(path);
     let destination = request.destination.as_path();
+    let kind = files.filesystem_kind(destination);
+    fits_on(kind, request, files)?;
     let mut planned: Vec<PathBuf> = Vec::new();
     let mut replaced: Vec<PathBuf> = Vec::new();
     let mut merge = MergePlan {
@@ -42,11 +77,7 @@ pub fn plan_transfer(
         if request.mode == ClipboardMode::Cut && source.parent() == Some(destination) {
             continue;
         }
-        let name = source
-            .file_name()
-            .ok_or(OperationError::Failed)?
-            .to_string_lossy()
-            .into_owned();
+        let name = target_name(source, kind)?;
         let direct = destination.join(&name);
         let target = match (request.policy, exists(&direct)) {
             (CollisionPolicy::Skip, true) => continue,

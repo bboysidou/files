@@ -139,7 +139,8 @@ impl BrowserView {
     }
 
     pub(super) fn rename(&mut self, transfer: Transfer, cx: &mut Context<Self>) {
-        if self.setup.operations.exists(&transfer.to) {
+        let files = &self.setup.operations;
+        if files.exists(&transfer.to) && !files.is_same_file(&transfer.from, &transfer.to) {
             return self.show_error(OperationError::AlreadyExists, cx);
         }
         self.execute(FileOperation::Rename(transfer), OperationIntent::Fresh, cx);
