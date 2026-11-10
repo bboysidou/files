@@ -36,6 +36,13 @@ Early development. Working today:
   search, or a click on a sidebar dot, lists every tagged file under Home
 - Folders refresh by themselves when files change on disk
 - USB drives in the sidebar: click to mount and open, eject button to unmount and power off (udisks2)
+- Right-click a USB volume in the sidebar to format it as FAT32, exFAT, NTFS or ext4
+  (only installed formatting tools are offered). The dialog identifies the selected volume
+  and asks for confirmation before permanently erasing it; other partitions are kept.
+  An optional volume name is checked against the selected filesystem's naming rules.
+  Formatting reuses the copy progress card and bar: UDisks2 job progress when available,
+  otherwise an animated activity indicator.
+  Uses UDisks2 over the system D-Bus with the desktop's authorization agent
 - Trash view: Enter restores, Delete deletes permanently after a confirmation, Empty Trash in the menu
 - Settings panel (sliders button, `,` or `Ctrl+,`): hidden files and whether they sort last, sort
   key (name, size, kind, modified, extension, created or random) and direction, view, preview column, and whether to reopen the last session or start in Home
@@ -102,6 +109,11 @@ cargo run --release
 ```
 
 Needs a recent stable Rust toolchain and the Wayland or X11 development libraries GPUI uses.
+
+USB volume formatting requires UDisks2 and the corresponding filesystem tool:
+`dosfstools` (FAT32), `exfatprogs` (exFAT), `ntfs-3g` (NTFS), or `e2fsprogs` (ext4).
+Only writable, non-system USB volumes with an existing filesystem are supported.
+Formatting is quick formatting, not secure erasure, and cannot be undone.
 
 ## Command line
 

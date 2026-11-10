@@ -13,6 +13,11 @@ use crate::features::devices::domain::entities::device::Device;
 use crate::features::devices::domain::entities::device_error::DeviceError;
 use crate::features::devices::domain::repositories::device_repository::DeviceRepository;
 
+use crate::features::devices::data::repositories::udisks_format;
+use crate::features::devices::domain::entities::format_request::{
+    FormatError, FormatOptions, FormatRequest, FormatTarget,
+};
+
 pub struct UdisksDeviceRepository;
 
 impl UdisksDeviceRepository {
@@ -63,6 +68,18 @@ impl UdisksDeviceRepository {
 }
 
 impl DeviceRepository for UdisksDeviceRepository {
+    fn format_options(&self, device: &Device) -> Result<FormatOptions, FormatError> {
+        udisks_format::options(&device.block)
+    }
+
+    fn format(&self, request: &FormatRequest) -> Result<(), FormatError> {
+        udisks_format::format(request)
+    }
+
+    fn format_progress(&self, target: &FormatTarget) -> Option<f32> {
+        super::udisks_format_progress::progress(&target.object_path)
+    }
+
     fn list(&self) -> Vec<Device> {
         let Ok(output) = Command::new(LSBLK_COMMAND).args(LSBLK_ARGS).output() else {
             return Vec::new();

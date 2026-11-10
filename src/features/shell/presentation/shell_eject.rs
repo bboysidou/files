@@ -93,6 +93,10 @@ async fn flush_with_progress(
 
 impl ShellView {
     pub(super) fn eject_device(&mut self, index: usize, cx: &mut Context<Self>) {
+        if super::state::usb_format::FormatLease::busy() {
+            self.report(t!("device.format.locked").to_string(), cx);
+            return;
+        }
         let Some(device) = self.devices.get(index).cloned() else {
             return;
         };

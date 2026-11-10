@@ -1,6 +1,6 @@
 use gpui::{
-    App, Div, FontWeight, Hsla, IntoElement, RenderOnce, SharedString, Window, div, hsla,
-    prelude::*, px, rgb,
+    App, Div, FontWeight, Hsla, IntoElement, MouseButton, RenderOnce, SharedString, Window, div,
+    hsla, prelude::*, px, rgb,
 };
 
 use crate::core::enums::assets::icon::Icon;
@@ -37,6 +37,7 @@ pub struct RailDeviceItem {
     pub on_select: IndexHandler,
     pub on_eject: ClickHandler,
     pub on_edit: Option<ClickHandler>,
+    pub on_context: Option<crate::global_components::handlers::PointHandler>,
 }
 
 impl RailDeviceItem {
@@ -85,6 +86,12 @@ impl RenderOnce for RailDeviceItem {
             .cursor_pointer()
             .text_color(rgb(color))
             .on_click(move |_, window, cx| on_select(index, window, cx));
+        let item = item.when_some(self.on_context, |item, handler| {
+            item.on_mouse_down(MouseButton::Right, move |event, window, cx| {
+                cx.stop_propagation();
+                handler(event.position, window, cx);
+            })
+        });
         let item = if self.active {
             item.bg(rgb(ACCENT)).font_weight(FontWeight::SEMIBOLD)
         } else {

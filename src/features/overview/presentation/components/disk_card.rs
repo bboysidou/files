@@ -40,7 +40,9 @@ impl RenderOnce for DiskCard {
                     .text_ellipsis()
                     .child(self.disk.mount.to_string_lossy().into_owned()),
             )
-            .child(div().flex().child(ProgressBar { fraction }))
+            .child(div().flex().child(ProgressBar {
+                fraction: Some(fraction),
+            }))
             .child(
                 div()
                     .text_size(px(TEXT_STATUS))

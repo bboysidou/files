@@ -9,3 +9,4 @@ pub mod rail_motion;
 pub mod rail_stop;
 pub mod saved_tab_mapping;
 pub mod shell_start;
+pub mod usb_format;

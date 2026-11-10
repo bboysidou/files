@@ -48,6 +48,7 @@ pub struct Rail {
     pub on_connect: ClickHandler,
     pub devices: Vec<DeviceItem>,
     pub on_device: IndexHandler,
+    pub on_device_context: crate::global_components::handlers::IndexPointHandler,
     pub on_eject: IndexHandler,
     pub phones: Vec<DeviceItem>,
     pub on_phone: IndexHandler,
@@ -116,6 +117,10 @@ impl Rail {
                     on_select: self.on_device.clone(),
                     on_eject: Rc::new(move |window, cx| on_eject(index, window, cx)),
                     on_edit: None,
+                    on_context: Some({
+                        let handler = self.on_device_context.clone();
+                        Rc::new(move |position, window, cx| handler(index, position, window, cx))
+                    }),
                 }
                 .into_any_element()
             })
@@ -147,6 +152,7 @@ impl Rail {
                 on_select: on_select.clone(),
                 on_eject: Rc::new(move |window, cx| on_eject(index, window, cx)),
                 on_edit: None,
+                on_context: None,
             }
             .into_any_element()
         });
@@ -172,6 +178,7 @@ impl Rail {
                 motion: self.motion,
                 on_select: self.on_network.clone(),
                 on_eject: Rc::new(move |window, cx| on_unmount(index, window, cx)),
+                on_context: None,
                 on_edit: (mount.saved && !mount.mounted).then(|| {
                     let on_edit = self.on_edit_network.clone();
                     let edit: ClickHandler = Rc::new(move |window, cx| on_edit(index, window, cx));
@@ -209,7 +216,7 @@ impl Rail {
                 .pt(px(JOB_SECTION_PAD_TOP))
                 .child(RailJobCard {
                     model,
-                    on_cancel: self.on_cancel_job.clone(),
+                    on_cancel: Some(self.on_cancel_job.clone()),
                 })
                 .into_any_element(),
         )
