@@ -18,6 +18,7 @@ use crate::features::browser::presentation::state::browser_parts::{
 use crate::features::browser::presentation::state::browser_setup::BrowserSetup;
 use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
 use crate::features::browser::presentation::state::bulk_rename_state::BulkRenameState;
+use crate::features::browser::presentation::state::compare_slot::CompareSlot;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
 use crate::features::browser::presentation::state::dual_pane::DualPane;
 use crate::features::browser::presentation::state::menu_state::MenuState;
@@ -45,6 +46,7 @@ pub struct BrowserView {
     pub(super) toasts: Toasts,
     pub(super) jobs: Jobs,
     pub(super) quick_look: QuickLookSlot,
+    pub(super) compare: CompareSlot,
     pub(super) column: ColumnSlot,
     pub(super) menu: Option<MenuState>,
     pub(super) menu_focus: FocusHandle,
@@ -84,6 +86,7 @@ impl BrowserView {
             toasts: Toasts::default(),
             jobs: Jobs::default(),
             quick_look: QuickLookSlot::new(cx.focus_handle()),
+            compare: CompareSlot::new(cx.focus_handle()),
             column: ColumnSlot::new(restore.preview_open),
             menu: None,
             menu_focus: cx.focus_handle(),
@@ -224,8 +227,9 @@ impl Render for BrowserView {
             window.focus(&self.confirm_focus, cx);
         }
         let body = self.pane_body(window, cx);
-        let quick_look = self.quick_look_overlay(window, cx);
         let sheets = [
+            self.quick_look_overlay(window, cx),
+            self.compare_overlay(window, cx),
             self.menu_overlay(window, cx),
             self.keymap_overlay(window, cx),
             self.settings_overlay(window, cx),
@@ -266,7 +270,6 @@ impl Render for BrowserView {
                 selected_count,
             })
             .children(toast)
-            .children(quick_look)
             .children(sheets.into_iter().flatten())
             .children(confirm)
     }

@@ -2,7 +2,6 @@ use gpui::{
     AnyElement, App, FontWeight, IntoElement, RenderOnce, SharedString, Window, div, prelude::*,
     px, rgb,
 };
-use rust_i18n::t;
 
 use crate::core::enums::assets::icon::Icon;
 use crate::core::theme::colors::{FG_BRIGHT, FG_MUTED, LINE};
@@ -16,6 +15,7 @@ use crate::global_components::icon_button::IconButton;
 pub struct QuickLookHeader {
     pub icon: AnyElement,
     pub title: SharedString,
+    pub hint: SharedString,
     pub on_close: ClickHandler,
 }
 
@@ -33,7 +33,7 @@ impl RenderOnce for QuickLookHeader {
         let hint = div()
             .text_size(px(TEXT_STATUS))
             .text_color(rgb(FG_MUTED))
-            .child(t!("ql.hint").to_string());
+            .child(self.hint);
         div()
             .flex()
             .flex_shrink_0()

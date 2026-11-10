@@ -219,3 +219,5 @@ pub const DUAL_SPLIT_MAX: f32 = 0.8;
 pub const PROTOCOL_BADGE_PAD_X: f32 = 4.0;
 pub const PROTOCOL_BADGE_GAP: f32 = 3.0;
 pub const PROTOCOL_ICON_SIZE: f32 = 12.0;
+pub const DIFF_NUMBER_WIDTH: f32 = 44.0;
+pub const DIFF_GUTTER: f32 = 1.0;

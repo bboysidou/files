@@ -29,3 +29,6 @@ pub const STAGE: u32 = 0x0B0B0B;
 pub const MENU_BG: u32 = 0x161616;
 pub const DANGER: u32 = 0xF44747;
 pub const KEY_ROW_LINE: u32 = 0x202020;
+pub const DIFF_REMOVED: u32 = 0x3A1717;
+pub const DIFF_ADDED: u32 = 0x132E1B;
+pub const DIFF_CHANGED: u32 = 0x2E2913;

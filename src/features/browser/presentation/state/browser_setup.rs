@@ -8,6 +8,7 @@ use crate::features::archives::domain::repositories::archive_tool::ArchiveTool;
 use crate::features::browser::domain::repositories::directory_repository::DirectoryRepository;
 use crate::features::browser::domain::repositories::directory_watcher::DirectoryWatcher;
 use crate::features::browser::domain::repositories::file_launcher::FileLauncher;
+use crate::features::compare::domain::repositories::file_comparer::FileComparer;
 use crate::features::network::domain::repositories::network_mounter::NetworkMounter;
 use crate::features::operations::domain::repositories::file_operations::FileOperations;
 use crate::features::operations::domain::repositories::run_inspector::RunInspector;
@@ -26,6 +27,7 @@ pub struct BrowserSetup {
     pub apps: Arc<dyn AppCatalog>,
     pub app_launcher: Rc<dyn AppLauncher>,
     pub archives: Arc<dyn ArchiveTool>,
+    pub comparer: Arc<dyn FileComparer>,
     pub watcher: Arc<dyn DirectoryWatcher>,
     pub operations: Arc<dyn FileOperations>,
     pub run_inspector: Arc<dyn RunInspector>,

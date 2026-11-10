@@ -5,6 +5,7 @@ use crate::core::dependency_injection::archives::archive_tool;
 use crate::core::dependency_injection::browser::{
     directory_repository, directory_watcher, file_launcher,
 };
+use crate::core::dependency_injection::compare::file_comparer;
 use crate::core::dependency_injection::network::network_mounter;
 use crate::core::dependency_injection::operations::{
     file_operations, run_inspector, system_clipboard, trash_bin,
@@ -34,6 +35,7 @@ pub fn browser_setup(
         apps: app_catalog(),
         app_launcher: app_launcher(),
         archives: archive_tool(),
+        comparer: file_comparer(),
         watcher: directory_watcher(),
         operations: file_operations(),
         run_inspector: run_inspector(),

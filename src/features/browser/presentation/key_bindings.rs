@@ -10,6 +10,7 @@ pub const PANE_CONTEXT: &str = "Pane";
 pub const PANE_GRID_CONTEXT: &str = "Pane view=grid";
 const PANE_GRID_KEYS: &str = "Pane && view == grid && !TextField";
 pub const QUICK_LOOK_CONTEXT: &str = "QuickLook";
+pub const COMPARE_CONTEXT: &str = "Compare";
 pub const MENU_CONTEXT: &str = "Menu";
 pub const KEYMAP_CONTEXT: &str = "Keymap";
 pub const CONFIRM_CONTEXT: &str = "Confirm";
@@ -31,6 +32,7 @@ pub fn browser_key_bindings(preset: KeyPreset) -> Vec<KeyBinding> {
     bindings.extend(operation_bindings());
     bindings.extend(tab_bindings());
     bindings.extend(quick_look_bindings());
+    bindings.extend(compare_bindings());
     bindings.extend(overlay_bindings());
     bindings
 }
@@ -102,6 +104,7 @@ fn tab_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("ctrl-4", ShowDual, browser),
         KeyBinding::new("tab", SwitchPane, pane),
         KeyBinding::new("f6", CopyToOtherPane, pane),
+        KeyBinding::new("=", CompareFiles, pane),
         KeyBinding::new("shift-f6", MoveToOtherPane, pane),
         KeyBinding::new("ctrl-l", EditPath, browser),
         KeyBinding::new("ctrl-k", ConnectServer, browser),
@@ -136,6 +139,19 @@ fn quick_look_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("shift-up", PanUp, context),
         KeyBinding::new("shift-j", PanDown, context),
         KeyBinding::new("shift-down", PanDown, context),
+    ]
+}
+
+fn compare_bindings() -> Vec<KeyBinding> {
+    let context = Some(COMPARE_CONTEXT);
+    vec![
+        KeyBinding::new("escape", CloseCompare, context),
+        KeyBinding::new("space", CloseCompare, context),
+        KeyBinding::new("q", CloseCompare, context),
+        KeyBinding::new("j", CompareScrollDown, context),
+        KeyBinding::new("down", CompareScrollDown, context),
+        KeyBinding::new("k", CompareScrollUp, context),
+        KeyBinding::new("up", CompareScrollUp, context),
     ]
 }
 

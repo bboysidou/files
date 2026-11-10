@@ -2,6 +2,7 @@ pub mod applications;
 pub mod archives;
 pub mod browser;
 pub mod browser_setup;
+pub mod compare;
 pub mod devices;
 pub mod integration;
 pub mod network;

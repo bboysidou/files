@@ -5,6 +5,8 @@ pub mod browser_archive_job;
 pub mod browser_browse_archive;
 pub mod browser_bulk_rename;
 pub mod browser_chrome;
+pub mod browser_compare;
+pub mod browser_compare_render;
 pub mod browser_compress;
 pub mod browser_create;
 pub mod browser_delete_forever;

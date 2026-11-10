@@ -68,7 +68,7 @@ impl BrowserView {
         self.dual_split([(main, !focused), (partner, focused)], cx)
     }
 
-    fn other_pane(&self) -> Option<Entity<PaneView>> {
+    pub(super) fn other_pane(&self) -> Option<Entity<PaneView>> {
         let partner = self.dual.partner.as_ref()?.pane.clone();
         if self.options.view != ViewMode::Dual {
             return None;
@@ -114,7 +114,7 @@ impl BrowserView {
     }
 
     pub(super) fn with_dual_actions(element: Div, cx: &mut Context<Self>) -> Div {
-        element
+        Self::with_compare_open(element, cx)
             .on_action(cx.listener(|this, _: &ShowDual, _, cx| this.set_view(ViewMode::Dual, cx)))
             .on_action(cx.listener(|this, _: &SwitchPane, window, cx| this.switch_pane(window, cx)))
             .on_action(cx.listener(|this, _: &CopyToOtherPane, _, cx| {

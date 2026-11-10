@@ -76,3 +76,4 @@ pub const FAT_REPLACEMENT_CHAR: char = '_';
 pub const FAT_TRAILING_CHARS: [char; 2] = ['.', ' '];
 pub const FAT_MAX_FILE_BYTES: u64 = u32::MAX as u64;
 pub const CASE_RENAME_TEMP_SUFFIX: &str = ".files-tmp";
+pub const COMPARE_TEXT_MAX_BYTES: u64 = 2 * 1024 * 1024;

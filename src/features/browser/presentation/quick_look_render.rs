@@ -5,6 +5,8 @@ use gpui::{
     Stateful, Window, anchored, deferred, div, point, prelude::*, px, rgba,
 };
 
+use rust_i18n::t;
+
 use crate::core::constants::preview::{PAN_STEP, ZOOM_STEP};
 use crate::core::theme::colors::SCRIM;
 use crate::core::theme::metrics::{
@@ -96,6 +98,7 @@ impl BrowserView {
             }
             .into_any_element(),
             title: state.entry.name.clone().into(),
+            hint: t!("ql.hint").to_string().into(),
             on_close,
         };
         QuickLookPanel {
