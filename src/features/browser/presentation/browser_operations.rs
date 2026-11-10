@@ -202,7 +202,7 @@ impl BrowserView {
         rename: bool,
         cx: &mut Context<Self>,
     ) {
-        let active = self.active;
+        let active = self.focused_tab();
         for (index, tab) in self.tabs.iter().enumerate() {
             let focus = landing.clone().filter(|_| index == active);
             tab.pane

@@ -127,6 +127,9 @@ impl BrowserView {
     }
 
     pub(super) fn set_view(&mut self, view: ViewMode, cx: &mut Context<Self>) {
+        if view != ViewMode::Dual && self.dual.linked.take().is_some() {
+            self.dual.partner = None;
+        }
         self.remember_view(view, cx);
         if view != self.options.view {
             self.apply_view_options(

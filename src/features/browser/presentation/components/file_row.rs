@@ -10,7 +10,9 @@ use crate::core::constants::files::MISSING_VALUE;
 use crate::core::enums::browser::sort_key::SortKey;
 use crate::core::helpers::format::size_text::size_text;
 use crate::core::helpers::time::relative_time::relative_time;
-use crate::core::theme::colors::{ACCENT, FG_SOFT, ROW_HOVER, SELECTION_ALPHA, TRANSPARENT};
+use crate::core::theme::colors::{
+    ACCENT, FG_MUTED, FG_SOFT, ROW_HOVER, SELECTION_ALPHA, TRANSPARENT,
+};
 use crate::core::theme::metrics::TREE_INDENT;
 use crate::core::theme::metrics::{
     LIST_CELL_PAD_X, LIST_ROW_HEIGHT, LIST_ROW_RADIUS, LIST_ROW_SPACING, TEXT_SMALL,
@@ -29,6 +31,7 @@ pub struct FileRow {
     pub entry: FileEntry,
     pub marked: bool,
     pub cursor: bool,
+    pub focused: bool,
     pub cut: bool,
     pub rename: Option<Entity<TextField>>,
     pub now: SystemTime,
@@ -99,10 +102,10 @@ impl RenderOnce for FileRow {
             .h(px(LIST_ROW_HEIGHT))
             .rounded(px(LIST_ROW_RADIUS))
             .border_1()
-            .border_color(if self.cursor {
-                rgb(ACCENT)
-            } else {
-                rgba(TRANSPARENT)
+            .border_color(match (self.cursor, self.focused) {
+                (true, true) => rgb(ACCENT),
+                (true, false) => rgb(FG_MUTED),
+                (false, _) => rgba(TRANSPARENT),
             })
             .text_size(px(TEXT_SMALL))
             .text_color(rgb(FG_SOFT))

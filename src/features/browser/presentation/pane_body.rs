@@ -127,6 +127,7 @@ impl PaneView {
                     entry: entry.clone(),
                     marked: self.selection.is_marked(index),
                     cursor: index == self.selection.cursor(),
+                    focused: self.focused,
                     cut: self.cut.contains(&self.entries.get(index)?.path),
                     rename: (self.renames.path.as_ref() == Some(&self.entries.get(index)?.path))
                         .then(|| self.rename_field.clone()),

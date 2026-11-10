@@ -103,6 +103,7 @@ impl PaneView {
                     drag: self.drag_slot(&kit, index, &entry),
                     marked: self.selection.is_marked(index),
                     cursor: index == self.selection.cursor(),
+                    focused: self.focused,
                     cut: self.cut.contains(&entry.path),
                     entry,
                     thumbnail,

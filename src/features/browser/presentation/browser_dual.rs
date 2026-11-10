@@ -40,7 +40,7 @@ impl BrowserView {
         self.dual.partner = Some(partner);
     }
 
-    pub(super) fn pane_body(&mut self, window: &mut Window, cx: &mut Context<Self>) -> AnyElement {
+    pub(super) fn dual_body(&mut self, window: &mut Window, cx: &mut Context<Self>) -> AnyElement {
         let main = self.tabs[self.active].pane.clone();
         if self.options.view != ViewMode::Dual {
             self.dual.focused = false;
@@ -55,10 +55,14 @@ impl BrowserView {
         else {
             return main.into_any_element();
         };
+        let was = self.dual.focused;
         if partner.focus_handle(cx).contains_focused(window, cx) {
             self.dual.focused = true;
         } else if main.focus_handle(cx).contains_focused(window, cx) {
             self.dual.focused = false;
+        }
+        if was != self.dual.focused {
+            self.sync_preview_column(cx);
         }
         let focused = self.dual.focused;
         self.dual_split([(main, !focused), (partner, focused)], cx)
@@ -82,6 +86,7 @@ impl BrowserView {
         };
         self.dual.focused = !self.dual.focused;
         window.focus(&other.focus_handle(cx), cx);
+        self.sync_preview_column(cx);
         cx.notify();
     }
 

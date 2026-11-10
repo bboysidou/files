@@ -29,10 +29,11 @@ impl BrowserView {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        let target = self.active as isize + delta;
+        let from = self.focused_tab();
+        let target = from as isize + delta;
         if target < 0 {
             return;
         }
-        self.move_tab((self.active, target as usize), window, cx);
+        self.move_tab((from, target as usize), window, cx);
     }
 }

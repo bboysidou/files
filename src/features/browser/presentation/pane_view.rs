@@ -46,6 +46,7 @@ pub struct PaneView {
     pub(super) reload_base: Option<Vec<FileEntry>>,
     pub(super) entries: Vec<FileEntry>,
     pub(super) selection: Selection,
+    pub(super) focused: bool,
     pub(super) sort: SortOrder,
     pub(super) show_hidden: bool,
     pub(super) pending_focus: Option<PathBuf>,
@@ -100,6 +101,7 @@ impl PaneView {
             reload_base: None,
             entries: Vec::new(),
             selection: Selection::default(),
+            focused: false,
             sort: start.options.sort,
             show_hidden: start.options.show_hidden,
             pending_focus: None,
@@ -236,6 +238,7 @@ impl PaneView {
 
 impl Render for PaneView {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        self.focused = self.focus_handle.contains_focused(window, cx);
         if self.renames.focus {
             self.renames.focus = false;
             window.focus(&self.rename_field.focus_handle(cx), cx);

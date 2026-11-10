@@ -6,7 +6,7 @@ use crate::features::browser::presentation::state::browser_event::BrowserEvent;
 
 impl BrowserView {
     pub fn tear_active(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.tear_tab(self.active, window, cx);
+        self.tear_tab(self.focused_tab(), window, cx);
     }
 
     pub(super) fn tear_tab(&mut self, index: usize, window: &mut Window, cx: &mut Context<Self>) {

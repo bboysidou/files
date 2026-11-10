@@ -59,3 +59,4 @@ pub const SLOW_FILESYSTEM_MAGICS: [u32; 4] = [0x6969, 0xFF53_4D42, 0xFE53_4D42, 
 pub const TAB_MARKER_DIR: &str = "files";
 pub const TAB_MARKER_PREFIX: &str = "tab-";
 pub const TEAR_MIN_TABS: usize = 2;
+pub const SPLIT_MIN_TABS: usize = 2;

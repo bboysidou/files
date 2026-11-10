@@ -37,7 +37,7 @@ impl BrowserView {
                 .iter()
                 .map(|tab| tab.pane.read(cx).title(cx))
                 .collect(),
-            active: self.active,
+            active: self.focused_tab(),
             on_select,
             on_close,
             on_move,

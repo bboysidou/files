@@ -1,4 +1,7 @@
+use gpui::EntityId;
+
 use crate::core::constants::settings::PERMILLE;
+use crate::core::enums::view::view_mode::ViewMode;
 use crate::core::theme::metrics::{DUAL_SPLIT_DEFAULT, DUAL_SPLIT_MAX, DUAL_SPLIT_MIN};
 use crate::features::browser::presentation::state::tab::Tab;
 
@@ -6,6 +9,7 @@ pub struct DualPane {
     pub partner: Option<Tab>,
     pub focused: bool,
     pub split: f32,
+    pub linked: Option<(EntityId, ViewMode)>,
 }
 
 impl DualPane {
@@ -23,6 +27,7 @@ impl Default for DualPane {
             partner: None,
             focused: false,
             split: DUAL_SPLIT_DEFAULT,
+            linked: None,
         }
     }
 }

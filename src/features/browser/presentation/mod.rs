@@ -31,6 +31,7 @@ pub mod browser_settings;
 pub mod browser_settings_items;
 pub mod browser_tab_handoff;
 pub mod browser_tab_order;
+pub mod browser_tab_split;
 pub mod browser_tabs;
 pub mod browser_tear;
 pub mod browser_trash;

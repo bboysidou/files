@@ -6,7 +6,9 @@ use gpui::{
 };
 
 use crate::core::enums::assets::icon::Icon;
-use crate::core::theme::colors::{ACCENT, CARD, FG, ROW_HOVER, SELECTION_ALPHA, TRANSPARENT};
+use crate::core::theme::colors::{
+    ACCENT, CARD, FG, FG_MUTED, ROW_HOVER, SELECTION_ALPHA, TRANSPARENT,
+};
 use crate::core::theme::metrics::ENTRY_TAG_GAP;
 use crate::core::theme::metrics::{
     CARD_RADIUS, CUT_OPACITY, TEXT_STATUS, TILE_FOLDER_ICON, TILE_INNER_GAP, TILE_NAME_HEIGHT,
@@ -27,6 +29,7 @@ pub struct FileTile {
     pub thumbnail: Option<PathBuf>,
     pub marked: bool,
     pub cursor: bool,
+    pub focused: bool,
     pub cut: bool,
     pub width: f32,
     pub thumb_height: f32,
@@ -117,10 +120,10 @@ impl RenderOnce for FileTile {
             .p(px(TILE_PAD))
             .rounded(px(CARD_RADIUS))
             .border_1()
-            .border_color(if self.cursor {
-                rgb(ACCENT)
-            } else {
-                rgba(TRANSPARENT)
+            .border_color(match (self.cursor, self.focused) {
+                (true, true) => rgb(ACCENT),
+                (true, false) => rgb(FG_MUTED),
+                (false, _) => rgba(TRANSPARENT),
             })
             .when(self.cut, |tile| tile.opacity(CUT_OPACITY))
             .on_click(move |event, window, cx| on_click(index, event, window, cx))

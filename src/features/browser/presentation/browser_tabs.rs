@@ -60,11 +60,11 @@ impl BrowserView {
     }
 
     pub(super) fn new_tab(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let target = match self.location(cx) {
-            PlaceTarget::Overview => self.setup.home_target.clone(),
-            target => target,
-        };
-        let tab = self.open_pane(TabSnapshot::fresh(target), window, cx);
+        let tab = self.open_pane(
+            TabSnapshot::fresh(self.setup.home_target.clone()),
+            window,
+            cx,
+        );
         self.tabs.push(tab);
         self.sync_cut(cx);
         self.sync_compact(cx);
@@ -82,13 +82,14 @@ impl BrowserView {
     }
 
     pub fn close_active(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.close_tab(self.active, window, cx);
+        self.close_tab(self.focused_tab(), window, cx);
     }
 
     pub(super) fn close_tab(&mut self, index: usize, window: &mut Window, cx: &mut Context<Self>) {
         if index >= self.tabs.len() {
             return;
         }
+        let closed = self.tabs[index].pane.entity_id();
         if self.tabs.len() == 1 {
             let fresh = self.open_pane(
                 TabSnapshot::fresh(self.setup.home_target.clone()),
@@ -97,6 +98,7 @@ impl BrowserView {
             );
             self.tabs = vec![fresh];
             self.activate(0, window, cx);
+            self.unsplit_if_linked(closed, cx);
             return;
         }
         self.tabs.remove(index);
@@ -106,9 +108,13 @@ impl BrowserView {
             self.active
         };
         self.activate(next.min(self.tabs.len() - 1), window, cx);
+        self.unsplit_if_linked(closed, cx);
     }
 
     pub(super) fn activate(&mut self, index: usize, window: &mut Window, cx: &mut Context<Self>) {
+        if self.is_split_tab(index) {
+            return self.focus_split(window, cx);
+        }
         let Some(tab) = self.tabs.get(index) else {
             return;
         };
@@ -120,7 +126,10 @@ impl BrowserView {
 
     pub(super) fn cycle(&mut self, delta: isize, window: &mut Window, cx: &mut Context<Self>) {
         let count = self.tabs.len() as isize;
-        let next = (self.active as isize + delta).rem_euclid(count) as usize;
+        let mut next = (self.active as isize + delta).rem_euclid(count) as usize;
+        if self.is_split_tab(next) {
+            next = (next as isize + delta).rem_euclid(count) as usize;
+        }
         self.activate(next, window, cx);
     }
 
