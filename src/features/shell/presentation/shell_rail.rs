@@ -35,6 +35,7 @@ impl ShellView {
             on_connect: self.connect_handler(),
             devices: self.device_items(&location),
             on_device,
+            on_device_context: self.device_context_handler(cx),
             on_eject,
             phones: self.phone_items(&location),
             on_phone,

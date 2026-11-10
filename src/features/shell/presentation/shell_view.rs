@@ -49,6 +49,10 @@ pub struct ShellView {
     pub(super) save_task: Option<Task<()>>,
     pub(super) home_target: PlaceTarget,
     pub(super) devices: Vec<Device>,
+    pub(super) usb_format: Option<super::state::usb_format::UsbFormat>,
+    pub(super) format_focus: FocusHandle,
+    pub(super) format_task: Option<Task<()>>,
+    pub(super) format_progress_task: Option<Task<()>>,
     pub(super) device_repository: Arc<dyn DeviceRepository>,
     pub(super) directory_watcher: Arc<dyn DirectoryWatcher>,
     pub(super) device_task: Option<Task<()>>,
@@ -100,6 +104,10 @@ impl ShellView {
             save_task: None,
             home_target,
             devices: Vec::new(),
+            usb_format: None,
+            format_focus: cx.focus_handle(),
+            format_task: None,
+            format_progress_task: None,
             device_repository: device_repository(),
             directory_watcher: directory_watcher(),
             device_task: None,
@@ -199,6 +207,7 @@ impl ShellView {
 impl Render for ShellView {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let rail = self.rail_view(window, cx);
+        let format_overlay = self.format_overlay(window, cx);
         Self::with_window_actions(Self::with_rail_actions(div(), cx), cx)
             .on_action(cx.listener(|this, _: &ToggleRail, _, cx| this.toggle_rail(cx)))
             .size_full()
@@ -211,6 +220,7 @@ impl Render for ShellView {
             .text_color(rgb(FG))
             .child(rail)
             .child(self.browser.clone())
+            .children(format_overlay)
     }
 }
 
