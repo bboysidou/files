@@ -43,6 +43,7 @@ pub struct Rail {
     pub motion: RailMotion,
     pub on_toggle: ClickHandler,
     pub on_select: IndexHandler,
+    pub on_trash_context: crate::global_components::handlers::PointHandler,
     pub on_drop_place: IndexPathsHandler,
     pub on_search: ClickHandler,
     pub on_connect: ClickHandler,
@@ -83,6 +84,8 @@ impl Rail {
                     cursor: self.cursor == Some(RailStop::Place(index)),
                     motion: self.motion,
                     on_select: self.on_select.clone(),
+                    on_context: (place.target == PlaceTarget::Trash)
+                        .then(|| self.on_trash_context.clone()),
                     on_drop: matches!(place.target, PlaceTarget::Directory(_))
                         .then(|| place_drop(self.on_drop_place.clone(), index)),
                 }

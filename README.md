@@ -44,6 +44,7 @@ Early development. Working today:
   otherwise an animated activity indicator.
   Uses UDisks2 over the system D-Bus with the desktop's authorization agent
 - Trash view: Enter restores, Delete deletes permanently after a confirmation, Empty Trash in the menu
+  or by right-clicking Trash in the sidebar, with confirmation before emptying
 - Settings panel (sliders button, `,` or `Ctrl+,`): hidden files and whether they sort last, sort
   key (name, size, kind, modified, extension, created or random) and direction, view, preview column, and whether to reopen the last session or start in Home
 - Optional per-folder view memory (settings): a folder opens in the view last chosen there

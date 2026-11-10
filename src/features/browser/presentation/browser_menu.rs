@@ -114,9 +114,31 @@ impl BrowserView {
             Box::new(TrashSelection),
         );
         (delete.enabled, delete.danger) = (has_entry, true);
-        let mut empty = entry("trash.empty", Icon::Trash, "", Box::new(EmptyTrash));
-        (empty.danger, empty.separated) = (true, true);
+        let mut empty = Self::empty_trash_entry();
+        empty.separated = true;
         vec![restore, delete, empty]
+    }
+
+    fn empty_trash_entry() -> MenuEntry {
+        let mut empty = entry("trash.empty", Icon::Trash, "", Box::new(EmptyTrash));
+        empty.danger = true;
+        empty
+    }
+
+    pub fn open_trash_menu(
+        &mut self,
+        position: Point<Pixels>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.menu = Some(MenuState {
+            position,
+            entries: vec![Self::empty_trash_entry()],
+            hot: 0,
+            apps: None,
+        });
+        window.focus(&self.menu_focus, cx);
+        cx.notify();
     }
 
     fn menu_entries(&self, cx: &Context<Self>) -> Vec<MenuEntry> {
