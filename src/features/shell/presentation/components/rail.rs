@@ -29,6 +29,8 @@ const TAGS_SECTION_KEY: &str = "rail.section.tags";
 const DEVICE_ID: &str = "device";
 const NETWORK_ID: &str = "network";
 const NETWORK_SECTION_KEY: &str = "rail.section.network";
+const PHONE_ID: &str = "phone";
+const PHONES_SECTION_KEY: &str = "rail.section.phones";
 pub const RAIL_CONTEXT: &str = "Rail";
 
 #[derive(IntoElement)]
@@ -43,6 +45,9 @@ pub struct Rail {
     pub devices: Vec<DeviceItem>,
     pub on_device: IndexHandler,
     pub on_eject: IndexHandler,
+    pub phones: Vec<DeviceItem>,
+    pub on_phone: IndexHandler,
+    pub on_phone_eject: IndexHandler,
     pub network: Vec<DeviceItem>,
     pub on_network: IndexHandler,
     pub on_unmount: IndexHandler,
@@ -108,6 +113,32 @@ impl Rail {
                 .into_any_element()
             })
             .collect()
+    }
+
+    fn phones_section(&self) -> Vec<AnyElement> {
+        if self.phones.is_empty() {
+            return Vec::new();
+        }
+        let label = RailSectionLabel::new(PHONES_SECTION_KEY, self.motion).into_any_element();
+        let items = self.phones.iter().enumerate().map(|(index, phone)| {
+            let on_eject = self.on_phone_eject.clone();
+            RailDeviceItem {
+                index,
+                id: PHONE_ID,
+                icon: Icon::Phone,
+                label: phone.label.clone(),
+                trailing: phone.mounted.then_some(Icon::Eject),
+                protocol: None,
+                active: phone.active,
+                cursor: self.cursor == Some(RailStop::Phone(index)),
+                motion: self.motion,
+                on_select: self.on_phone.clone(),
+                on_eject: Rc::new(move |window, cx| on_eject(index, window, cx)),
+                on_edit: None,
+            }
+            .into_any_element()
+        });
+        iter::once(label).chain(items).collect()
     }
 
     fn network_section(&self) -> Vec<AnyElement> {
@@ -180,6 +211,7 @@ impl RenderOnce for Rail {
         let sections: Vec<AnyElement> = PlaceSection::ALL
             .iter()
             .flat_map(|section| self.section(*section))
+            .chain(self.phones_section())
             .chain(self.network_section())
             .chain(self.tags_section())
             .collect();

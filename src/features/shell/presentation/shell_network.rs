@@ -1,8 +1,6 @@
 use std::path::PathBuf;
 use std::rc::Rc;
-use std::time::Duration;
 
-use futures::StreamExt;
 use gpui::{Context, SharedString};
 use rust_i18n::t;
 
@@ -26,22 +24,12 @@ impl ShellView {
         let Some(subscription) = self.network.watcher.watch() else {
             return;
         };
-        let (mut changes, guard) = (subscription.changes, subscription.guard);
-        self.network.watch = Some(cx.spawn(async move |this, cx| {
-            let _guard = guard;
-            while changes.next().await.is_some() {
-                cx.background_executor()
-                    .timer(Duration::from_millis(NETWORK_REFRESH_DEBOUNCE_MS))
-                    .await;
-                while changes.try_recv().is_ok() {}
-                if this
-                    .update(cx, |this, cx| this.refresh_network(cx))
-                    .is_err()
-                {
-                    break;
-                }
-            }
-        }));
+        self.network.watch = Some(Self::debounced_refresh(
+            subscription,
+            NETWORK_REFRESH_DEBOUNCE_MS,
+            Self::refresh_network,
+            cx,
+        ));
     }
 
     pub(super) fn refresh_network(&mut self, cx: &mut Context<Self>) {
@@ -105,12 +93,7 @@ impl ShellView {
         if self.refuse_busy(&label, &mount, cx) {
             return;
         }
-        let inside = matches!(self.browser.read(cx).location(cx), PlaceTarget::Directory(path) if path.starts_with(&mount));
-        if inside {
-            let home = self.home_target.clone();
-            self.browser
-                .update(cx, |browser, cx| browser.navigate(home, cx));
-        }
+        self.leave_mount(&mount, cx);
         let mounter = self.network.mounter.clone();
         self.network.unmount_task = Some(cx.spawn(async move |this, cx| {
             let unmounted = cx

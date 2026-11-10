@@ -1,0 +1,11 @@
+pub const PHONE_SCHEMES: [&str; 3] = ["mtp", "gphoto2", "afc"];
+pub const GIO_LIST_FLAG: &str = "-li";
+pub const VOLUME_PREFIX: &str = "Volume(";
+pub const VOLUME_NAME_SEPARATOR: &str = "): ";
+pub const ACTIVATION_ROOT_PREFIX: &str = "activation_root=";
+pub const VOLUME_MONITOR_INTERFACE: &str = "org.gtk.Private.RemoteVolumeMonitor";
+pub const VOLUME_MONITOR_PATH: &str = "/org/gtk/Private/RemoteVolumeMonitor";
+pub const PHONE_REFRESH_DEBOUNCE_MS: u64 = 300;
+pub const MTP_SCHEME: &str = "mtp";
+pub const MTP_HOST_SEPARATOR: char = '_';
+pub const MTP_LABEL_SEPARATOR: &str = " ";

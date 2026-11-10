@@ -8,6 +8,7 @@ pub mod network;
 pub mod notifications;
 pub mod operations;
 pub mod overview;
+pub mod phones;
 pub mod picker;
 pub mod places;
 pub mod preview;

@@ -1,8 +1,6 @@
 use std::path::Path;
 use std::rc::Rc;
-use std::time::Duration;
 
-use futures::StreamExt;
 use gpui::{Context, SharedString};
 use rust_i18n::t;
 
@@ -33,22 +31,12 @@ impl ShellView {
         let Some(subscription) = self.directory_watcher.watch(Path::new(DEVICE_EVENTS_DIR)) else {
             return;
         };
-        let (mut changes, guard) = (subscription.changes, subscription.guard);
-        self.device_watch = Some(cx.spawn(async move |this, cx| {
-            let _guard = guard;
-            while changes.next().await.is_some() {
-                cx.background_executor()
-                    .timer(Duration::from_millis(DEVICE_REFRESH_DEBOUNCE_MS))
-                    .await;
-                while changes.try_recv().is_ok() {}
-                if this
-                    .update(cx, |this, cx| this.refresh_devices(cx))
-                    .is_err()
-                {
-                    break;
-                }
-            }
-        }));
+        self.device_watch = Some(Self::debounced_refresh(
+            subscription,
+            DEVICE_REFRESH_DEBOUNCE_MS,
+            Self::refresh_devices,
+            cx,
+        ));
     }
 
     pub(super) fn device_items(&self, location: &PlaceTarget) -> Vec<DeviceItem> {

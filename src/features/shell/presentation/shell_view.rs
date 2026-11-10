@@ -14,6 +14,7 @@ use crate::core::dependency_injection::browser_setup::browser_setup;
 use crate::core::dependency_injection::devices::device_repository;
 use crate::core::dependency_injection::network::mount_watcher;
 use crate::core::dependency_injection::network::network_mounter;
+use crate::core::dependency_injection::phones::{phone_repository, volume_watcher};
 use crate::core::dependency_injection::settings::settings_repository;
 use crate::core::enums::places::place_kind::PlaceKind;
 use crate::core::enums::tags::tag_color::TagColor;
@@ -32,6 +33,7 @@ use crate::features::shell::presentation::actions::ToggleRail;
 use crate::features::shell::presentation::components::rail::Rail;
 use crate::features::shell::presentation::state::network_rail::NetworkRail;
 use crate::features::shell::presentation::state::open_shells::{OpenShell, OpenShells};
+use crate::features::shell::presentation::state::phone_rail::PhoneRail;
 use crate::features::shell::presentation::state::rail_keys::RailKeys;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
 use crate::features::shell::presentation::state::rail_stop::RailStop;
@@ -54,6 +56,7 @@ pub struct ShellView {
     pub(super) device_list_task: Option<Task<()>>,
     pub(super) device_watch: Option<Task<()>>,
     pub(super) network: NetworkRail,
+    pub(super) phones: PhoneRail,
     pub(super) role: WindowRole,
     _browser_changes: Subscription,
     _quit: Subscription,
@@ -104,6 +107,7 @@ impl ShellView {
             device_list_task: None,
             device_watch: None,
             network: NetworkRail::new(network_mounter(), mount_watcher()),
+            phones: PhoneRail::new(phone_repository(), volume_watcher()),
             role: start.role,
             _browser_changes: browser_changes,
             _quit: quit,
@@ -198,6 +202,7 @@ impl Render for ShellView {
         let (on_toggle, on_select) = Self::handlers(cx);
         let (on_device, on_eject) = Self::device_handlers(cx);
         let (on_network, on_unmount) = Self::network_handlers(cx);
+        let (on_phone, on_phone_eject) = Self::phone_handlers(cx);
         let (on_cancel_job, on_search, on_tag) = self.browser_handlers();
         let location = self.browser.read(cx).location(cx);
         let active = self
@@ -230,6 +235,9 @@ impl Render for ShellView {
                 devices: self.device_items(&location),
                 on_device,
                 on_eject,
+                phones: self.phone_items(&location),
+                on_phone,
+                on_phone_eject,
                 network: self.network_items(&location),
                 on_network,
                 on_unmount,

@@ -1,9 +1,8 @@
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
-use crate::core::constants::network::{
-    GIO_COMMAND, GIO_INFO, GIO_MOUNT, GIO_UNMOUNT_FLAG, LOCAL_PATH_PREFIX,
-};
+use crate::core::constants::network::{GIO_COMMAND, GIO_MOUNT, GIO_UNMOUNT_FLAG};
+use crate::features::network::data::datasources::gio_local_path::gio_local_path;
 use crate::features::network::data::datasources::gio_mount_session::gio_mount_session;
 use crate::features::network::data::datasources::gvfs_mounts::gvfs_mounts;
 use crate::features::network::domain::entities::network_credentials::NetworkCredentials;
@@ -20,17 +19,7 @@ impl NetworkMounter for GioNetworkMounter {
         credentials: Option<&NetworkCredentials>,
     ) -> Result<PathBuf, NetworkMountError> {
         gio_mount_session(uri, credentials)?;
-        let info = Command::new(GIO_COMMAND)
-            .args([GIO_INFO, uri])
-            .stdin(Stdio::null())
-            .stderr(Stdio::null())
-            .output()
-            .map_err(|error| NetworkMountError::Failed(error.to_string()))?;
-        String::from_utf8_lossy(&info.stdout)
-            .lines()
-            .find_map(|line| line.strip_prefix(LOCAL_PATH_PREFIX))
-            .map(|path| PathBuf::from(path.trim()))
-            .ok_or_else(|| NetworkMountError::Failed(uri.to_owned()))
+        gio_local_path(uri).ok_or_else(|| NetworkMountError::Failed(uri.to_owned()))
     }
 
     fn mounts(&self) -> Vec<NetworkMount> {

@@ -11,6 +11,7 @@ pub mod network;
 pub mod notifications;
 pub mod operations;
 pub mod paths;
+pub mod phones;
 pub mod preview;
 pub mod sandbox;
 pub mod search;

@@ -56,6 +56,7 @@ icons! {
     Open => "open",
     Overview => "overview",
     Panel => "panel",
+    Phone => "phone",
     Paste => "paste",
     Plus => "plus",
     Search => "search",

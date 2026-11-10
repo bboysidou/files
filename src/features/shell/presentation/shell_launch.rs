@@ -24,6 +24,7 @@ impl ShellView {
         self.watch_servers(cx);
         self.watch_devices(cx);
         self.watch_network(cx);
+        self.watch_phones(cx);
         if self.role == WindowRole::Primary && self.saved.restore_tabs {
             self.reopen_windows(cx);
         }
