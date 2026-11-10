@@ -6,8 +6,8 @@ use zbus::zvariant::Value;
 
 use crate::core::constants::app::APP_ID;
 use crate::core::constants::notifications::{
-    CLOSE_METHOD, HINT_DESKTOP_ENTRY, HINT_RESIDENT, HINT_TAG, HINT_URGENCY, HINT_VALUE,
-    NOTE_APP_ICON, NOTE_APP_NAME, NOTIFY_BUS_NAME, NOTIFY_BUS_PATH, NOTIFY_INTERFACE,
+    CLOSE_METHOD, HINT_DESKTOP_ENTRY, HINT_RESIDENT, HINT_STICKY, HINT_TAG, HINT_URGENCY,
+    HINT_VALUE, NOTE_APP_ICON, NOTE_APP_NAME, NOTIFY_BUS_NAME, NOTIFY_BUS_PATH, NOTIFY_INTERFACE,
     NOTIFY_METHOD,
 };
 use crate::features::notifications::domain::entities::desktop_note::DesktopNote;
@@ -38,6 +38,9 @@ impl DbusDesktopNotifier {
         }
         if note.resident {
             hints.insert(HINT_RESIDENT, Value::Bool(true));
+        }
+        if note.sticky {
+            hints.insert(HINT_STICKY, Value::Bool(true));
         }
         hints
     }

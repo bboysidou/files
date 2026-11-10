@@ -104,6 +104,7 @@ impl BrowserView {
         note.tag = Some(tag(job.note.slot));
         note.timeout_ms = NOTE_NEVER_EXPIRES;
         note.resident = true;
+        note.sticky = true;
         live_notes().update(job.note.slot, note);
         job.note.shown = true;
         job.note.last_percent = percent;

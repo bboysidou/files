@@ -9,6 +9,7 @@ pub const HINT_VALUE: &str = "value";
 pub const HINT_URGENCY: &str = "urgency";
 pub const HINT_TAG: &str = "x-canonical-private-synchronous";
 pub const HINT_RESIDENT: &str = "resident";
+pub const HINT_STICKY: &str = "x-qs-sticky";
 pub const HINT_DESKTOP_ENTRY: &str = "desktop-entry";
 pub const NOTE_NEVER_EXPIRES: i32 = 0;
 pub const NOTE_DEFAULT_TIMEOUT: i32 = -1;

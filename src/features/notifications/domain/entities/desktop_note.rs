@@ -11,6 +11,7 @@ pub struct DesktopNote {
     pub replaces: u32,
     pub timeout_ms: i32,
     pub resident: bool,
+    pub sticky: bool,
 }
 
 impl DesktopNote {
@@ -24,6 +25,7 @@ impl DesktopNote {
             replaces: 0,
             timeout_ms: NOTE_DEFAULT_TIMEOUT,
             resident: false,
+            sticky: false,
         }
     }
 }
