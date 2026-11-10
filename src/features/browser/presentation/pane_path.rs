@@ -3,7 +3,6 @@ use std::path::{Path, PathBuf};
 use gpui::{Context, Focusable, Window};
 use rust_i18n::t;
 
-use crate::core::constants::network::SFTP_PREFIX;
 use crate::core::constants::paths::HOME_SHORTHAND;
 use crate::core::enums::places::crumb_root::CrumbRoot;
 use crate::features::browser::presentation::pane_view::PaneView;
@@ -24,19 +23,6 @@ impl PaneView {
         let length = text.len();
         self.path_field
             .update(cx, |field, cx| field.set_text(&text, 0..length, cx));
-        self.path_editing = true;
-        window.focus(&self.path_field.focus_handle(cx), cx);
-        cx.notify();
-    }
-
-    pub(super) fn start_connect_entry(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.open_connect_entry(SFTP_PREFIX, window, cx);
-    }
-
-    fn open_connect_entry(&mut self, text: &str, window: &mut Window, cx: &mut Context<Self>) {
-        self.path_field.update(cx, |field, cx| {
-            field.set_text(text, text.len()..text.len(), cx)
-        });
         self.path_editing = true;
         window.focus(&self.path_field.focus_handle(cx), cx);
         cx.notify();

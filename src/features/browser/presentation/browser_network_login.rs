@@ -212,10 +212,4 @@ impl BrowserView {
             pane.connect_network(uri, None, cx)
         });
     }
-
-    pub(super) fn start_connect_entry(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.active_pane()
-            .clone()
-            .update(cx, |pane, cx| pane.start_connect_entry(window, cx));
-    }
 }

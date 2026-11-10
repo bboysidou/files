@@ -205,6 +205,7 @@ pub const CHOICE_PAD_Y: f32 = 4.0;
 pub const CHOICE_RADIUS: f32 = 8.0;
 pub const SETTINGS_ROW_HEIGHT: f32 = 44.0;
 pub const SETTINGS_PANEL_WIDTH: f32 = 560.0;
+pub const SERVER_PORT_WIDTH: f32 = 120.0;
 pub const SETTINGS_PANEL_HEIGHT: f32 = 480.0;
 pub const PERMISSION_LABEL_WIDTH: f32 = 90.0;
 pub const PERMISSION_CELL_WIDTH: f32 = 90.0;

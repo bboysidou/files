@@ -179,6 +179,17 @@ fn overlay_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("tab", BulkNextField, Some(BULK_CONTEXT)),
         KeyBinding::new("tab", LoginNextField, Some(LOGIN_CONTEXT)),
         KeyBinding::new("tab", ServerEditNextField, Some(SERVER_EDIT_CONTEXT)),
+        KeyBinding::new(
+            "shift-tab",
+            ServerEditPreviousField,
+            Some(SERVER_EDIT_CONTEXT),
+        ),
+        KeyBinding::new("alt-right", ServerEditNextType, Some(SERVER_EDIT_CONTEXT)),
+        KeyBinding::new(
+            "alt-left",
+            ServerEditPreviousType,
+            Some(SERVER_EDIT_CONTEXT),
+        ),
         KeyBinding::new("escape", CloseProperties, Some(PROPERTIES_CONTEXT)),
         KeyBinding::new("enter", ConfirmAccept, Some(CONFIRM_CONTEXT)),
         KeyBinding::new("escape", ConfirmCancel, Some(CONFIRM_CONTEXT)),

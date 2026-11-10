@@ -152,7 +152,7 @@ impl ShellView {
             return;
         };
         self.browser.update(cx, |browser, cx| {
-            browser.open_server_edit(server, window, cx)
+            browser.open_server_edit(Some(server), window, cx)
         });
     }
 

@@ -1,6 +1,8 @@
 use gpui::{Context, Div, prelude::*};
 
 use crate::core::enums::archives::archive_format::ArchiveFormat;
+use crate::core::enums::network::network_protocol::NetworkProtocol;
+use crate::core::enums::network::server_field::ServerField;
 use crate::core::enums::operations::clipboard_mode::ClipboardMode;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::presentation::actions::Dismiss;
@@ -15,7 +17,7 @@ use crate::features::browser::presentation::actions::{
 use crate::features::browser::presentation::actions::{BrowseArchive, CompressTarGz, CompressZip};
 use crate::features::browser::presentation::actions::{
     BulkNextField, ConnectServer, Duplicate, LoginNextField, NewFile, PasteLink,
-    ServerEditNextField,
+    ServerEditNextField, ServerEditNextType, ServerEditPreviousField, ServerEditPreviousType,
 };
 use crate::features::browser::presentation::actions::{CloseProperties, ShowProperties};
 use crate::features::browser::presentation::actions::{
@@ -126,10 +128,21 @@ impl BrowserView {
                 }),
             )
             .on_action(cx.listener(|this, _: &ServerEditNextField, window, cx| {
-                this.next_server_field(window, cx)
+                this.step_server_field(1, window, cx)
+            }))
+            .on_action(
+                cx.listener(|this, _: &ServerEditPreviousField, window, cx| {
+                    this.step_server_field(ServerField::ALL.len() - 1, window, cx)
+                }),
+            )
+            .on_action(
+                cx.listener(|this, _: &ServerEditNextType, _, cx| this.step_server_protocol(1, cx)),
+            )
+            .on_action(cx.listener(|this, _: &ServerEditPreviousType, _, cx| {
+                this.step_server_protocol(NetworkProtocol::ALL.len() - 1, cx)
             }))
             .on_action(cx.listener(|this, _: &ConnectServer, window, cx| {
-                this.start_connect_entry(window, cx)
+                this.open_server_edit(None, window, cx)
             }))
             .on_action(
                 cx.listener(|this, _: &LoginNextField, window, cx| {

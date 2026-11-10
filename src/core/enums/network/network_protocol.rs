@@ -55,6 +55,29 @@ impl NetworkProtocol {
         )
     }
 
+    pub fn scheme(self) -> &'static str {
+        self.schemes()[0]
+    }
+
+    pub fn default_port(self) -> &'static str {
+        match self {
+            NetworkProtocol::Sftp => "22",
+            NetworkProtocol::Ftp | NetworkProtocol::Ftps => "21",
+            NetworkProtocol::Smb => "445",
+            NetworkProtocol::Dav => "80",
+            NetworkProtocol::Davs => "443",
+            NetworkProtocol::Nfs => "2049",
+        }
+    }
+
+    pub fn path_label_key(self) -> &'static str {
+        match self {
+            NetworkProtocol::Smb => "server_edit.share",
+            NetworkProtocol::Nfs => "server_edit.export",
+            _ => "server_edit.folder",
+        }
+    }
+
     fn schemes(self) -> &'static [&'static str] {
         match self {
             NetworkProtocol::Sftp => &["sftp", "ssh"],

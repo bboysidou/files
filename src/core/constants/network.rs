@@ -32,3 +32,4 @@ pub const GVFS_SSL_ON: &str = "ssl=true";
 pub const GVFS_TRACKER_INTERFACE: &str = "org.gtk.vfs.MountTracker";
 pub const GVFS_TRACKER_PATH: &str = "/org/gtk/vfs/mounttracker";
 pub const NETWORK_REFRESH_DEBOUNCE_MS: u64 = 300;
+pub const URI_PATH_SEPARATOR: char = '/';
