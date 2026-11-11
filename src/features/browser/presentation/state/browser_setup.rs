@@ -2,6 +2,7 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::Arc;
 
+use crate::features::admin::domain::repositories::admin_session::AdminSession;
 use crate::features::applications::domain::repositories::app_catalog::AppCatalog;
 use crate::features::applications::domain::repositories::app_launcher::AppLauncher;
 use crate::features::archives::domain::repositories::archive_tool::ArchiveTool;
@@ -23,6 +24,7 @@ use crate::features::thumbnails::domain::repositories::thumbnail_store::Thumbnai
 
 pub struct BrowserSetup {
     pub repository: Arc<dyn DirectoryRepository>,
+    pub admin: Arc<dyn AdminSession>,
     pub launcher: Rc<dyn FileLauncher>,
     pub apps: Arc<dyn AppCatalog>,
     pub app_launcher: Rc<dyn AppLauncher>,

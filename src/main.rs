@@ -8,11 +8,13 @@ use gpui::App;
 
 use crate::core::assets::embedded_assets::EmbeddedAssets;
 use crate::core::assets::embedded_fonts::embedded_fonts;
+use crate::core::constants::admin::ADMIN_HELPER_FLAG;
 use crate::core::dependency_injection::integration::{default_handler, instance_bridge};
 use crate::core::dependency_injection::picker::portal_registration;
 use crate::core::dependency_injection::settings::settings_repository;
 use crate::core::helpers::i18n::supported_locale::supported_locale;
 use crate::core::helpers::i18n::system_locale::system_locale;
+use crate::features::admin::presentation::admin_helper::serve_admin_helper;
 use crate::features::integration::domain::entities::launch_request::LaunchRequest;
 use crate::features::integration::domain::usecases::parse_launch::parse_launch;
 use crate::features::picker::presentation::portal_host::serve_portal;
@@ -48,6 +50,9 @@ fn bind_keys(cx: &mut App) {
 }
 
 fn main() {
+    if env::args().nth(1).as_deref() == Some(ADMIN_HELPER_FLAG) {
+        process::exit(serve_admin_helper());
+    }
     let locales = rust_i18n::available_locales!();
     let available: Vec<&str> = locales.iter().map(|locale| locale.as_ref()).collect();
     rust_i18n::set_locale(&supported_locale(&system_locale(), &available));

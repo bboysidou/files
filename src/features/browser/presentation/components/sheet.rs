@@ -25,6 +25,7 @@ pub struct Sheet {
     pub on_view: ViewHandler,
     pub on_keys: ClickHandler,
     pub on_settings: ClickHandler,
+    pub on_end_admin: Option<ClickHandler>,
 }
 
 impl RenderOnce for Sheet {
@@ -64,6 +65,7 @@ impl RenderOnce for Sheet {
                 location: location.into(),
                 item_count: self.item_count,
                 selected_count: self.selected_count,
+                on_end_admin: self.on_end_admin,
             })
     }
 }

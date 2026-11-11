@@ -90,6 +90,7 @@ impl BrowserView {
                 icon,
                 title: title.into(),
                 body: body.into(),
+                action: None,
             }
             .into_any_element()
         };

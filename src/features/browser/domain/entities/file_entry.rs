@@ -1,10 +1,11 @@
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::time::SystemTime;
 
 use crate::core::enums::files::file_kind::FileKind;
 use crate::core::enums::tags::tag_color::TagColor;
 
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub struct FileEntry {
     pub name: String,
     pub path: PathBuf,

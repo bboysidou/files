@@ -38,6 +38,7 @@ impl RenderOnce for PreviewImage {
                     icon: Icon::Image,
                     title: t!("ql.failed.title").to_string().into(),
                     body: t!("ql.failed.body").to_string().into(),
+                    action: None,
                 }
                 .into_any_element()
             });

@@ -1,5 +1,6 @@
 pub mod actions;
 pub mod browser_actions;
+pub mod browser_admin;
 pub mod browser_apps;
 pub mod browser_archive_job;
 pub mod browser_browse_archive;
@@ -32,8 +33,9 @@ pub mod browser_properties;
 pub mod browser_quick_look;
 pub mod browser_run_card;
 pub mod browser_server_edit;
+pub mod browser_server_list;
+pub mod browser_server_list_render;
 pub mod browser_server_panel;
-pub mod browser_server_ssh;
 pub mod browser_settings;
 pub mod browser_settings_items;
 pub mod browser_tab_handoff;

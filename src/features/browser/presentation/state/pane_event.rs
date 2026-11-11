@@ -12,6 +12,7 @@ pub enum PaneEvent {
     RenameRequested(Transfer),
     ViewOptionsChanged(ViewOptions),
     Message(String),
+    AuthRequested,
     ContextMenu(Point<Pixels>),
     RestoreRequested(Vec<PathBuf>),
     Picked(Vec<PathBuf>),

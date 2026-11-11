@@ -2,10 +2,11 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
 use crate::core::constants::devices::{
-    BUSY_MARKER, DEVICE_PREFIX, DISK_TYPE, LSBLK_ARGS, LSBLK_COMMAND, PARTITION_TYPE,
-    SWAP_FILESYSTEM, UDISKS_BLOCK_FLAG, UDISKS_COMMAND, UDISKS_MOUNT, UDISKS_MOUNTED_AT,
-    UDISKS_NO_PROMPT, UDISKS_POWER_OFF, UDISKS_UNMOUNT,
+    AUTH_DISMISSED_MARKER, BUSY_MARKER, DEVICE_PREFIX, DISK_TYPE, LSBLK_ARGS, LSBLK_COMMAND,
+    NOT_AUTHORIZED_MARKER, PARTITION_TYPE, SWAP_FILESYSTEM, UDISKS_BLOCK_FLAG, UDISKS_COMMAND,
+    UDISKS_MOUNT, UDISKS_MOUNTED_AT, UDISKS_NO_PROMPT, UDISKS_POWER_OFF, UDISKS_UNMOUNT,
 };
+use crate::core::enums::operations::auth_mode::AuthMode;
 use crate::core::helpers::files::sync_folder::sync_folder;
 use crate::core::helpers::process::mount_users::mount_users;
 use crate::features::devices::data::models::lsblk_node::{LsblkNode, LsblkReport};
@@ -21,21 +22,35 @@ use crate::features::devices::domain::entities::format_request::{
 pub struct UdisksDeviceRepository;
 
 impl UdisksDeviceRepository {
-    fn udisks(verb: &str, block: &Path) -> Result<Output, DeviceError> {
-        let output = Command::new(UDISKS_COMMAND)
-            .args([verb, UDISKS_NO_PROMPT, UDISKS_BLOCK_FLAG])
+    fn udisks(verb: &str, block: &Path, mode: AuthMode) -> Result<Output, DeviceError> {
+        let mut command = Command::new(UDISKS_COMMAND);
+        command.arg(verb);
+        if mode == AuthMode::Silent {
+            command.arg(UDISKS_NO_PROMPT);
+        }
+        let output = command
+            .arg(UDISKS_BLOCK_FLAG)
             .arg(block)
             .output()
             .map_err(|_| DeviceError::Failed)?;
         if output.status.success() {
             return Ok(output);
         }
-        let message = String::from_utf8_lossy(&output.stderr).to_lowercase();
-        Err(if message.contains(BUSY_MARKER) {
+        Err(Self::error_of(
+            &String::from_utf8_lossy(&output.stderr).to_lowercase(),
+        ))
+    }
+
+    fn error_of(message: &str) -> DeviceError {
+        if message.contains(AUTH_DISMISSED_MARKER) {
+            DeviceError::Cancelled
+        } else if message.contains(NOT_AUTHORIZED_MARKER) {
+            DeviceError::NotAuthorized
+        } else if message.contains(BUSY_MARKER) {
             DeviceError::Busy
         } else {
             DeviceError::Failed
-        })
+        }
     }
 
     fn collect(node: &LsblkNode, removable_parent: bool, devices: &mut Vec<Device>) {
@@ -94,23 +109,23 @@ impl DeviceRepository for UdisksDeviceRepository {
         devices
     }
 
-    fn mount(&self, device: &Device) -> Result<PathBuf, DeviceError> {
+    fn mount(&self, device: &Device, mode: AuthMode) -> Result<PathBuf, DeviceError> {
         if let Some(mount) = &device.mount {
             return Ok(mount.clone());
         }
-        let output = Self::udisks(UDISKS_MOUNT, &device.block)?;
+        let output = Self::udisks(UDISKS_MOUNT, &device.block, mode)?;
         let text = String::from_utf8_lossy(&output.stdout);
         text.split_once(UDISKS_MOUNTED_AT)
             .map(|(_, path)| PathBuf::from(path.trim().trim_end_matches('.')))
             .ok_or(DeviceError::Failed)
     }
 
-    fn eject(&self, device: &Device) -> Result<(), DeviceError> {
+    fn eject(&self, device: &Device, mode: AuthMode) -> Result<(), DeviceError> {
         if device.mount.is_some() {
-            Self::udisks(UDISKS_UNMOUNT, &device.block)?;
+            Self::udisks(UDISKS_UNMOUNT, &device.block, mode)?;
         }
         if let Some(drive) = &device.drive {
-            let _ = Self::udisks(UDISKS_POWER_OFF, drive);
+            let _ = Self::udisks(UDISKS_POWER_OFF, drive, mode);
         }
         Ok(())
     }

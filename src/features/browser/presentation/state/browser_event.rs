@@ -9,5 +9,6 @@ pub enum BrowserEvent {
         edit: Option<PendingEdit>,
     },
     ServerRenamed(SavedServer),
+    ServerForgotten(String),
     TabDetached(TabSnapshot),
 }

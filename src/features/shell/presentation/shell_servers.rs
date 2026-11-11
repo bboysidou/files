@@ -1,7 +1,8 @@
-use gpui::{Context, Window};
+use gpui::{App, Context, Window};
 
 use crate::core::enums::network::network_protocol::NetworkProtocol;
 use crate::features::browser::presentation::state::browser_event::BrowserEvent;
+use crate::features::browser::presentation::state::pins::Pins;
 use crate::features::browser::presentation::state::server_names::ServerNames;
 use crate::features::network::domain::entities::saved_server::SavedServer;
 use crate::features::network::domain::usecases::server_key::server_key;
@@ -24,15 +25,21 @@ impl ShellView {
                 this.remember_server(server, replaces, cx)
             }
             BrowserEvent::ServerRenamed(server) => this.rename_server(server, cx),
+            BrowserEvent::ServerForgotten(uri) => this.forget_server(&uri.clone(), cx),
             BrowserEvent::TabDetached(tab) => Self::open_detached(tab.clone(), cx),
         }));
     }
 
-    pub(super) fn network_entries(&self) -> Vec<NetworkEntry> {
+    pub(super) fn network_entries(&self, cx: &App) -> Vec<NetworkEntry> {
+        let hidden: Vec<String> = cx
+            .try_global::<Pins>()
+            .map(|pins| pins.0.hidden_servers.clone())
+            .unwrap_or_default();
         let mut entries: Vec<NetworkEntry> = self
             .network
             .saved
             .iter()
+            .filter(|server| !hidden.contains(&server.uri))
             .filter_map(|server| {
                 let address = server_label(&server.uri)?;
                 let mount = self
@@ -135,7 +142,7 @@ impl ShellView {
         cx: &mut Context<Self>,
     ) {
         let Some(uri) = self
-            .network_entries()
+            .network_entries(cx)
             .into_iter()
             .nth(index)
             .and_then(|entry| entry.uri)
@@ -158,6 +165,10 @@ impl ShellView {
 
     pub(super) fn forget_server(&mut self, uri: &str, cx: &mut Context<Self>) {
         self.network.saved.retain(|saved| saved.uri != uri);
+        let pins = &mut cx.global_mut::<Pins>().0;
+        if pins.is_server_hidden(uri) {
+            pins.toggle_server(uri);
+        }
         self.publish_server_names(cx);
         self.persist(cx);
         cx.notify();

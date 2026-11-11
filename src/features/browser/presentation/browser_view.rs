@@ -177,6 +177,7 @@ impl BrowserView {
                 PaneEvent::RenameRequested(transfer) => this.rename(transfer.clone(), cx),
                 PaneEvent::ViewOptionsChanged(options) => this.apply_view_options(*options, cx),
                 PaneEvent::Message(message) => this.show_toast(message.clone(), false, cx),
+                PaneEvent::AuthRequested => this.authenticate(None, cx),
                 PaneEvent::ContextMenu(position) => this.open_menu(*position, window, cx),
                 PaneEvent::RestoreRequested(entries) => {
                     this.restore_from_trash(entries.clone(), cx)
@@ -244,7 +245,6 @@ impl Render for BrowserView {
             let pane = pane.read(cx);
             (pane.item_count(), pane.selected_count())
         };
-        let toast = self.toast_element(cx);
         let root = div()
             .relative()
             .key_context(BROWSER_CONTEXT)
@@ -268,8 +268,9 @@ impl Render for BrowserView {
                 on_settings,
                 item_count,
                 selected_count,
+                on_end_admin: self.end_admin_handler(cx),
             })
-            .children(toast)
+            .children(self.toast_element(cx))
             .children(sheets.into_iter().flatten())
             .children(confirm)
     }

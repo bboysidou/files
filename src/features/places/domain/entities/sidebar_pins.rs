@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct SidebarPins {
     pub favorites: Vec<PathBuf>,
     pub ssh: Vec<String>,
+    pub hidden_servers: Vec<String>,
 }
 
 impl SidebarPins {
@@ -33,6 +34,19 @@ impl SidebarPins {
                 self.ssh.remove(index);
             }
             None => self.ssh.push(alias.to_owned()),
+        }
+    }
+
+    pub fn is_server_hidden(&self, uri: &str) -> bool {
+        self.hidden_servers.iter().any(|hidden| hidden == uri)
+    }
+
+    pub fn toggle_server(&mut self, uri: &str) {
+        match self.hidden_servers.iter().position(|hidden| hidden == uri) {
+            Some(index) => {
+                self.hidden_servers.remove(index);
+            }
+            None => self.hidden_servers.push(uri.to_owned()),
         }
     }
 }

@@ -12,6 +12,8 @@ pub mod has_file_over;
 pub mod has_no_trash;
 pub mod is_archive;
 pub mod is_image;
+pub mod is_read_denied;
+pub mod is_write_denied;
 pub mod path_from_uri;
 pub mod pending_writeback;
 pub mod prune_cache;

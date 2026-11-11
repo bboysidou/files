@@ -10,6 +10,7 @@ pub mod kbd_hint;
 pub mod menu;
 pub mod modal_scrim;
 pub mod progress_bar;
+pub mod protocol_badge;
 pub mod tag_dots;
 pub mod text_field;
 pub mod toast;

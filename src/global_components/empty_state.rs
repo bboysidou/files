@@ -1,4 +1,6 @@
-use gpui::{App, IntoElement, RenderOnce, SharedString, Window, div, prelude::*, px, rgb};
+use gpui::{
+    AnyElement, App, IntoElement, RenderOnce, SharedString, Window, div, prelude::*, px, rgb,
+};
 
 use crate::core::enums::assets::icon::Icon;
 use crate::core::theme::colors::{FG_BRIGHT, FG_MUTED};
@@ -10,6 +12,7 @@ pub struct EmptyState {
     pub icon: Icon,
     pub title: SharedString,
     pub body: SharedString,
+    pub action: Option<AnyElement>,
 }
 
 impl RenderOnce for EmptyState {
@@ -30,5 +33,6 @@ impl RenderOnce for EmptyState {
                     .child(self.title),
             )
             .child(self.body)
+            .children(self.action)
     }
 }

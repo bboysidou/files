@@ -141,6 +141,7 @@ impl BrowserView {
                 icon: Icon::Panel,
                 title: t!("preview.nothing.title").to_string().into(),
                 body: t!("preview.nothing.body").to_string().into(),
+                action: None,
             };
             return Some(
                 PreviewColumn {

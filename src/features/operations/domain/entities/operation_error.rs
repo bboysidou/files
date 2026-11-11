@@ -1,4 +1,6 @@
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub enum OperationError {
     NotFound,
     PermissionDenied,
@@ -8,6 +10,7 @@ pub enum OperationError {
     Cancelled,
     NotEmpty,
     TooLargeForFat,
+    AdminNoTrash,
 }
 
 impl OperationError {
@@ -21,6 +24,7 @@ impl OperationError {
             OperationError::Cancelled => "op.error.cancelled",
             OperationError::NotEmpty => "op.error.not_empty",
             OperationError::TooLargeForFat => "op.error.too_large_for_fat",
+            OperationError::AdminNoTrash => "op.error.admin_no_trash",
         }
     }
 }

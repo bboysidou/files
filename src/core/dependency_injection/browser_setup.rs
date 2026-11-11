@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use crate::core::dependency_injection::admin::admin_session;
 use crate::core::dependency_injection::applications::{app_catalog, app_launcher};
 use crate::core::dependency_injection::archives::archive_tool;
 use crate::core::dependency_injection::browser::{
@@ -31,6 +32,7 @@ pub fn browser_setup(
         properties: properties_source(),
         network: network_mounter(),
         repository,
+        admin: admin_session(),
         launcher: file_launcher(),
         apps: app_catalog(),
         app_launcher: app_launcher(),

@@ -7,6 +7,7 @@ use crate::core::theme::metrics::TOAST_OFFSET;
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::handlers::ViewHandler;
 use crate::features::browser::presentation::state::tab_strip_model::TabStripModel;
+use crate::features::browser::presentation::state::toast_model::ToastAction;
 use crate::global_components::handlers::IndexPairHandler;
 use crate::global_components::handlers::{ClickHandler, IndexHandler};
 use crate::global_components::toast::Toast;
@@ -51,12 +52,15 @@ impl BrowserView {
     pub(super) fn toast_element(&self, cx: &mut Context<Self>) -> Option<AnyElement> {
         let toast = self.toasts.current.clone()?;
         let view = cx.entity().downgrade();
-        let undo: ClickHandler = Rc::new(move |_, cx| {
-            let _ = view.update(cx, |this, cx| this.undo(cx));
+        let action = toast.action.map(|action| match action {
+            ToastAction::Undo => {
+                let undo: ClickHandler = Rc::new(move |_, cx| {
+                    let _ = view.update(cx, |this, cx| this.undo(cx));
+                });
+                (SharedString::from(t!("op.undo").to_string()), undo)
+            }
+            ToastAction::Run(label, handler) => (label, handler),
         });
-        let action = toast
-            .can_undo
-            .then(|| (SharedString::from(t!("op.undo").to_string()), undo));
         Some(
             div()
                 .absolute()

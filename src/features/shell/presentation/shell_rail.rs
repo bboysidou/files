@@ -45,7 +45,7 @@ impl ShellView {
             ssh: self.ssh_items(&location, cx),
             on_ssh,
             on_ssh_eject,
-            network: self.network_items(&location),
+            network: self.network_items(&location, cx),
             on_network,
             on_unmount,
             on_edit_network: Self::network_edit_handler(cx),

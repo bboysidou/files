@@ -4,6 +4,7 @@ use rust_i18n::t;
 use crate::core::dependency_injection::network::ssh_host_source;
 use crate::core::enums::network::network_protocol::NetworkProtocol;
 use crate::core::enums::network::server_field::ServerField;
+use crate::core::enums::network::server_tab::ServerTab;
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::browser_event::BrowserEvent;
 use crate::features::browser::presentation::state::server_edit::PendingEdit;
@@ -44,16 +45,25 @@ impl BrowserView {
         fields[ServerField::Port.index()].update(cx, |input, cx| {
             input.set_placeholder(form.protocol.default_port(), cx)
         });
-        window.focus(&fields[ServerField::Host.index()].focus_handle(cx), cx);
+        let (list, list_events) = Self::server_list(window, cx);
+        let ssh_hosts = ssh_host_source().hosts();
+        let tab = if original.is_none() && Self::has_server_choices(&ssh_hosts, cx) {
+            ServerTab::Servers
+        } else {
+            ServerTab::New
+        };
         self.server_edit = Some(ServerEditState {
             original,
             protocol: form.protocol,
             fields,
             focus: cx.focus_handle(),
             error: None,
-            ssh_hosts: ssh_host_source().hosts(),
-            _events: events,
+            ssh_hosts,
+            tab,
+            list,
+            _events: events.into_iter().chain([list_events]).collect(),
         });
+        self.focus_server_tab(window, cx);
         cx.notify();
     }
 
@@ -93,7 +103,11 @@ impl BrowserView {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        let Some(edit) = self.server_edit.as_ref() else {
+        let Some(edit) = self
+            .server_edit
+            .as_ref()
+            .filter(|edit| edit.tab == ServerTab::New)
+        else {
             return;
         };
         let count = edit.fields.len();

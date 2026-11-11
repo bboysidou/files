@@ -45,7 +45,7 @@ impl ShellView {
                 order.extend((0..self.devices.len()).map(RailStop::Device));
                 order.extend((0..self.phones.phones.len()).map(RailStop::Phone));
                 order.extend((0..self.ssh_entries(cx).len()).map(RailStop::Ssh));
-                order.extend((0..self.network_entries().len()).map(RailStop::Network));
+                order.extend((0..self.network_entries(cx).len()).map(RailStop::Network));
             }
         }
         order.extend((0..TagColor::ALL.len()).map(RailStop::Tag));
@@ -89,7 +89,7 @@ impl ShellView {
             return RailStop::Ssh(index);
         }
         if let Some(index) = self
-            .network_items(&location)
+            .network_items(&location, cx)
             .iter()
             .position(|item| item.active)
         {

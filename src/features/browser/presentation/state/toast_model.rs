@@ -1,7 +1,15 @@
 use gpui::SharedString;
 
-#[derive(Clone, PartialEq, Eq, Debug)]
+use crate::global_components::handlers::ClickHandler;
+
+#[derive(Clone)]
+pub enum ToastAction {
+    Undo,
+    Run(SharedString, ClickHandler),
+}
+
+#[derive(Clone)]
 pub struct ToastModel {
     pub message: SharedString,
-    pub can_undo: bool,
+    pub action: Option<ToastAction>,
 }

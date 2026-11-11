@@ -1,3 +1,4 @@
+pub mod admin;
 pub mod applications;
 pub mod archives;
 pub mod browser;

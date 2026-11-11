@@ -13,7 +13,7 @@ use crate::core::helpers::format::item_count::item_count;
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
 use crate::features::browser::presentation::state::operation_intent::OperationIntent;
-use crate::features::browser::presentation::state::toast_model::ToastModel;
+use crate::features::browser::presentation::state::toast_model::{ToastAction, ToastModel};
 use crate::features::operations::domain::entities::clipboard::Clipboard;
 use crate::features::operations::domain::entities::file_operation::{FileOperation, Transfer};
 use crate::features::operations::domain::entities::operation_error::OperationError;
@@ -225,16 +225,28 @@ impl BrowserView {
     }
 
     pub(super) fn show_error(&mut self, error: OperationError, cx: &mut Context<Self>) {
+        if self.wants_admin(error) {
+            return self.offer_admin(error, None, cx);
+        }
         let reason = t!(error.label_key());
         self.show_toast(t!("op.failed", reason = reason).to_string(), false, cx);
     }
 
     pub(super) fn show_toast(&mut self, message: String, can_undo: bool, cx: &mut Context<Self>) {
+        self.show_toast_action(message, can_undo.then_some(ToastAction::Undo), cx);
+    }
+
+    pub fn show_toast_action(
+        &mut self,
+        message: String,
+        action: Option<ToastAction>,
+        cx: &mut Context<Self>,
+    ) {
         self.toasts.generation += 1;
         let generation = self.toasts.generation;
         self.toasts.current = Some(ToastModel {
             message: SharedString::from(message),
-            can_undo,
+            action,
         });
         self.toasts.task = Some(cx.spawn(async move |this, cx| {
             cx.background_executor()

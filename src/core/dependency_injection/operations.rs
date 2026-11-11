@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use crate::core::dependency_injection::admin::pkexec_session;
+use crate::features::admin::data::repositories::admin_file_operations::AdminFileOperations;
 use crate::features::operations::data::repositories::freedesktop_trash_bin::FreedesktopTrashBin;
 use crate::features::operations::data::repositories::local_file_operations::LocalFileOperations;
 use crate::features::operations::data::repositories::local_run_inspector::LocalRunInspector;
@@ -10,7 +12,10 @@ use crate::features::operations::domain::repositories::system_clipboard::SystemC
 use crate::features::operations::domain::repositories::trash_bin::TrashBin;
 
 pub fn file_operations() -> Arc<dyn FileOperations> {
-    Arc::new(LocalFileOperations)
+    Arc::new(AdminFileOperations::new(
+        Arc::new(LocalFileOperations),
+        pkexec_session(),
+    ))
 }
 
 pub fn system_clipboard() -> Arc<dyn SystemClipboard> {

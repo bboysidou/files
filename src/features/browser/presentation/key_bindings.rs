@@ -18,6 +18,8 @@ pub const SETTINGS_CONTEXT: &str = "Settings";
 pub const BULK_CONTEXT: &str = "BulkRename";
 pub const LOGIN_CONTEXT: &str = "NetworkLogin";
 pub const SERVER_EDIT_CONTEXT: &str = "ServerEdit";
+pub const SERVER_LIST_CONTEXT: &str = "ServerList";
+const SERVER_LIST_FIELD_KEYS: &str = "ServerList > TextField";
 pub const PROPERTIES_CONTEXT: &str = "Properties";
 pub(super) const PANE_KEYS: &str = "Pane && !TextField";
 
@@ -191,14 +193,28 @@ fn overlay_bindings() -> Vec<KeyBinding> {
             ServerEditPreviousType,
             Some(SERVER_EDIT_CONTEXT),
         ),
-        KeyBinding::new("alt-down", ServerEditNextSsh, Some(SERVER_EDIT_CONTEXT)),
-        KeyBinding::new("alt-up", ServerEditPreviousSsh, Some(SERVER_EDIT_CONTEXT)),
-        KeyBinding::new("alt-p", ServerEditPinSsh, Some(SERVER_EDIT_CONTEXT)),
+        KeyBinding::new("alt-p", ServerListPin, Some(SERVER_LIST_CONTEXT)),
+        KeyBinding::new("alt-e", ServerListEdit, Some(SERVER_LIST_CONTEXT)),
+        KeyBinding::new("alt-delete", ServerListForget, Some(SERVER_LIST_CONTEXT)),
+        KeyBinding::new("ctrl-tab", ServerEditSwitchTab, Some(SERVER_EDIT_CONTEXT)),
+        KeyBinding::new(
+            "ctrl-shift-tab",
+            ServerEditSwitchTab,
+            Some(SERVER_EDIT_CONTEXT),
+        ),
         KeyBinding::new("escape", CloseProperties, Some(PROPERTIES_CONTEXT)),
         KeyBinding::new("enter", ConfirmAccept, Some(CONFIRM_CONTEXT)),
         KeyBinding::new("escape", ConfirmCancel, Some(CONFIRM_CONTEXT)),
         KeyBinding::new("m", CollisionMerge, Some(CONFIRM_CONTEXT)),
         KeyBinding::new("s", CollisionSkip, Some(CONFIRM_CONTEXT)),
         KeyBinding::new("r", CollisionReplace, Some(CONFIRM_CONTEXT)),
+    ]
+}
+
+pub fn field_override_key_bindings() -> Vec<KeyBinding> {
+    let context = Some(SERVER_LIST_FIELD_KEYS);
+    vec![
+        KeyBinding::new("down", ServerListNext, context),
+        KeyBinding::new("up", ServerListPrevious, context),
     ]
 }

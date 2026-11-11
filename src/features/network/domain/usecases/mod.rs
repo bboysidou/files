@@ -4,6 +4,7 @@ pub mod network_mount_root;
 pub mod network_uri;
 pub mod network_uri_user;
 pub mod saved_server_name;
+pub mod server_choices;
 pub mod server_form_of;
 pub mod server_form_uri;
 pub mod server_key;

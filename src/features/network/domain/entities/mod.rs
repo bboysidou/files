@@ -2,6 +2,7 @@ pub mod network_credentials;
 pub mod network_mount;
 pub mod network_mount_error;
 pub mod saved_server;
+pub mod server_choice;
 pub mod server_form;
 pub mod server_form_error;
 pub mod sftp_location;

@@ -5,12 +5,14 @@ use gpui::{Context, SharedString};
 use rust_i18n::t;
 
 use crate::core::constants::devices::{DEVICE_EVENTS_DIR, DEVICE_REFRESH_DEBOUNCE_MS};
+use crate::core::enums::operations::auth_mode::AuthMode;
+use crate::features::browser::presentation::state::toast_model::ToastAction;
 use crate::features::devices::domain::entities::device::Device;
 use crate::features::devices::domain::entities::device_error::DeviceError;
 use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::features::shell::presentation::shell_view::ShellView;
 use crate::features::shell::presentation::state::device_item::DeviceItem;
-use crate::global_components::handlers::IndexHandler;
+use crate::global_components::handlers::{ClickHandler, IndexHandler};
 
 impl ShellView {
     pub(super) fn refresh_devices(&mut self, cx: &mut Context<Self>) {
@@ -74,15 +76,18 @@ impl ShellView {
             self.report(t!("device.format.locked").to_string(), cx);
             return;
         }
-        let Some(device) = self.devices.get(index).cloned() else {
-            return;
-        };
+        if let Some(device) = self.devices.get(index).cloned() {
+            self.mount_device(device, AuthMode::Silent, cx);
+        }
+    }
+
+    fn mount_device(&mut self, device: Device, mode: AuthMode, cx: &mut Context<Self>) {
         let repository = self.device_repository.clone();
         self.device_task = Some(cx.spawn(async move |this, cx| {
             let probe = device.clone();
             let mounted = cx
                 .background_executor()
-                .spawn(async move { repository.mount(&probe) })
+                .spawn(async move { repository.mount(&probe, mode) })
                 .await;
             let _ = this.update(cx, |this, cx| match mounted {
                 Ok(path) => {
@@ -91,9 +96,39 @@ impl ShellView {
                     });
                     this.refresh_devices(cx);
                 }
+                Err(DeviceError::NotAuthorized) if mode == AuthMode::Silent => {
+                    let message = Self::failure(&device, DeviceError::NotAuthorized);
+                    let retry = this.retry_handler(device, Self::mount_device, cx);
+                    this.offer_auth(message, retry, cx);
+                }
                 Err(error) => this.report(Self::failure(&device, error), cx),
             });
         }));
+    }
+
+    pub(super) fn retry_handler(
+        &self,
+        device: Device,
+        run: fn(&mut Self, Device, AuthMode, &mut Context<Self>),
+        cx: &mut Context<Self>,
+    ) -> ClickHandler {
+        let view = cx.entity().downgrade();
+        Rc::new(move |_, cx| {
+            let device = device.clone();
+            let _ = view.update(cx, |this, cx| run(this, device, AuthMode::Interactive, cx));
+        })
+    }
+
+    pub(super) fn offer_auth(
+        &mut self,
+        message: String,
+        retry: ClickHandler,
+        cx: &mut Context<Self>,
+    ) {
+        let label = SharedString::from(t!("auth.authenticate").to_string());
+        self.browser.update(cx, |browser, cx| {
+            browser.show_toast_action(message, Some(ToastAction::Run(label, retry)), cx)
+        });
     }
 
     pub(super) fn device_handlers(cx: &mut Context<Self>) -> (IndexHandler, IndexHandler) {

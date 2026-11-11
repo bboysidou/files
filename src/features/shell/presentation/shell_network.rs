@@ -1,10 +1,11 @@
 use std::path::PathBuf;
 use std::rc::Rc;
 
-use gpui::{Context, SharedString};
+use gpui::{App, Context, SharedString};
 use rust_i18n::t;
 
 use crate::core::constants::network::NETWORK_REFRESH_DEBOUNCE_MS;
+use crate::features::browser::presentation::state::pins::Pins;
 use crate::features::places::domain::entities::place::PlaceTarget;
 use crate::features::shell::presentation::shell_view::ShellView;
 use crate::features::shell::presentation::state::device_item::DeviceItem;
@@ -49,8 +50,15 @@ impl ShellView {
         }));
     }
 
-    pub(super) fn network_items(&self, location: &PlaceTarget) -> Vec<DeviceItem> {
-        self.network_entries()
+    pub(super) fn hide_server(&mut self, uri: &str, cx: &mut Context<Self>) {
+        cx.global_mut::<Pins>().0.toggle_server(uri);
+        self.persist(cx);
+        cx.refresh_windows();
+        cx.notify();
+    }
+
+    pub(super) fn network_items(&self, location: &PlaceTarget, cx: &App) -> Vec<DeviceItem> {
+        self.network_entries(cx)
             .into_iter()
             .map(|entry| DeviceItem {
                 active: matches!((location, &entry.mount), (PlaceTarget::Directory(path), Some(mount)) if path.starts_with(mount)),
@@ -63,7 +71,7 @@ impl ShellView {
     }
 
     pub(super) fn open_network(&mut self, index: usize, cx: &mut Context<Self>) {
-        let Some(entry) = self.network_entries().into_iter().nth(index) else {
+        let Some(entry) = self.network_entries(cx).into_iter().nth(index) else {
             return;
         };
         match (entry.mount, entry.uri) {
@@ -80,12 +88,12 @@ impl ShellView {
     }
 
     pub(super) fn network_trailing(&mut self, index: usize, cx: &mut Context<Self>) {
-        let Some(entry) = self.network_entries().into_iter().nth(index) else {
+        let Some(entry) = self.network_entries(cx).into_iter().nth(index) else {
             return;
         };
         match (entry.mount, entry.uri) {
             (Some(mount), _) => self.unmount_network(entry.label, mount, cx),
-            (None, Some(uri)) => self.forget_server(&uri, cx),
+            (None, Some(uri)) => self.hide_server(&uri, cx),
             (None, None) => {}
         }
     }

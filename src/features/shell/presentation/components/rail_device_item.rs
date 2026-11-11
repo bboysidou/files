@@ -1,18 +1,14 @@
 use gpui::{
-    App, Div, FontWeight, Hsla, IntoElement, MouseButton, RenderOnce, SharedString, Window, div,
-    hsla, prelude::*, px, rgb,
+    App, Div, FontWeight, IntoElement, MouseButton, RenderOnce, SharedString, Window, div,
+    prelude::*, px, rgb,
 };
 
 use crate::core::enums::assets::icon::Icon;
 use crate::core::enums::network::network_protocol::NetworkProtocol;
 use crate::core::helpers::theme::focus_ring::focus_ring;
-use crate::core::theme::colors::{
-    ACCENT, BADGE_BACKGROUND_OPACITY, BADGE_LIGHTNESS, BADGE_SATURATION, CARD, DANGER, FG_BRIGHT,
-    FG_NAV, ON_ACCENT,
-};
+use crate::core::theme::colors::{ACCENT, CARD, FG_BRIGHT, FG_NAV, ON_ACCENT};
 use crate::core::theme::metrics::{
-    BADGE_PAD_Y, BADGE_RADIUS, CONTROL_RADIUS, NAV_GAP, NAV_HEIGHT, NAV_PAD_X, PROTOCOL_BADGE_GAP,
-    PROTOCOL_BADGE_PAD_X, PROTOCOL_ICON_SIZE, RAIL_ITEM_COLLAPSED, TEXT_TINY,
+    CONTROL_RADIUS, NAV_GAP, NAV_HEIGHT, NAV_PAD_X, RAIL_ITEM_COLLAPSED,
 };
 use crate::features::shell::presentation::components::rail_label::RailLabel;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
@@ -20,9 +16,9 @@ use crate::global_components::drag::accept_paths::accept_paths;
 use crate::global_components::handlers::{ClickHandler, IndexHandler, PathsHandler};
 use crate::global_components::icon_button::IconButton;
 use crate::global_components::icon_glyph::IconGlyph;
+use crate::global_components::protocol_badge::ProtocolBadge;
 
 const GROUP: &str = "rail-device";
-const OPAQUE: f32 = 1.0;
 
 #[derive(IntoElement)]
 pub struct RailDeviceItem {
@@ -114,34 +110,8 @@ impl RenderOnce for RailDeviceItem {
                 self.motion,
             ))
             .when_some(self.protocol, |item, protocol| {
-                item.child(protocol_badge(protocol))
+                item.child(ProtocolBadge { protocol })
             })
             .child(actions)
     }
-}
-
-fn protocol_badge(protocol: NetworkProtocol) -> Div {
-    let color: Hsla = hsla(protocol.hue(), BADGE_SATURATION, BADGE_LIGHTNESS, OPAQUE);
-    let (icon, tint) = if protocol.encrypted() {
-        (Icon::Key, FG_NAV)
-    } else {
-        (Icon::Warning, DANGER)
-    };
-    div()
-        .flex()
-        .flex_shrink_0()
-        .items_center()
-        .gap(px(PROTOCOL_BADGE_GAP))
-        .child(IconGlyph::new(icon, tint).size(PROTOCOL_ICON_SIZE))
-        .child(
-            div()
-                .px(px(PROTOCOL_BADGE_PAD_X))
-                .py(px(BADGE_PAD_Y))
-                .rounded(px(BADGE_RADIUS))
-                .bg(color.opacity(BADGE_BACKGROUND_OPACITY))
-                .text_color(color)
-                .text_size(px(TEXT_TINY))
-                .font_weight(FontWeight::SEMIBOLD)
-                .child(protocol.badge()),
-        )
 }

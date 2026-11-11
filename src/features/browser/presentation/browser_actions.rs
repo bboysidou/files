@@ -26,7 +26,8 @@ use crate::features::browser::presentation::actions::{
 };
 use crate::features::browser::presentation::actions::{MoveTabLeft, MoveTabRight};
 use crate::features::browser::presentation::actions::{
-    ServerEditNextSsh, ServerEditPinSsh, ServerEditPreviousSsh,
+    ServerEditSwitchTab, ServerListEdit, ServerListForget, ServerListNext, ServerListPin,
+    ServerListPrevious,
 };
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
@@ -109,15 +110,26 @@ impl BrowserView {
 
     fn with_pin_actions(element: Div, cx: &mut Context<Self>) -> Div {
         element
-            .on_action(cx.listener(|this, _: &ServerEditNextSsh, window, cx| {
-                this.step_ssh_host(true, window, cx)
-            }))
-            .on_action(cx.listener(|this, _: &ServerEditPreviousSsh, window, cx| {
-                this.step_ssh_host(false, window, cx)
+            .on_action(
+                cx.listener(|this, _: &ServerListNext, _, cx| this.step_server_choice(1, cx)),
+            )
+            .on_action(
+                cx.listener(|this, _: &ServerListPrevious, _, cx| this.step_server_choice(-1, cx)),
+            )
+            .on_action(
+                cx.listener(|this, _: &ServerListPin, _, cx| this.toggle_server_pin(None, cx)),
+            )
+            .on_action(cx.listener(|this, _: &ServerListEdit, window, cx| {
+                this.edit_server_choice(window, cx)
             }))
             .on_action(
-                cx.listener(|this, _: &ServerEditPinSsh, _, cx| this.toggle_picked_ssh_pin(cx)),
+                cx.listener(|this, _: &ServerListForget, _, cx| {
+                    this.forget_server_choice(None, cx)
+                }),
             )
+            .on_action(cx.listener(|this, _: &ServerEditSwitchTab, window, cx| {
+                this.toggle_server_tab(window, cx)
+            }))
             .on_action(cx.listener(|this, _: &ToggleFavorite, _, cx| this.toggle_favorite(cx)))
     }
 

@@ -12,6 +12,7 @@ use crate::core::constants::notifications::{
 };
 use crate::core::dependency_injection::notifications::live_notes;
 use crate::core::enums::notifications::note_urgency::NoteUrgency;
+use crate::core::enums::operations::auth_mode::AuthMode;
 use crate::core::helpers::files::pending_writeback::pending_writeback;
 use crate::core::helpers::format::file_size::file_size;
 use crate::features::devices::domain::entities::device::Device;
@@ -97,9 +98,12 @@ impl ShellView {
             self.report(t!("device.format.locked").to_string(), cx);
             return;
         }
-        let Some(device) = self.devices.get(index).cloned() else {
-            return;
-        };
+        if let Some(device) = self.devices.get(index).cloned() {
+            self.eject_with(device, AuthMode::Silent, cx);
+        }
+    }
+
+    fn eject_with(&mut self, device: Device, mode: AuthMode, cx: &mut Context<Self>) {
         if let Some(mount) = device.mount.clone() {
             if self.refuse_busy(&device.label, &mount, cx) {
                 return;
@@ -113,13 +117,13 @@ impl ShellView {
         }
         let repository = self.device_repository.clone();
         self.device_task = Some(cx.spawn(async move |this, cx| {
-            Self::eject_flow(repository, device, this, cx).await;
+            Self::eject_flow(repository, (device, mode), this, cx).await;
         }));
     }
 
     async fn eject_flow(
         repository: Arc<dyn DeviceRepository>,
-        device: Device,
+        (device, mode): (Device, AuthMode),
         this: WeakEntity<Self>,
         cx: &mut AsyncApp,
     ) {
@@ -131,7 +135,7 @@ impl ShellView {
         let ejected = cx
             .background_executor()
             .spawn(async move {
-                let outcome = repository.eject(&probe);
+                let outcome = repository.eject(&probe, mode);
                 let users = match (&outcome, &probe.mount) {
                     (Err(DeviceError::Busy), Some(mount)) => repository.users(mount),
                     _ => Vec::new(),
@@ -142,6 +146,13 @@ impl ShellView {
         let (outcome, users) = ejected;
         live_notes().finish(slot, Some(result_note(&device, outcome, &users)));
         let _ = this.update(cx, |this, cx| {
+            if outcome == Err(DeviceError::NotAuthorized) && mode == AuthMode::Silent {
+                let message = Self::failure(&device, DeviceError::NotAuthorized);
+                let retry = this.retry_handler(device.clone(), Self::eject_with, cx);
+                this.offer_auth(message, retry, cx);
+                this.refresh_devices(cx);
+                return;
+            }
             let message = match outcome {
                 Ok(()) => t!("device.ejected", label = device.label).to_string(),
                 Err(DeviceError::Busy) if !users.is_empty() => t!(

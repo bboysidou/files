@@ -9,6 +9,7 @@ use rust_i18n::t;
 
 use crate::core::enums::assets::icon::Icon;
 use crate::core::enums::browser::sort_key::SortKey;
+use crate::core::enums::view::button_tone::ButtonTone;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::core::theme::metrics::{LIST_CELL_PAD_X, LIST_NAME_MIN_WIDTH};
 use crate::features::browser::domain::entities::list_error::ListError;
@@ -17,10 +18,12 @@ use crate::features::browser::presentation::components::list_header::ListHeader;
 use crate::features::browser::presentation::pane_view::PaneView;
 use crate::features::browser::presentation::state::handlers::SortHandler;
 use crate::features::browser::presentation::state::load_state::LoadState;
+use crate::features::browser::presentation::state::pane_event::PaneEvent;
 use crate::features::browser::presentation::state::row_click::RowClick;
 use crate::features::places::domain::entities::place::PlaceTarget;
+use crate::global_components::dialog_button::DialogButton;
 use crate::global_components::empty_state::EmptyState;
-use crate::global_components::handlers::IndexClickHandler;
+use crate::global_components::handlers::{ClickHandler, IndexClickHandler};
 
 impl PaneView {
     fn empty_state(icon: Icon, prefix: &str) -> AnyElement {
@@ -29,6 +32,29 @@ impl PaneView {
             icon,
             title: t!(&title).to_string().into(),
             body: t!(&body).to_string().into(),
+            action: None,
+        }
+        .into_any_element()
+    }
+
+    fn denied_state(cx: &mut Context<Self>) -> AnyElement {
+        let view = cx.entity().downgrade();
+        let on_click: ClickHandler = Rc::new(move |_, cx| {
+            let _ = view.update(cx, |_, cx| cx.emit(PaneEvent::AuthRequested));
+        });
+        EmptyState {
+            icon: Icon::Folder,
+            title: t!("empty.denied.title").to_string().into(),
+            body: t!("empty.denied.body").to_string().into(),
+            action: Some(
+                DialogButton {
+                    id: "authenticate",
+                    label: t!("auth.authenticate").to_string().into(),
+                    tone: ButtonTone::Accent,
+                    on_click,
+                }
+                .into_any_element(),
+            ),
         }
         .into_any_element()
     }
@@ -40,6 +66,7 @@ impl PaneView {
                 .to_string()
                 .into(),
             body: t!("empty.filter.body").to_string().into(),
+            action: None,
         }
         .into_any_element()
     }
@@ -48,9 +75,7 @@ impl PaneView {
         match &self.load {
             LoadState::Unlisted if self.location == PlaceTarget::Overview => self.overview_page(cx),
             LoadState::Unlisted => Self::empty_state(Icon::Overview, "empty.overview"),
-            LoadState::Failed(ListError::PermissionDenied) => {
-                Self::empty_state(Icon::Folder, "empty.denied")
-            }
+            LoadState::Failed(ListError::PermissionDenied) => Self::denied_state(cx),
             LoadState::Failed(ListError::NotFound) => {
                 Self::empty_state(Icon::Folder, "empty.missing")
             }

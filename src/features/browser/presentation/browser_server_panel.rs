@@ -8,6 +8,7 @@ use rust_i18n::t;
 
 use crate::core::enums::network::network_protocol::NetworkProtocol;
 use crate::core::enums::network::server_field::ServerField;
+use crate::core::enums::network::server_tab::ServerTab;
 use crate::core::theme::colors::{CARD, DANGER, FG_BRIGHT, FG_MUTED, LINE_STRONG};
 use crate::core::theme::metrics::{
     QUICK_LOOK_MARGIN, QUICK_LOOK_RADIUS, SERVER_PORT_WIDTH, SETTINGS_PANEL_WIDTH, SHEET_PANEL_PAD,
@@ -97,6 +98,21 @@ impl BrowserView {
             .into_any_element()
     }
 
+    fn server_form_view(edit: &ServerEditState, cx: &mut Context<Self>) -> Vec<AnyElement> {
+        vec![
+            Self::server_protocols(edit, cx),
+            Self::server_address_row(edit),
+            Self::server_input(edit, ServerField::User),
+            Self::server_input(edit, ServerField::Path),
+            Self::server_input(edit, ServerField::Name),
+            Self::server_status(edit, cx),
+            div()
+                .text_color(rgb(FG_MUTED))
+                .child(t!("server_edit.hint").to_string())
+                .into_any_element(),
+        ]
+    }
+
     fn server_edit_panel(&self, width: Pixels, cx: &mut Context<Self>) -> Option<AnyElement> {
         let edit = self.server_edit.as_ref()?;
         Some(
@@ -113,18 +129,11 @@ impl BrowserView {
                 .shadow_lg()
                 .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
                 .child(Self::server_title(edit))
-                .child(Self::server_protocols(edit, cx))
-                .children(Self::server_ssh_hosts(edit, cx))
-                .child(Self::server_address_row(edit))
-                .child(Self::server_input(edit, ServerField::User))
-                .child(Self::server_input(edit, ServerField::Path))
-                .child(Self::server_input(edit, ServerField::Name))
-                .child(Self::server_status(edit, cx))
-                .child(
-                    div()
-                        .text_color(rgb(FG_MUTED))
-                        .child(t!("server_edit.hint").to_string()),
-                )
+                .children(Self::server_tabs(edit, cx))
+                .children(match edit.tab {
+                    ServerTab::Servers => Self::server_list_view(edit, cx),
+                    ServerTab::New => Self::server_form_view(edit, cx),
+                })
                 .into_any_element(),
         )
     }

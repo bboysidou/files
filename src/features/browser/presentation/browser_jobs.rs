@@ -51,12 +51,13 @@ impl BrowserView {
             paths: Self::resolve_job_paths(operation.touched_paths()),
         });
         let files = self.setup.operations.clone();
+        let retry = operation.clone();
         self.jobs.operation_task = Some(cx.spawn(async move |this, cx| {
             let result = cx
                 .background_executor()
                 .spawn(async move { run_operation(operation, files.as_ref(), counter.as_ref()) })
                 .await;
-            let _ = this.update(cx, |this, cx| this.finish(intent, result, cx));
+            let _ = this.update(cx, |this, cx| this.finish((retry, intent), result, cx));
         }));
         self.start_job_ticker(cx);
     }
@@ -81,7 +82,7 @@ impl BrowserView {
 
     fn finish(
         &mut self,
-        intent: OperationIntent,
+        (retry, intent): (FileOperation, OperationIntent),
         result: Result<FileOperation, OperationError>,
         cx: &mut Context<Self>,
     ) {
@@ -102,14 +103,22 @@ impl BrowserView {
                         NoteOutcome::Failed(t!(error.label_key()).to_string())
                     },
                 );
-                match intent {
-                    OperationIntent::Undo(operation) => self.history.push_undo(operation),
-                    OperationIntent::Redo(operation) => self.history.push_redo(operation),
-                    OperationIntent::Fresh
-                    | OperationIntent::FreshThenRename
-                    | OperationIntent::FreshInPlace => {}
+                let retry = match intent {
+                    OperationIntent::Undo(operation) => {
+                        self.history.push_undo(operation);
+                        None
+                    }
+                    OperationIntent::Redo(operation) => {
+                        self.history.push_redo(operation);
+                        None
+                    }
+                    fresh => Some((retry, fresh)),
+                };
+                if self.wants_admin(error) {
+                    self.offer_admin(error, retry, cx);
+                } else {
+                    self.show_error(error, cx);
                 }
-                self.show_error(error, cx);
                 self.reload_everything(cx);
             }
         }
