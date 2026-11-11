@@ -9,6 +9,10 @@
   <a href="https://gpui.rs">GPUI</a>.
 </p>
 
+<p align="center">
+  <a href="https://github.com/bboysidou/files/releases/latest"><img src="https://img.shields.io/github/v/release/bboysidou/files" alt="latest release"></a>
+</p>
+
 Inspired by [Flea](https://github.com/thisisgm/flea). `files` is a from-scratch rewrite that
 runs on any Linux desktop instead of a single distribution. It shares no code with Flea, and the
 Flea project is not involved in it.
