@@ -172,7 +172,7 @@ make install PREFIX=$HOME/.local  # for your user only, no sudo
 sudo make uninstall               # use the same PREFIX as the install
 make install DESTDIR=pkg PREFIX=/usr   # staged install, for packagers
 make dist                         # binary and source tarballs + SHA256SUMS in dist/
-make icons                        # regenerate assets/logo/icons/ (needs ImageMagick)
+make icons                        # regenerate assets/logo/icons/ (needs rsvg-convert)
 make clean                        # remove target/ and dist/
 make help                         # list the targets
 ```
@@ -486,7 +486,7 @@ The code follows a clean architecture per feature: `src/features/<feature>/` hol
 helpers, theme, dependency injection) and reusable UI in `src/global_components/`. User-facing
 text lives in `locales/en.yml` and `locales/fr.yml`.
 
-The app icon master is `assets/logo/files_logo.png`; after changing it, run `make icons`.
+The app icon master is `assets/logo/files_logo.svg`; after changing it, run `make icons`.
 
 ## Licence
 

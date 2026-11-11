@@ -10,9 +10,9 @@ DATADIR := $(PREFIX)/share
 ICONDIR := $(DATADIR)/icons/hicolor
 
 CARGO ?= cargo
-MAGICK ?= magick
+RSVG ?= rsvg-convert
 RELEASE_BIN := target/release/$(APP)
-LOGO := assets/logo/files_logo.png
+LOGO := assets/logo/files_logo.svg
 ICONS := assets/logo/icons
 ICON_SIZES := 16 24 32 48 64 128 256 512
 DESKTOP := packaging/$(APP_ID).desktop
@@ -32,7 +32,7 @@ help:
 	@echo "make install         install under PREFIX (default /usr/local); use sudo for system paths"
 	@echo "make uninstall       remove what install put in place"
 	@echo "make dist            binary tarball, source tarball and SHA256SUMS in $(DIST)/"
-	@echo "make icons           regenerate $(ICONS)/ from $(LOGO) (needs ImageMagick)"
+	@echo "make icons           regenerate $(ICONS)/ from $(LOGO) (needs rsvg-convert)"
 	@echo "make clean           remove target/ and $(DIST)/"
 	@echo "variables: PREFIX=$(PREFIX) DESTDIR=$(DESTDIR)"
 
@@ -73,7 +73,7 @@ uninstall:
 icons:
 	mkdir -p $(ICONS)
 	for size in $(ICON_SIZES); do \
-		$(MAGICK) $(LOGO) -filter Lanczos -resize $${size}x$${size} -strip PNG32:$(ICONS)/$$size.png || exit 1; \
+		$(RSVG) -w $$size -h $$size $(LOGO) -o $(ICONS)/$$size.png || exit 1; \
 	done
 
 dist: dist-bin dist-src
