@@ -51,15 +51,15 @@ impl BrowserView {
         let on_seek: AmountHandler = Rc::new(move |fraction, _, cx| {
             let _ = seek.update(cx, |this, cx| this.seek_playback(fraction, cx));
         });
-        let progress = facts
+        let timing = facts
             .duration_ms
             .filter(|duration| *duration > 0)
-            .map(|duration| player.position_ms() as f32 / duration as f32);
+            .map(|duration| (player.position_ms().min(duration), duration));
         Some(VideoStage {
             poster: poster.to_path_buf(),
             live: player.frame.clone(),
             playing: player.playing(),
-            progress,
+            timing,
             on_toggle,
             on_seek,
         })

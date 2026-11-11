@@ -5,10 +5,14 @@ use std::sync::Arc;
 
 use gpui::{
     App, Bounds, ImageSource, IntoElement, MouseButton, ObjectFit, Pixels, RenderImage, RenderOnce,
-    Window, canvas, div, img, prelude::*, px,
+    Window, canvas, div, img, prelude::*, px, rgb,
 };
 
-use crate::core::theme::metrics::{PLAY_BUTTON_SIZE, PLAY_ICON_SIZE, SEEK_HIT_PAD, TOOLBAR_GAP};
+use crate::core::helpers::format::duration_text::duration_text;
+use crate::core::theme::colors::FG_MUTED;
+use crate::core::theme::metrics::{
+    PLAY_BUTTON_SIZE, PLAY_ICON_SIZE, SEEK_HIT_PAD, TEXT_STATUS, TOOLBAR_GAP,
+};
 use crate::global_components::handlers::{AmountHandler, ClickHandler};
 use crate::global_components::play_badge::PlayBadge;
 use crate::global_components::progress_bar::ProgressBar;
@@ -18,7 +22,7 @@ pub struct VideoStage {
     pub poster: PathBuf,
     pub live: Option<Arc<RenderImage>>,
     pub playing: bool,
-    pub progress: Option<f32>,
+    pub timing: Option<(u64, u64)>,
     pub on_toggle: ClickHandler,
     pub on_seek: AmountHandler,
 }
@@ -58,10 +62,29 @@ impl RenderOnce for VideoStage {
                         })
                     }),
             )
-            .when_some(self.progress, |stage, fraction| {
-                stage.child(seek_bar(fraction, on_seek))
+            .when_some(self.timing, |stage, timing| {
+                stage.child(seek_row(timing, on_seek))
             })
     }
+}
+
+fn seek_row((position, duration): (u64, u64), on_seek: AmountHandler) -> impl IntoElement {
+    div()
+        .flex()
+        .items_center()
+        .gap(px(TOOLBAR_GAP))
+        .child(seek_bar(position as f32 / duration as f32, on_seek))
+        .child(
+            div()
+                .flex_shrink_0()
+                .text_size(px(TEXT_STATUS))
+                .text_color(rgb(FG_MUTED))
+                .child(format!(
+                    "{} / {}",
+                    duration_text(position),
+                    duration_text(duration)
+                )),
+        )
 }
 
 fn seek_bar(fraction: f32, on_seek: AmountHandler) -> impl IntoElement {
@@ -71,6 +94,7 @@ fn seek_bar(fraction: f32, on_seek: AmountHandler) -> impl IntoElement {
         .id("video-seek")
         .relative()
         .flex()
+        .flex_1()
         .py(px(SEEK_HIT_PAD))
         .cursor_pointer()
         .child(
