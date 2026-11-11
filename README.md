@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo/icons/128.png" alt="files logo" width="128" height="128">
+  <img src="assets/logo/files_logo.svg" alt="files logo" width="128" height="128">
 </p>
 
 <h1 align="center">files</h1>
