@@ -31,6 +31,7 @@ pub mod rich_text_view;
 pub mod settings_row;
 pub mod sheet;
 pub mod sheet_tab;
+pub mod ssh_host_chip;
 pub mod status_bar;
 pub mod tab_close_button;
 pub mod tab_strip;

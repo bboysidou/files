@@ -57,6 +57,7 @@ icons! {
     Overview => "overview",
     Panel => "panel",
     Phone => "phone",
+    Pin => "pin",
     Paste => "paste",
     Plus => "plus",
     Search => "search",

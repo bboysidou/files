@@ -114,6 +114,7 @@ impl BrowserView {
                 .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
                 .child(Self::server_title(edit))
                 .child(Self::server_protocols(edit, cx))
+                .children(Self::server_ssh_hosts(edit, cx))
                 .child(Self::server_address_row(edit))
                 .child(Self::server_input(edit, ServerField::User))
                 .child(Self::server_input(edit, ServerField::Path))

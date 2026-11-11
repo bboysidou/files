@@ -1,6 +1,6 @@
 use crate::core::enums::browser::key_preset::KeyPreset;
 
-pub const KEYMAP_ROWS: [(&str, &str); 45] = [
+pub const KEYMAP_ROWS: [(&str, &str); 46] = [
     ("keys.move", "j k · ↓ ↑"),
     ("keys.parent_open", "h l · ← →"),
     ("keys.open", "Enter"),
@@ -42,6 +42,7 @@ pub const KEYMAP_ROWS: [(&str, &str); 45] = [
     ("keys.menu", "m · right click"),
     ("keys.rail_focus", "Ctrl+0, then j k · Enter · x · e · Esc"),
     ("keys.connect", "Ctrl+K"),
+    ("keys.favorite", "Ctrl+Shift+D"),
     ("keys.history", "Alt+← / Alt+→"),
     ("keys.reload", "F5 / Ctrl+R"),
     ("keys.sheet", "?"),

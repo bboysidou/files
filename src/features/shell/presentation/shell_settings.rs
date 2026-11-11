@@ -7,6 +7,7 @@ use crate::features::browser::domain::entities::sort_order::SortOrder;
 use crate::features::browser::domain::entities::view_options::ViewOptions;
 use crate::features::browser::presentation::state::active_key_preset::ActiveKeyPreset;
 use crate::features::browser::presentation::state::browser_snapshot::BrowserSnapshot;
+use crate::features::browser::presentation::state::pins::Pins;
 use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::settings::domain::entities::settings::{SavedWindow, Settings};
 use crate::features::shell::presentation::app_key_bindings::bind_app_keys;
@@ -80,6 +81,10 @@ impl ShellView {
             key_preset: snapshot.key_preset,
             folder_views: snapshot.folder_views.clone(),
             servers: self.network.saved.clone(),
+            pins: cx
+                .try_global::<Pins>()
+                .map(|pins| pins.0.clone())
+                .unwrap_or_default(),
             view_mode: snapshot.options.view,
             columns: snapshot.options.columns,
             sidebar_open: self.rail.open,

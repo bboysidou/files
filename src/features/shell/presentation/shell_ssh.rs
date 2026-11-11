@@ -1,9 +1,10 @@
 use std::rc::Rc;
 
-use gpui::{Context, SharedString};
+use gpui::{App, Context, SharedString};
 
 use crate::core::constants::ssh::{SFTP_URI_PREFIX, SFTP_URI_SUFFIX};
 use crate::core::enums::network::network_protocol::NetworkProtocol;
+use crate::features::browser::presentation::state::pins::Pins;
 use crate::features::network::domain::entities::network_mount::NetworkMount;
 use crate::features::network::domain::usecases::server_key::server_key;
 use crate::features::network::domain::usecases::server_label::server_label;
@@ -14,7 +15,8 @@ use crate::features::shell::presentation::state::network_entry::NetworkEntry;
 use crate::global_components::handlers::IndexHandler;
 
 impl ShellView {
-    pub(super) fn ssh_entries(&self) -> Vec<NetworkEntry> {
+    pub(super) fn ssh_entries(&self, cx: &App) -> Vec<NetworkEntry> {
+        let pins = cx.try_global::<Pins>().map(|pins| &pins.0);
         self.network
             .ssh_hosts
             .iter()
@@ -29,17 +31,28 @@ impl ShellView {
                     .map(|mount| mount.path.clone()),
                 protocol: Some(NetworkProtocol::Sftp),
             })
+            .filter(|entry| {
+                entry.mount.is_some() || pins.is_some_and(|pins| pins.is_ssh_pinned(&entry.label))
+            })
             .collect()
     }
 
-    pub(super) fn ssh_items(&self, location: &PlaceTarget) -> Vec<DeviceItem> {
-        self.ssh_entries()
+    fn unpin_ssh(&mut self, alias: &str, cx: &mut Context<Self>) {
+        cx.global_mut::<Pins>().0.toggle_ssh(alias);
+        self.persist(cx);
+        cx.refresh_windows();
+        cx.notify();
+    }
+
+    pub(super) fn ssh_items(&self, location: &PlaceTarget, cx: &App) -> Vec<DeviceItem> {
+        let pins = cx.try_global::<Pins>().map(|pins| &pins.0);
+        self.ssh_entries(cx)
             .into_iter()
             .map(|entry| DeviceItem {
+                saved: pins.is_some_and(|pins| pins.is_ssh_pinned(&entry.label)),
                 active: matches!((location, &entry.mount), (PlaceTarget::Directory(path), Some(mount)) if path.starts_with(mount)),
                 label: SharedString::from(entry.label),
                 mounted: entry.mount.is_some(),
-                saved: false,
                 protocol: None,
             })
             .collect()
@@ -64,7 +77,7 @@ impl ShellView {
     }
 
     pub(super) fn open_ssh(&mut self, index: usize, cx: &mut Context<Self>) {
-        let Some(entry) = self.ssh_entries().into_iter().nth(index) else {
+        let Some(entry) = self.ssh_entries(cx).into_iter().nth(index) else {
             return;
         };
         match (entry.mount, entry.uri) {
@@ -79,11 +92,12 @@ impl ShellView {
     }
 
     pub(super) fn eject_ssh(&mut self, index: usize, cx: &mut Context<Self>) {
-        let Some(entry) = self.ssh_entries().into_iter().nth(index) else {
+        let Some(entry) = self.ssh_entries(cx).into_iter().nth(index) else {
             return;
         };
-        if let Some(mount) = entry.mount {
-            self.unmount_network(entry.label, mount, cx);
+        match entry.mount {
+            Some(mount) => self.unmount_network(entry.label, mount, cx),
+            None => self.unpin_ssh(&entry.label, cx),
         }
     }
 

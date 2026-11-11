@@ -1,4 +1,5 @@
 pub mod device_item;
+pub mod favorite_rail;
 pub mod launch_service;
 pub mod network_entry;
 pub mod network_rail;

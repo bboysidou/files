@@ -23,6 +23,7 @@ use crate::core::theme::metrics::{FRAME_GAP, TEXT_BASE};
 use crate::features::browser::domain::repositories::directory_watcher::DirectoryWatcher;
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::drop_request::DropRequest;
+use crate::features::browser::presentation::state::pins::Pins;
 use crate::features::devices::domain::entities::device::Device;
 use crate::features::devices::domain::repositories::device_repository::DeviceRepository;
 use crate::features::places::domain::entities::place::{Place, PlaceTarget};
@@ -77,6 +78,7 @@ impl ShellView {
         let home_target = Self::start_target(&places, home.as_ref());
         let settings_repository = settings_repository();
         let saved = settings_repository.load();
+        Self::seed_pins(&saved, cx);
         let restore = Self::starting_snapshot(&saved, start.role, start.tabs.clone());
         let setup = browser_setup(places.clone(), home, home_target.clone());
         let browser = cx.new(|cx| BrowserView::new(setup, restore, window, cx));
@@ -121,6 +123,12 @@ impl ShellView {
         };
         shell.start((start.launch, start.tabs.is_some()), window, cx);
         shell
+    }
+
+    fn seed_pins(saved: &Settings, cx: &mut Context<Self>) {
+        if !cx.has_global::<Pins>() {
+            cx.set_global(Pins(saved.pins.clone()));
+        }
     }
 
     fn start_target(places: &[Place], home: Option<&PathBuf>) -> PlaceTarget {

@@ -9,6 +9,7 @@ use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::domain::entities::folder_views::FolderViews;
 use crate::features::browser::domain::entities::list_columns::ListColumns;
 use crate::features::network::domain::entities::saved_server::SavedServer;
+use crate::features::places::domain::entities::sidebar_pins::SidebarPins;
 
 #[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
@@ -56,6 +57,7 @@ pub struct Settings {
     pub columns: ListColumns,
     pub folder_views: FolderViews,
     pub servers: Vec<SavedServer>,
+    pub pins: SidebarPins,
     pub sidebar_open: bool,
     pub preview_open: bool,
     pub dual_split: u16,
@@ -77,6 +79,7 @@ impl Default for Settings {
             columns: ListColumns::default(),
             folder_views: FolderViews::default(),
             servers: Vec::new(),
+            pins: SidebarPins::default(),
             sidebar_open: true,
             preview_open: true,
             dual_split: DUAL_SPLIT_DEFAULT_PERMILLE,

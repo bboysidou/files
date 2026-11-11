@@ -1,6 +1,7 @@
 use gpui::{Context, Entity, Focusable, Subscription, Window, prelude::*};
 use rust_i18n::t;
 
+use crate::core::dependency_injection::network::ssh_host_source;
 use crate::core::enums::network::network_protocol::NetworkProtocol;
 use crate::core::enums::network::server_field::ServerField;
 use crate::features::browser::presentation::browser_view::BrowserView;
@@ -50,6 +51,7 @@ impl BrowserView {
             fields,
             focus: cx.focus_handle(),
             error: None,
+            ssh_hosts: ssh_host_source().hosts(),
             _events: events,
         });
         cx.notify();

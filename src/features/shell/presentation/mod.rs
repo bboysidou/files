@@ -4,6 +4,7 @@ pub mod components;
 pub mod rail_key_bindings;
 pub mod shell_devices;
 pub mod shell_eject;
+pub mod shell_favorites;
 pub mod shell_format;
 pub mod shell_format_label;
 pub mod shell_format_overlay;

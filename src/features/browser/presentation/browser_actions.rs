@@ -6,6 +6,7 @@ use crate::core::enums::network::server_field::ServerField;
 use crate::core::enums::operations::clipboard_mode::ClipboardMode;
 use crate::core::enums::view::view_mode::ViewMode;
 use crate::features::browser::presentation::actions::Dismiss;
+use crate::features::browser::presentation::actions::ToggleFavorite;
 use crate::features::browser::presentation::actions::{
     ActivateTab1, ActivateTab2, ActivateTab3, ActivateTab4, ActivateTab5, ActivateTab6,
     ActivateTab7, ActivateTab8, ActivateTab9, CloseKeymap, CloseMenu, CloseSettings, CloseTab,
@@ -24,6 +25,9 @@ use crate::features::browser::presentation::actions::{
     CollisionMerge, CollisionReplace, CollisionSkip,
 };
 use crate::features::browser::presentation::actions::{MoveTabLeft, MoveTabRight};
+use crate::features::browser::presentation::actions::{
+    ServerEditNextSsh, ServerEditPinSsh, ServerEditPreviousSsh,
+};
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::state::confirm_state::ConfirmState;
 
@@ -31,6 +35,7 @@ impl BrowserView {
     pub(super) fn with_actions(element: Div, cx: &mut Context<Self>) -> Div {
         let element = Self::with_pdf_page_actions(Self::with_overlay_actions(element, cx), cx);
         let element = Self::with_collision_actions(Self::with_file_actions(element, cx), cx);
+        let element = Self::with_pin_actions(element, cx);
         Self::with_tab_actions(Self::with_operation_actions(element, cx), cx)
     }
 
@@ -100,6 +105,20 @@ impl BrowserView {
                 cx.listener(|this, _: &QuickLook, window, cx| this.open_quick_look(window, cx)),
             )
             .on_action(cx.listener(|this, _: &Redo, _, cx| this.redo(cx)))
+    }
+
+    fn with_pin_actions(element: Div, cx: &mut Context<Self>) -> Div {
+        element
+            .on_action(cx.listener(|this, _: &ServerEditNextSsh, window, cx| {
+                this.step_ssh_host(true, window, cx)
+            }))
+            .on_action(cx.listener(|this, _: &ServerEditPreviousSsh, window, cx| {
+                this.step_ssh_host(false, window, cx)
+            }))
+            .on_action(
+                cx.listener(|this, _: &ServerEditPinSsh, _, cx| this.toggle_picked_ssh_pin(cx)),
+            )
+            .on_action(cx.listener(|this, _: &ToggleFavorite, _, cx| this.toggle_favorite(cx)))
     }
 
     fn with_file_actions(element: Div, cx: &mut Context<Self>) -> Div {

@@ -1,4 +1,4 @@
-use gpui::{Context, Div, Focusable, InteractiveElement, Window};
+use gpui::{App, Context, Div, Focusable, InteractiveElement, Window};
 
 use crate::core::enums::tags::tag_color::TagColor;
 use crate::features::places::domain::entities::place::PlaceSection;
@@ -28,7 +28,7 @@ impl ShellView {
             }))
     }
 
-    fn rail_order(&self) -> Vec<RailStop> {
+    fn rail_order(&self, cx: &App) -> Vec<RailStop> {
         let mut order: Vec<RailStop> = Vec::new();
         for section in PlaceSection::ALL {
             order.extend(
@@ -38,10 +38,13 @@ impl ShellView {
                     .filter(|(_, place)| place.section == section)
                     .map(|(index, _)| RailStop::Place(index)),
             );
+            if section == PlaceSection::Places {
+                order.extend((0..Self::favorite_paths(cx).len()).map(RailStop::Favorite));
+            }
             if section == PlaceSection::Devices {
                 order.extend((0..self.devices.len()).map(RailStop::Device));
                 order.extend((0..self.phones.phones.len()).map(RailStop::Phone));
-                order.extend((0..self.network.ssh_hosts.len()).map(RailStop::Ssh));
+                order.extend((0..self.ssh_entries(cx).len()).map(RailStop::Ssh));
                 order.extend((0..self.network_entries().len()).map(RailStop::Network));
             }
         }
@@ -58,6 +61,12 @@ impl ShellView {
         {
             return RailStop::Place(index);
         }
+        if let Some(index) = Self::favorite_items(&location, cx)
+            .iter()
+            .position(|item| item.active)
+        {
+            return RailStop::Favorite(index);
+        }
         if let Some(index) = self
             .device_items(&location)
             .iter()
@@ -73,7 +82,7 @@ impl ShellView {
             return RailStop::Phone(index);
         }
         if let Some(index) = self
-            .ssh_items(&location)
+            .ssh_items(&location, cx)
             .iter()
             .position(|item| item.active)
         {
@@ -86,7 +95,7 @@ impl ShellView {
         {
             return RailStop::Network(index);
         }
-        self.rail_order()
+        self.rail_order(cx)
             .first()
             .copied()
             .unwrap_or(RailStop::Place(0))
@@ -102,7 +111,7 @@ impl ShellView {
     }
 
     fn step_rail(&mut self, delta: isize, cx: &mut Context<Self>) {
-        let order = self.rail_order();
+        let order = self.rail_order(cx);
         let Some(last) = order.len().checked_sub(1) else {
             return;
         };
@@ -118,6 +127,7 @@ impl ShellView {
     fn open_rail_stop(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         match self.rail_keys.cursor {
             RailStop::Place(index) => self.select_place(index, cx),
+            RailStop::Favorite(index) => self.open_favorite(index, cx),
             RailStop::Device(index) => self.open_device(index, cx),
             RailStop::Phone(index) => self.open_phone(index, cx),
             RailStop::Ssh(index) => self.open_ssh(index, cx),
@@ -136,6 +146,7 @@ impl ShellView {
 
     fn eject_rail_stop(&mut self, cx: &mut Context<Self>) {
         match self.rail_keys.cursor {
+            RailStop::Favorite(index) => self.remove_favorite(index, cx),
             RailStop::Device(index) => self.eject_device(index, cx),
             RailStop::Phone(index) => self.eject_phone(index, cx),
             RailStop::Ssh(index) => self.eject_ssh(index, cx),

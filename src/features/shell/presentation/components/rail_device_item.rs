@@ -16,7 +16,8 @@ use crate::core::theme::metrics::{
 };
 use crate::features::shell::presentation::components::rail_label::RailLabel;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
-use crate::global_components::handlers::{ClickHandler, IndexHandler};
+use crate::global_components::drag::accept_paths::accept_paths;
+use crate::global_components::handlers::{ClickHandler, IndexHandler, PathsHandler};
 use crate::global_components::icon_button::IconButton;
 use crate::global_components::icon_glyph::IconGlyph;
 
@@ -38,6 +39,7 @@ pub struct RailDeviceItem {
     pub on_eject: ClickHandler,
     pub on_edit: Option<ClickHandler>,
     pub on_context: Option<crate::global_components::handlers::PointHandler>,
+    pub on_drop: Option<PathsHandler>,
 }
 
 impl RailDeviceItem {
@@ -92,6 +94,7 @@ impl RenderOnce for RailDeviceItem {
                 handler(event.position, window, cx);
             })
         });
+        let item = item.when_some(self.on_drop, accept_paths);
         let item = if self.active {
             item.bg(rgb(ACCENT)).font_weight(FontWeight::SEMIBOLD)
         } else {

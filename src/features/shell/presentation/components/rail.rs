@@ -24,6 +24,7 @@ use crate::features::shell::presentation::components::rail_pill::{
 use crate::features::shell::presentation::components::rail_section_label::RailSectionLabel;
 use crate::features::shell::presentation::components::rail_tags::RailTags;
 use crate::features::shell::presentation::state::device_item::DeviceItem;
+use crate::features::shell::presentation::state::favorite_rail::FavoriteRail;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
 use crate::features::shell::presentation::state::rail_stop::RailStop;
 use crate::global_components::handlers::{
@@ -32,8 +33,6 @@ use crate::global_components::handlers::{
 
 const TAGS_SECTION_KEY: &str = "rail.section.tags";
 const DEVICE_ID: &str = "device";
-const NETWORK_ID: &str = "network";
-const NETWORK_SECTION_KEY: &str = "rail.section.network";
 pub const RAIL_CONTEXT: &str = "Rail";
 
 #[derive(IntoElement)]
@@ -54,6 +53,7 @@ pub struct Rail {
     pub phones: Vec<DeviceItem>,
     pub on_phone: IndexHandler,
     pub on_phone_eject: IndexHandler,
+    pub favorites: FavoriteRail,
     pub ssh: Vec<DeviceItem>,
     pub on_ssh: IndexHandler,
     pub on_ssh_eject: IndexHandler,
@@ -91,12 +91,11 @@ impl Rail {
                 }
                 .into_any_element()
             });
-        let devices = if section == PlaceSection::Devices {
-            self.device_items()
-        } else {
-            Vec::new()
+        let extra = match section {
+            PlaceSection::Places => self.favorites_section(),
+            PlaceSection::Devices => self.device_items(),
         };
-        iter::once(label).chain(items).chain(devices).collect()
+        iter::once(label).chain(items).chain(extra).collect()
     }
 }
 
@@ -120,6 +119,7 @@ impl Rail {
                     on_select: self.on_device.clone(),
                     on_eject: Rc::new(move |window, cx| on_eject(index, window, cx)),
                     on_edit: None,
+                    on_drop: None,
                     on_context: Some({
                         let handler = self.on_device_context.clone();
                         Rc::new(move |position, window, cx| handler(index, position, window, cx))
@@ -130,7 +130,7 @@ impl Rail {
             .collect()
     }
 
-    fn group(
+    pub(super) fn group(
         &self,
         group: RailGroup,
         items: &[DeviceItem],
@@ -147,7 +147,7 @@ impl Rail {
                 id: group.id,
                 icon: group.icon,
                 label: item.label.clone(),
-                trailing: item.mounted.then_some(Icon::Eject),
+                trailing: trailing_icon(item),
                 protocol: None,
                 active: item.active,
                 cursor: self.cursor == Some((group.stop)(index)),
@@ -156,41 +156,11 @@ impl Rail {
                 on_eject: Rc::new(move |window, cx| on_eject(index, window, cx)),
                 on_edit: None,
                 on_context: None,
+                on_drop: None,
             }
             .into_any_element()
         });
         iter::once(label).chain(rows).collect()
-    }
-
-    fn network_section(&self) -> Vec<AnyElement> {
-        if self.network.is_empty() {
-            return Vec::new();
-        }
-        let label = RailSectionLabel::new(NETWORK_SECTION_KEY, self.motion).into_any_element();
-        let items = self.network.iter().enumerate().map(|(index, mount)| {
-            let on_unmount = self.on_unmount.clone();
-            RailDeviceItem {
-                index,
-                id: NETWORK_ID,
-                icon: Icon::Network,
-                label: mount.label.clone(),
-                trailing: trailing_icon(mount),
-                protocol: mount.protocol,
-                active: mount.active,
-                cursor: self.cursor == Some(RailStop::Network(index)),
-                motion: self.motion,
-                on_select: self.on_network.clone(),
-                on_eject: Rc::new(move |window, cx| on_unmount(index, window, cx)),
-                on_context: None,
-                on_edit: (mount.saved && !mount.mounted).then(|| {
-                    let on_edit = self.on_edit_network.clone();
-                    let edit: ClickHandler = Rc::new(move |window, cx| on_edit(index, window, cx));
-                    edit
-                }),
-            }
-            .into_any_element()
-        });
-        iter::once(label).chain(items).collect()
     }
 }
 
@@ -291,13 +261,13 @@ impl RenderOnce for Rail {
     }
 }
 
-fn trailing_icon(item: &DeviceItem) -> Option<Icon> {
+pub(super) fn trailing_icon(item: &DeviceItem) -> Option<Icon> {
     if item.mounted {
         return Some(Icon::Eject);
     }
     item.saved.then_some(Icon::Close)
 }
 
-fn place_drop(on_drop: IndexPathsHandler, index: usize) -> PathsHandler {
+pub(super) fn place_drop(on_drop: IndexPathsHandler, index: usize) -> PathsHandler {
     Rc::new(move |paths, window, cx| on_drop(index, paths, window, cx))
 }
