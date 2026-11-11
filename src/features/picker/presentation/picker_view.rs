@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 use gpui::{
-    Context, Entity, FocusHandle, Focusable, IntoElement, Render, Subscription, Window, div,
+    Context, Entity, FocusHandle, Focusable, IntoElement, Render, Subscription, Task, Window, div,
     prelude::*, px, rgb,
 };
 use rust_i18n::t;
@@ -22,6 +22,7 @@ use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
 use crate::features::picker::domain::entities::picker_request::{
     PickerMode, PickerRequest, PickerResult,
 };
+use crate::features::picker::domain::entities::picker_shortcut::PickerShortcut;
 use crate::features::picker::domain::repositories::picker_portal::PickerReply;
 use crate::features::picker::presentation::components::picker_footer::PickerFooter;
 use crate::features::places::domain::entities::place::PlaceTarget;
@@ -29,7 +30,9 @@ use crate::global_components::handlers::ClickHandler;
 use crate::global_components::text_field::text_field_view::{TextField, TextFieldEvent};
 
 pub struct PickerView {
-    pane: Entity<PaneView>,
+    pub(super) pane: Entity<PaneView>,
+    pub(super) shortcuts: Vec<PickerShortcut>,
+    pub(super) devices_task: Option<Task<()>>,
     request: PickerRequest,
     name_field: Entity<TextField>,
     reply: Option<PickerReply>,
@@ -82,6 +85,7 @@ impl PickerView {
         let name_field = cx.new(|cx| TextField::new(t!("picker.name").to_string(), cx));
         name_field.update(cx, |field, cx| field.set_text(&name, 0..name.len(), cx));
         let subscriptions = vec![
+            cx.observe(&pane, |_, _, cx| cx.notify()),
             cx.subscribe_in(
                 &pane,
                 window,
@@ -101,13 +105,17 @@ impl PickerView {
                 },
             ),
         ];
-        Self {
+        let mut view = Self {
             pane,
+            shortcuts: Self::initial_shortcuts(),
+            devices_task: None,
             request,
             name_field,
             reply: Some(reply),
             _subscriptions: subscriptions,
-        }
+        };
+        view.load_devices(cx);
+        view
     }
 
     fn chosen(&self, cx: &Context<Self>) -> Vec<PathBuf> {
@@ -181,6 +189,7 @@ impl PickerView {
 
 impl Render for PickerView {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let sidebar = self.sidebar(cx);
         let footer = PickerFooter {
             name_field: (self.request.mode == PickerMode::Save).then(|| self.name_field.clone()),
             cancel_label: t!("picker.cancel").to_string().into(),
@@ -204,13 +213,15 @@ impl Render for PickerView {
                     .rounded(px(SHEET_RADIUS))
                     .bg(rgb(SHEET))
                     .child(
-                        div()
-                            .flex()
-                            .flex_col()
-                            .flex_1()
-                            .min_h_0()
-                            .p(px(FRAME_GAP))
-                            .child(self.pane.clone()),
+                        div().flex().flex_1().min_h_0().child(sidebar).child(
+                            div()
+                                .flex()
+                                .flex_col()
+                                .flex_1()
+                                .min_w_0()
+                                .p(px(FRAME_GAP))
+                                .child(self.pane.clone()),
+                        ),
                     )
                     .child(footer),
             )
