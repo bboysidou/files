@@ -63,10 +63,12 @@ operations.
 **Arch Linux, Manjaro, EndeavourOS**
 
 ```sh
-sudo pacman -S --needed base-devel rustup libxkbcommon libxkbcommon-x11 libxcb wayland \
+sudo pacman -S --needed base-devel rust libxkbcommon libxkbcommon-x11 libxcb wayland \
   fontconfig freetype2 vulkan-icd-loader
-rustup default stable
 ```
+
+The `rust` package conflicts with `rustup`. If you already use `rustup`, skip `rust` and run
+`rustup default stable` instead.
 
 **Fedora**
 
@@ -210,18 +212,60 @@ files --default off    # give the default back to the previous file manager
 While `files` is the default, it also answers `org.freedesktop.FileManager1`, so "Show in folder"
 in browsers and other apps opens it with the file selected.
 
+`files --default` only changes the folder handler. Another file manager can still take over in
+three places:
+
+1. **D-Bus activation.** If another file manager starts on demand for `org.freedesktop.FileManager1`
+   (Thunar, Nautilus and Dolphin all ship a service file for it), "Show in folder" starts that one
+   while `files` is closed. Point the name at `files` with a user service file, which wins over the
+   system ones, and stop the other manager's daemon:
+
+   ```sh
+   mkdir -p ~/.local/share/dbus-1/services
+   printf '[D-BUS Service]\nName=org.freedesktop.FileManager1\nExec=/usr/local/bin/files\n' \
+     > ~/.local/share/dbus-1/services/org.freedesktop.FileManager1.service
+   systemctl --user stop thunar.service   # if Thunar runs as a daemon
+   ```
+
+   Adjust `/usr/local/bin` to your `PREFIX`. Check who answers with
+   `busctl --user status org.freedesktop.FileManager1`.
+
+2. **The desktop portal.** Browsers open folders through `xdg-desktop-portal`, which reads the
+   applications directories once, when it starts. After the first install into a new prefix (the
+   first `sudo make install` creates `/usr/local/share/applications`), the portal does not see
+   `files` and falls back to the old file manager. Restart it, or log out and back in:
+
+   ```sh
+   systemctl --user restart xdg-desktop-portal.service xdg-desktop-portal-gtk.service
+   ```
+
+   Launchers and shells that list desktop entries can have the same blind spot; restart them too.
+
+3. **Key bindings.** A compositor shortcut that runs `thunar` or `nautilus` by name still does.
+   Change it to `files`.
+
 ### File chooser
 
 `files` can stand in for the GTK or KDE dialog when apps ask the desktop portal for a file. Run
 `files --picker`: it writes the D-Bus service file for your user and prints the two steps that need
 you (copying `files.portal` into `/usr/share/xdg-desktop-portal/portals/` with sudo, and naming
-`files` as the `FileChooser` in `~/.config/xdg-desktop-portal/portals.conf`). Open, save, multiple
+`files` as the `FileChooser` in `~/.config/xdg-desktop-portal/portals.conf`). If a
+`<desktop>-portals.conf` exists for your session (for example `hyprland-portals.conf` under
+Hyprland), the portal reads that one instead, so add the line there:
+
+```ini
+[preferred]
+org.freedesktop.impl.portal.FileChooser=files
+```
+
+Then restart `xdg-desktop-portal.service`. Open, save, multiple
 selection and folder picking are supported. `Enter` picks, `Esc` cancels. The backend exits when its
 last dialog closes; D-Bus starts it again on the next request.
 
 ### Window class
 
-Every window uses the app id (Wayland) and class (X11) `files_file_manager`. Match on it in
+Every window uses the app id (Wayland) and class (X11) `files_file_manager`, and file chooser
+dialogs use `files_file_manager_picker`, so the two can get different rules. Match on them in
 compositor window rules (Hyprland `class`, Sway `app_id`, i3 `class`, KDE window rules), for
 example in Sway:
 
@@ -468,6 +512,7 @@ file that cannot be read is moved to `settings.toml.bak` and the defaults are us
 | --- | --- |
 | No icon in the menu or the title bar after install | Log out and back in, or run `gtk-update-icon-cache -f /usr/local/share/icons/hicolor` (adjust to your `PREFIX`). |
 | `files: command not found` after a user install | Add `~/.local/bin` to your `PATH`. |
+| Browsers' "Show in folder" still opens the old file manager | Restart the desktop portal and check the D-Bus service; see [Default file manager](#default-file-manager). |
 | Blank or black window, or the app exits at start | Install the Vulkan driver for your GPU (`vulkan-radeon` / `vulkan-intel` / `nvidia-utils` on Arch, `mesa-vulkan-drivers` on Fedora and Debian). |
 | **Authenticate** does nothing | No polkit agent runs in your session; start one (see [Runtime tools](#runtime-tools)). |
 | `ssh://`, `sftp://` or `smb://` fails at once | Install the gvfs backend for that protocol and make sure `gio` is on your `PATH`. |
