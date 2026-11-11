@@ -10,7 +10,7 @@ use crate::features::network::domain::usecases::network_mount_root::network_moun
 pub fn sftp_location_of(path: &Path) -> Option<SftpLocation> {
     let (mount, _) = network_mount_root(path)?;
     let name = mount.file_name()?.to_string_lossy().into_owned();
-    if NetworkProtocol::from_mount_name(&name) != Some(NetworkProtocol::Sftp) {
+    if !NetworkProtocol::from_mount_name(&name).is_some_and(NetworkProtocol::runs_over_ssh) {
         return None;
     }
     let rest = path

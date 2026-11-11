@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use gpui::{App, Context, SharedString};
 
-use crate::core::constants::ssh::{SFTP_URI_PREFIX, SFTP_URI_SUFFIX};
+use crate::core::constants::ssh::{SSH_URI_PREFIX, SSH_URI_SUFFIX};
 use crate::core::enums::network::network_protocol::NetworkProtocol;
 use crate::features::browser::presentation::state::pins::Pins;
 use crate::features::network::domain::entities::network_mount::NetworkMount;
@@ -22,14 +22,14 @@ impl ShellView {
             .iter()
             .map(|host| NetworkEntry {
                 label: host.alias.clone(),
-                uri: Some(format!("{SFTP_URI_PREFIX}{}{SFTP_URI_SUFFIX}", host.alias)),
+                uri: Some(format!("{SSH_URI_PREFIX}{}{SSH_URI_SUFFIX}", host.alias)),
                 mount: self
                     .network
                     .mounts
                     .iter()
                     .find(|mount| self.ssh_alias_of(mount) == Some(host.alias.as_str()))
                     .map(|mount| mount.path.clone()),
-                protocol: Some(NetworkProtocol::Sftp),
+                protocol: Some(NetworkProtocol::Ssh),
             })
             .filter(|entry| {
                 entry.mount.is_some() || pins.is_some_and(|pins| pins.is_ssh_pinned(&entry.label))
@@ -63,13 +63,14 @@ impl ShellView {
     }
 
     pub(super) fn is_ssh_uri(&self, uri: &str) -> bool {
-        NetworkProtocol::from_uri(uri) == Some(NetworkProtocol::Sftp)
+        NetworkProtocol::from_uri(uri).is_some_and(NetworkProtocol::runs_over_ssh)
             && server_label(uri).is_some_and(|label| self.is_ssh_alias(server_key(&label)))
     }
 
     fn ssh_alias_of<'a>(&self, mount: &'a NetworkMount) -> Option<&'a str> {
         let key = server_key(&mount.label);
-        (mount.protocol == Some(NetworkProtocol::Sftp) && self.is_ssh_alias(key)).then_some(key)
+        (mount.protocol.is_some_and(NetworkProtocol::runs_over_ssh) && self.is_ssh_alias(key))
+            .then_some(key)
     }
 
     fn is_ssh_alias(&self, key: &str) -> bool {

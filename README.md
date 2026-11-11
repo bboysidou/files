@@ -33,7 +33,7 @@ Flea project is not involved in it.
 - List, columns, grid and dual-pane views, tabs and several windows
 - Quick Look for images, video with sound, PDF, Markdown, source code, archives, fonts and
   office documents
-- Network locations (SFTP, SMB, FTP, WebDAV, NFS), hosts from `~/.ssh/config`, phones and
+- Network locations (SSH, SFTP, SMB, FTP, WebDAV, NFS), hosts from `~/.ssh/config`, phones and
   USB drives in the sidebar
 - Asks for your password through polkit when an action is denied, instead of failing
 - Helpers that read untrusted files run in a bubblewrap sandbox
@@ -313,17 +313,18 @@ for_window [app_id="files_file_manager"] floating enable
 ### Network, SSH and phones
 
 - Type a path to jump there (`:` or `Ctrl+L`, `~` for home); network locations work too
-  (`sftp://`, `smb://`, `ftp://`, `dav://` or `user@host:/path`), mounted with `gio mount`. A
+  (`ssh://`, `sftp://`, `smb://`, `ftp://`, `dav://` or `user@host:/path`), mounted with `gio mount`. A
   server that asks for a login opens a user/password dialog (plus domain for `smb://`); the
   password is passed to gio once and never saved
 - Connect dialog (`Ctrl+K` or the sidebar button) with two tabs: **Servers** lists your SSH hosts
   and saved servers with filtering, pinning, editing and deletion; **New connection** picks a
-  server type and address
+  server type (SSH, SFTP, FTP, FTPS, SMB, DAV, DAVS, NFS) and address
 - Mounted shares are listed under Network in the sidebar with a disconnect button. Saved servers
   carry a protocol badge, a key for encrypted protocols or a red warning triangle for FTP, DAV and
   NFS; `e` or the pencil edits one, `x` or `×` forgets it
-- SSH hosts come from `~/.ssh/config` (following `Include`). Pinned or mounted hosts appear in
-  the sidebar. Copies between a local folder and an SFTP mount use `scp` with live progress when
+- SSH hosts come from `~/.ssh/config` (following `Include`) and carry an SSH badge; they connect
+  with `ssh://alias/`, so your config's user, port and key apply. Pinned or mounted hosts appear
+  in the sidebar. Copies between a local folder and an SSH or SFTP mount use `scp` with live progress when
   the host accepts your key
 - Phones and cameras (MTP, gphoto2, AFC) appear in a Phones section; open one to mount it, eject
   to unmount
@@ -464,7 +465,7 @@ file that cannot be read is moved to `settings.toml.bak` and the defaults are us
 | `files: command not found` after a user install | Add `~/.local/bin` to your `PATH`. |
 | Blank or black window, or the app exits at start | Install the Vulkan driver for your GPU (`vulkan-radeon` / `vulkan-intel` / `nvidia-utils` on Arch, `mesa-vulkan-drivers` on Fedora and Debian). |
 | **Authenticate** does nothing | No polkit agent runs in your session; start one (see [Runtime tools](#runtime-tools)). |
-| `sftp://` or `smb://` fails at once | Install the gvfs backend for that protocol and make sure `gio` is on your `PATH`. |
+| `ssh://`, `sftp://` or `smb://` fails at once | Install the gvfs backend for that protocol and make sure `gio` is on your `PATH`. |
 | SSH copies have no progress bar | The host does not accept your SSH key without a password; `files` then falls back to a plain copy. Add your key with `ssh-copy-id`. |
 | Video plays without sound | Check that PipeWire (`pipewire-pulse`) or PulseAudio runs. |
 | Video does not play on Fedora | Swap `ffmpeg-free` for RPM Fusion's `ffmpeg`. |

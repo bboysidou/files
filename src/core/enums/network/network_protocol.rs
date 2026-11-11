@@ -4,6 +4,7 @@ use crate::core::constants::network::{
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum NetworkProtocol {
+    Ssh,
     Sftp,
     Ftp,
     Ftps,
@@ -14,7 +15,8 @@ pub enum NetworkProtocol {
 }
 
 impl NetworkProtocol {
-    pub const ALL: [NetworkProtocol; 7] = [
+    pub const ALL: [NetworkProtocol; 8] = [
+        NetworkProtocol::Ssh,
         NetworkProtocol::Sftp,
         NetworkProtocol::Ftp,
         NetworkProtocol::Ftps,
@@ -26,6 +28,7 @@ impl NetworkProtocol {
 
     pub fn badge(self) -> &'static str {
         match self {
+            NetworkProtocol::Ssh => "SSH",
             NetworkProtocol::Sftp => "SFTP",
             NetworkProtocol::Ftp => "FTP",
             NetworkProtocol::Ftps => "FTPS",
@@ -38,6 +41,7 @@ impl NetworkProtocol {
 
     pub fn hue(self) -> f32 {
         match self {
+            NetworkProtocol::Ssh => 0.36,
             NetworkProtocol::Sftp => 0.47,
             NetworkProtocol::Ftp => 0.11,
             NetworkProtocol::Ftps => 0.03,
@@ -55,13 +59,17 @@ impl NetworkProtocol {
         )
     }
 
+    pub fn runs_over_ssh(self) -> bool {
+        matches!(self, NetworkProtocol::Ssh | NetworkProtocol::Sftp)
+    }
+
     pub fn scheme(self) -> &'static str {
         self.schemes()[0]
     }
 
     pub fn default_port(self) -> &'static str {
         match self {
-            NetworkProtocol::Sftp => "22",
+            NetworkProtocol::Ssh | NetworkProtocol::Sftp => "22",
             NetworkProtocol::Ftp | NetworkProtocol::Ftps => "21",
             NetworkProtocol::Smb => "445",
             NetworkProtocol::Dav => "80",
@@ -80,7 +88,8 @@ impl NetworkProtocol {
 
     fn schemes(self) -> &'static [&'static str] {
         match self {
-            NetworkProtocol::Sftp => &["sftp", "ssh"],
+            NetworkProtocol::Ssh => &["ssh"],
+            NetworkProtocol::Sftp => &["sftp"],
             NetworkProtocol::Ftp => &["ftp"],
             NetworkProtocol::Ftps => &["ftps", "ftpis"],
             NetworkProtocol::Smb => &["smb", "smb-share", "smb-server"],

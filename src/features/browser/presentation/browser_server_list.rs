@@ -188,11 +188,11 @@ impl BrowserView {
         let host = edit.fields[ServerField::Host.index()].clone();
         let blanks =
             [ServerField::Port, ServerField::User].map(|field| edit.fields[field.index()].clone());
-        let sftp = NetworkProtocol::ALL
+        let ssh = NetworkProtocol::ALL
             .iter()
-            .position(|protocol| *protocol == NetworkProtocol::Sftp)
+            .position(|protocol| *protocol == NetworkProtocol::Ssh)
             .unwrap_or_default();
-        self.select_server_protocol(sftp, cx);
+        self.select_server_protocol(ssh, cx);
         host.update(cx, |input, cx| {
             input.set_text(alias, alias.len()..alias.len(), cx)
         });

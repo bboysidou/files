@@ -1,4 +1,4 @@
-use crate::core::constants::ssh::{SFTP_URI_PREFIX, SFTP_URI_SUFFIX};
+use crate::core::constants::ssh::{SSH_URI_PREFIX, SSH_URI_SUFFIX};
 use crate::core::enums::network::network_protocol::NetworkProtocol;
 use crate::core::enums::network::server_source::ServerSource;
 use crate::features::network::domain::entities::saved_server::SavedServer;
@@ -16,8 +16,8 @@ pub fn server_choices(
     let ssh = hosts.iter().map(|host| ServerChoice {
         label: host.alias.clone(),
         detail: host.user.clone(),
-        uri: format!("{SFTP_URI_PREFIX}{}{SFTP_URI_SUFFIX}", host.alias),
-        protocol: Some(NetworkProtocol::Sftp),
+        uri: format!("{SSH_URI_PREFIX}{}{SSH_URI_SUFFIX}", host.alias),
+        protocol: Some(NetworkProtocol::Ssh),
         source: ServerSource::Ssh,
         pinned: pins.is_ssh_pinned(&host.alias),
     });
