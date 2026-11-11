@@ -1,4 +1,6 @@
-use gpui::{App, FontWeight, IntoElement, RenderOnce, Window, div, prelude::*, px, rgb};
+use gpui::{
+    App, FontWeight, IntoElement, MouseButton, RenderOnce, Window, div, prelude::*, px, rgb,
+};
 use rust_i18n::t;
 
 use crate::core::enums::places::place_kind::PlaceKind;
@@ -10,7 +12,7 @@ use crate::core::theme::metrics::{
 use crate::features::shell::presentation::components::rail_label::RailLabel;
 use crate::features::shell::presentation::state::rail_motion::RailMotion;
 use crate::global_components::drag::accept_paths::accept_paths;
-use crate::global_components::handlers::{IndexHandler, PathsHandler};
+use crate::global_components::handlers::{IndexHandler, PathsHandler, PointHandler};
 use crate::global_components::icon_glyph::IconGlyph;
 
 const GROUP: &str = "rail-nav-item";
@@ -24,14 +26,14 @@ pub struct RailNavItem {
     pub motion: RailMotion,
     pub on_select: IndexHandler,
     pub on_drop: Option<PathsHandler>,
+    pub on_context: Option<PointHandler>,
 }
 
 impl RenderOnce for RailNavItem {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
-        let index = self.index;
         let on_select = self.on_select;
         let item = div()
-            .id(("place", index))
+            .id(("place", self.index))
             .group(GROUP)
             .flex()
             .flex_shrink_0()
@@ -42,11 +44,14 @@ impl RenderOnce for RailNavItem {
             .border_1()
             .border_color(focus_ring(self.cursor))
             .cursor_pointer()
-            .on_click(move |_, window, cx| on_select(index, window, cx));
-        let item = match self.on_drop {
-            Some(on_drop) => accept_paths(item, on_drop),
-            None => item,
-        };
+            .on_click(move |_, window, cx| on_select(self.index, window, cx));
+        let item = item.when_some(self.on_context, |item, on_context| {
+            item.on_mouse_down(MouseButton::Right, move |event, window, cx| {
+                cx.stop_propagation();
+                on_context(event.position, window, cx);
+            })
+        });
+        let item = item.when_some(self.on_drop, accept_paths);
         let item = if self.motion.open {
             item.w_full().h(px(NAV_HEIGHT))
         } else {

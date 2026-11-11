@@ -4,7 +4,7 @@ use gpui::{Context, Window};
 
 use crate::features::shell::presentation::components::rail::Rail;
 use crate::features::shell::presentation::shell_view::ShellView;
-use crate::global_components::handlers::ClickHandler;
+use crate::global_components::handlers::{ClickHandler, PointHandler};
 
 impl ShellView {
     pub(super) fn rail_view(&self, window: &mut Window, cx: &mut Context<Self>) -> Rail {
@@ -30,6 +30,7 @@ impl ShellView {
             motion: self.rail,
             on_toggle,
             on_select,
+            on_trash_context: self.trash_context_handler(),
             on_drop_place: self.place_drop_handler(),
             on_search,
             on_connect: self.connect_handler(),
@@ -53,6 +54,15 @@ impl ShellView {
             focus: self.rail_keys.focus.clone(),
             cursor: rail_cursor,
         }
+    }
+
+    fn trash_context_handler(&self) -> PointHandler {
+        let browser = self.browser.downgrade();
+        Rc::new(move |position, window, cx| {
+            let _ = browser.update(cx, |browser, cx| {
+                browser.open_trash_menu(position, window, cx)
+            });
+        })
     }
 
     fn connect_handler(&self) -> ClickHandler {
