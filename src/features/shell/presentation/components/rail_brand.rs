@@ -7,11 +7,11 @@ use crate::core::theme::metrics::{
     BRAND_COLLAPSED_PAD_BOTTOM, BRAND_GAP, BRAND_MARK, BRAND_MARK_RADIUS, BRAND_PAD_BOTTOM,
     BRAND_PAD_X, BRAND_TOGGLE_RADIUS, ICON_BUTTON_SIZE, RAIL_ITEM_COLLAPSED, TEXT_BRAND,
 };
-use crate::features::shell::presentation::components::rail_label::RailLabel;
-use crate::features::shell::presentation::state::rail_motion::RailMotion;
 use crate::global_components::handlers::ClickHandler;
 use crate::global_components::icon_button::IconButton;
 use crate::global_components::icon_glyph::IconGlyph;
+use crate::global_components::rail::rail_label::RailLabel;
+use crate::global_components::rail::rail_motion::RailMotion;
 
 #[derive(IntoElement)]
 pub struct RailBrand {

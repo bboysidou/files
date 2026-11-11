@@ -35,10 +35,10 @@ use crate::features::shell::presentation::state::network_rail::NetworkRail;
 use crate::features::shell::presentation::state::open_shells::{OpenShell, OpenShells};
 use crate::features::shell::presentation::state::phone_rail::PhoneRail;
 use crate::features::shell::presentation::state::rail_keys::RailKeys;
-use crate::features::shell::presentation::state::rail_motion::RailMotion;
 use crate::features::shell::presentation::state::rail_stop::RailStop;
 use crate::features::shell::presentation::state::shell_start::{ShellStart, WindowRole};
 use crate::global_components::handlers::{ClickHandler, IndexHandler, IndexPathsHandler};
+use crate::global_components::rail::rail_motion::RailMotion;
 
 pub struct ShellView {
     pub(super) places: Vec<Place>,

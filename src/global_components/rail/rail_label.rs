@@ -4,7 +4,7 @@ use gpui::{
 };
 
 use crate::core::theme::metrics::RAIL_LABEL_SLIDE;
-use crate::features::shell::presentation::state::rail_motion::RailMotion;
+use crate::global_components::rail::rail_motion::RailMotion;
 
 #[derive(IntoElement)]
 pub struct RailLabel {

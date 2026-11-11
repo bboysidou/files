@@ -6,7 +6,6 @@ pub mod network_rail;
 pub mod open_shells;
 pub mod phone_rail;
 pub mod rail_keys;
-pub mod rail_motion;
 pub mod rail_stop;
 pub mod saved_tab_mapping;
 pub mod shell_start;

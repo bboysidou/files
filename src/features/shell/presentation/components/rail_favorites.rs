@@ -5,9 +5,9 @@ use gpui::{AnyElement, IntoElement};
 
 use crate::core::enums::assets::icon::Icon;
 use crate::features::shell::presentation::components::rail::{Rail, place_drop};
-use crate::features::shell::presentation::components::rail_device_item::RailDeviceItem;
-use crate::features::shell::presentation::components::rail_section_label::RailSectionLabel;
 use crate::features::shell::presentation::state::rail_stop::RailStop;
+use crate::global_components::rail::rail_device_item::RailDeviceItem;
+use crate::global_components::rail::rail_section_label::RailSectionLabel;
 
 const FAVORITE_ID: &str = "favorite";
 const FAVORITES_SECTION_KEY: &str = "rail.section.favorites";

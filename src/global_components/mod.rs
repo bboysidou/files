@@ -12,6 +12,7 @@ pub mod modal_scrim;
 pub mod play_badge;
 pub mod progress_bar;
 pub mod protocol_badge;
+pub mod rail;
 pub mod tag_dots;
 pub mod text_field;
 pub mod toast;

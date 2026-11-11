@@ -6,11 +6,11 @@ use crate::core::theme::colors::{ACCENT, CARD_SUNKEN, FG_MUTED, LINE, ON_ACCENT}
 use crate::core::theme::metrics::{
     RAIL_ITEM_COLLAPSED, SEARCH_GAP, SEARCH_HEIGHT, SEARCH_PAD_LEFT, SEARCH_PAD_RIGHT, TEXT_SMALL,
 };
-use crate::features::shell::presentation::components::rail_label::RailLabel;
-use crate::features::shell::presentation::state::rail_motion::RailMotion;
 use crate::global_components::handlers::ClickHandler;
 use crate::global_components::icon_glyph::IconGlyph;
 use crate::global_components::kbd_hint::KbdHint;
+use crate::global_components::rail::rail_label::RailLabel;
+use crate::global_components::rail::rail_motion::RailMotion;
 
 const BUTTON_HOVER_OPACITY: f32 = 0.85;
 

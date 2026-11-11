@@ -9,11 +9,11 @@ use crate::core::theme::colors::{ACCENT, CARD, FG_BRIGHT, FG_NAV, ON_ACCENT};
 use crate::core::theme::metrics::{
     CONTROL_RADIUS, NAV_GAP, NAV_HEIGHT, NAV_PAD_X, RAIL_ITEM_COLLAPSED,
 };
-use crate::features::shell::presentation::components::rail_label::RailLabel;
-use crate::features::shell::presentation::state::rail_motion::RailMotion;
 use crate::global_components::drag::accept_paths::accept_paths;
 use crate::global_components::handlers::{IndexHandler, PathsHandler, PointHandler};
 use crate::global_components::icon_glyph::IconGlyph;
+use crate::global_components::rail::rail_label::RailLabel;
+use crate::global_components::rail::rail_motion::RailMotion;
 
 const GROUP: &str = "rail-nav-item";
 

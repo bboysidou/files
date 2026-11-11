@@ -14,22 +14,22 @@ use crate::core::theme::metrics::{
 use crate::features::browser::presentation::state::job_card_model::JobCardModel;
 use crate::features::places::domain::entities::place::{Place, PlaceSection, PlaceTarget};
 use crate::features::shell::presentation::components::rail_brand::RailBrand;
-use crate::features::shell::presentation::components::rail_device_item::RailDeviceItem;
 use crate::features::shell::presentation::components::rail_group::{PHONES, RailGroup, SSH};
 use crate::features::shell::presentation::components::rail_job_card::RailJobCard;
-use crate::features::shell::presentation::components::rail_nav_item::RailNavItem;
 use crate::features::shell::presentation::components::rail_pill::{
     CONNECT_PILL, RailPill, SEARCH_PILL,
 };
-use crate::features::shell::presentation::components::rail_section_label::RailSectionLabel;
 use crate::features::shell::presentation::components::rail_tags::RailTags;
 use crate::features::shell::presentation::state::device_item::DeviceItem;
 use crate::features::shell::presentation::state::favorite_rail::FavoriteRail;
-use crate::features::shell::presentation::state::rail_motion::RailMotion;
 use crate::features::shell::presentation::state::rail_stop::RailStop;
 use crate::global_components::handlers::{
     ClickHandler, IndexHandler, IndexPathsHandler, PathsHandler,
 };
+use crate::global_components::rail::rail_device_item::RailDeviceItem;
+use crate::global_components::rail::rail_motion::RailMotion;
+use crate::global_components::rail::rail_nav_item::RailNavItem;
+use crate::global_components::rail::rail_section_label::RailSectionLabel;
 
 const TAGS_SECTION_KEY: &str = "rail.section.tags";
 const DEVICE_ID: &str = "device";

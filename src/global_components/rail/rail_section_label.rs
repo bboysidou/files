@@ -6,8 +6,8 @@ use crate::core::theme::metrics::{
     NAV_PAD_X, RAIL_DIVIDER_MARGIN, RAIL_DIVIDER_WIDTH, RAIL_ITEM_COLLAPSED,
     RAIL_SECTION_GAP_BOTTOM, RAIL_SECTION_GAP_TOP, TEXT_TINY,
 };
-use crate::features::shell::presentation::components::rail_label::RailLabel;
-use crate::features::shell::presentation::state::rail_motion::RailMotion;
+use crate::global_components::rail::rail_label::RailLabel;
+use crate::global_components::rail::rail_motion::RailMotion;
 
 #[derive(IntoElement)]
 pub struct RailSectionLabel {
