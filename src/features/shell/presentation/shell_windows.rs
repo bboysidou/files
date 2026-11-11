@@ -3,6 +3,7 @@ use gpui::{
     WindowOptions, px, size,
 };
 
+use crate::core::assets::app_icon::app_icon;
 use crate::core::constants::app::{APP_ID, WINDOW_HEIGHT, WINDOW_WIDTH};
 use crate::core::dependency_injection::places::places_repository;
 use crate::features::browser::presentation::state::tab_snapshot::TabSnapshot;
@@ -17,6 +18,7 @@ pub fn open_shell_window(start: ShellStart, cx: &mut App) {
     let options = WindowOptions {
         window_bounds: Some(WindowBounds::Windowed(bounds)),
         app_id: Some(APP_ID.into()),
+        icon: app_icon(),
         ..Default::default()
     };
     let opened = cx.open_window(options, |window, cx| {

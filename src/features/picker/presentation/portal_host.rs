@@ -8,6 +8,7 @@ use gpui::{
     size,
 };
 
+use crate::core::assets::app_icon::app_icon;
 use crate::core::constants::app::{APP_ID, WINDOW_HEIGHT, WINDOW_WIDTH};
 use crate::core::dependency_injection::picker::picker_portal;
 use crate::features::picker::domain::entities::picker_request::{PickerRequest, PickerResult};
@@ -28,6 +29,7 @@ fn open_picker(request: PickerRequest, reply: PickerReply, cx: &mut App) {
     let options = WindowOptions {
         window_bounds: Some(WindowBounds::Windowed(bounds)),
         app_id: Some(APP_ID.into()),
+        icon: app_icon(),
         titlebar: Some(TitlebarOptions {
             title: Some(request.title.clone().into()),
             ..Default::default()

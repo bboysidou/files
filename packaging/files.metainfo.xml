@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.bboysidou.files</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>Files</name>
+  <summary>A fast, keyboard-friendly file manager</summary>
+  <description>
+    <p>
+      Files is a GPU-rendered file manager for any Linux desktop. It is built
+      for the keyboard first, with tabs, split panes, quick look previews,
+      remote servers over SSH and a file chooser portal.
+    </p>
+  </description>
+  <launchable type="desktop-id">files_file_manager.desktop</launchable>
+  <provides>
+    <binary>files</binary>
+  </provides>
+  <categories>
+    <category>System</category>
+    <category>FileManager</category>
+  </categories>
+  <url type="homepage">https://github.com/bboysidou/files</url>
+  <url type="bugtracker">https://github.com/bboysidou/files/issues</url>
+  <developer id="io.github.bboysidou">
+    <name>bboysidou</name>
+  </developer>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-11-11"/>
+  </releases>
+</component>

@@ -3,6 +3,7 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 
+use crate::core::constants::app::APP_ID;
 use crate::core::constants::integration::{
     APPLICATIONS_DIR, DESKTOP_FILE_NAME, DIRECTORY_MIME, PREVIOUS_HANDLER_FILE, XDG_MIME_COMMAND,
 };
@@ -39,7 +40,7 @@ impl XdgDefaultHandler {
     fn desktop_entry() -> Result<String, String> {
         let executable = env::current_exe().map_err(|error| error.to_string())?;
         Ok(format!(
-            "[Desktop Entry]\nType=Application\nName=files\nComment=File manager\nExec={} %U\nIcon=system-file-manager\nTerminal=false\nCategories=System;FileManager;Utility;\nMimeType={DIRECTORY_MIME};\n",
+            "[Desktop Entry]\nType=Application\nName=Files\nComment=File manager\nExec={} %U\nIcon={APP_ID}\nTerminal=false\nStartupWMClass={APP_ID}\nCategories=System;FileTools;FileManager;\nMimeType={DIRECTORY_MIME};\n",
             executable.display()
         ))
     }

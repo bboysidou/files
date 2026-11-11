@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Name=Files
+GenericName=File Manager
+GenericName[fr]=Gestionnaire de fichiers
+Comment=A fast, keyboard-friendly file manager
+Comment[fr]=Un gestionnaire de fichiers rapide, pensé pour le clavier
+Exec=files %U
+Icon=files_file_manager
+Terminal=false
+StartupNotify=true
+StartupWMClass=files_file_manager
+Categories=System;FileTools;FileManager;Core;
+MimeType=inode/directory;
+Keywords=folder;manager;explore;browse;disk;filesystem;
+Keywords[fr]=dossier;gestionnaire;explorer;parcourir;disque;fichiers;
