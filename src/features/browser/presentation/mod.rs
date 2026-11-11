@@ -27,6 +27,7 @@ pub mod browser_menu_entries;
 pub mod browser_network_login;
 pub mod browser_operations;
 pub mod browser_pdf_pages;
+pub mod browser_player;
 pub mod browser_prefs;
 pub mod browser_preview;
 pub mod browser_properties;

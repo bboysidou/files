@@ -5,8 +5,8 @@ use std::process::Stdio;
 use serde_json::Value;
 
 use crate::core::constants::preview::{
-    FFMPEG_COMMAND, FFMPEG_FRAME_OUTPUT, FFMPEG_FRAME_SEEK, FFPROBE_ARGUMENTS, FFPROBE_COMMAND,
-    MILLIS_PER_SECOND, PNG_EXTENSION, PREVIEW_MEDIA_DIR,
+    FFMPEG_COMMAND, FFMPEG_FRAME_OUTPUT, FFMPEG_INPUT_FLAG, FFMPEG_QUIET, FFPROBE_ARGUMENTS,
+    FFPROBE_COMMAND, MILLIS_PER_SECOND, PNG_EXTENSION, PREVIEW_MEDIA_DIR,
 };
 use crate::core::helpers::files::cache_name::cache_name;
 use crate::core::helpers::process::sandbox_access::SandboxAccess;
@@ -14,8 +14,6 @@ use crate::core::helpers::process::sandboxed_command::sandboxed_command;
 use crate::features::preview::domain::entities::media_facts::{
     AudioStream, MediaFacts, VideoStream,
 };
-
-const INPUT_FLAG: &str = "-i";
 
 pub fn probe_media(path: &Path) -> Option<MediaFacts> {
     let access = SandboxAccess {
@@ -68,8 +66,8 @@ pub fn video_frame(path: &Path) -> Option<PathBuf> {
         write: vec![dir],
     };
     let status = sandboxed_command(FFMPEG_COMMAND, &access)
-        .args(FFMPEG_FRAME_SEEK)
-        .arg(INPUT_FLAG)
+        .args(FFMPEG_QUIET)
+        .arg(FFMPEG_INPUT_FLAG)
         .arg(path)
         .args(FFMPEG_FRAME_OUTPUT)
         .arg(&frame)

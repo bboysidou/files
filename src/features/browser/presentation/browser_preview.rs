@@ -34,6 +34,7 @@ impl BrowserView {
         };
         let generation = match surface {
             PreviewSurface::QuickLook => {
+                self.stop_playback(cx);
                 self.quick_look.state = Some(state);
                 self.quick_look.scroll = UniformListScrollHandle::new();
                 self.quick_look.generation += 1;

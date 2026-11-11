@@ -11,7 +11,7 @@ use crate::core::dependency_injection::network::network_mounter;
 use crate::core::dependency_injection::operations::{
     file_operations, run_inspector, system_clipboard, trash_bin,
 };
-use crate::core::dependency_injection::preview::preview_source;
+use crate::core::dependency_injection::preview::{media_player, preview_source};
 use crate::core::dependency_injection::properties::properties_source;
 use crate::core::dependency_injection::search::{content_searcher, search_indexer};
 use crate::core::dependency_injection::thumbnails::thumbnail_store;
@@ -26,6 +26,7 @@ pub fn browser_setup(
     let repository = directory_repository();
     BrowserSetup {
         preview: preview_source(repository.clone()),
+        player: media_player(),
         thumbnails: thumbnail_store(),
         indexer: search_indexer(),
         content: content_searcher(),

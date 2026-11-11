@@ -70,11 +70,7 @@ impl BrowserView {
                 total: *total,
                 capped: *capped,
             }),
-            Some(PreviewContent::Media { frame, facts }) => padded(PreviewMedia {
-                frame: frame.clone(),
-                facts: facts.clone(),
-                zoom: state.zoom,
-            }),
+            Some(PreviewContent::Media { .. }) => self.media_stage(state, surface, cx),
             Some(PreviewContent::Folder { entries, total }) => padded(PreviewFolder {
                 scroll: self.content_scroll(surface),
                 entries: entries.clone(),
@@ -82,6 +78,27 @@ impl BrowserView {
             }),
             Some(notice) => Self::preview_notice(notice, state),
         }
+    }
+
+    fn media_stage(
+        &self,
+        state: &PreviewState,
+        surface: PreviewSurface,
+        cx: &mut Context<Self>,
+    ) -> AnyElement {
+        let Some(PreviewContent::Media { frame, facts }) = &state.content else {
+            return div().into_any_element();
+        };
+        let video = frame
+            .as_deref()
+            .filter(|_| surface == PreviewSurface::QuickLook)
+            .and_then(|poster| self.video_stage(poster, facts, cx));
+        padded(PreviewMedia {
+            frame: frame.clone(),
+            facts: facts.clone(),
+            zoom: state.zoom,
+            video,
+        })
     }
 
     fn preview_notice(content: &PreviewContent, state: &PreviewState) -> AnyElement {

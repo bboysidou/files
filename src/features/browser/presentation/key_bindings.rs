@@ -122,6 +122,7 @@ fn quick_look_bindings() -> Vec<KeyBinding> {
     vec![
         KeyBinding::new("space", CloseQuickLook, context),
         KeyBinding::new("escape", CloseQuickLook, context),
+        KeyBinding::new("enter", TogglePlayback, context),
         KeyBinding::new("right", QuickLookNext, context),
         KeyBinding::new("l", QuickLookNext, context),
         KeyBinding::new("left", QuickLookPrevious, context),

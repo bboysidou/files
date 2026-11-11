@@ -14,7 +14,7 @@ use crate::core::theme::metrics::{
 };
 use crate::features::browser::presentation::actions::{
     CloseQuickLook, PanDown, PanLeft, PanRight, PanUp, QuickLookNext, QuickLookPrevious,
-    QuickLookScrollDown, QuickLookScrollUp, ZoomIn, ZoomOut, ZoomReset,
+    QuickLookScrollDown, QuickLookScrollUp, TogglePlayback, ZoomIn, ZoomOut, ZoomReset,
 };
 use crate::features::browser::presentation::browser_view::BrowserView;
 use crate::features::browser::presentation::components::entry_icon::EntryIcon;
@@ -119,6 +119,7 @@ impl BrowserView {
                 }),
             )
             .on_action(cx.listener(|this, _: &QuickLookNext, _, cx| this.step_quick_look(1, cx)))
+            .on_action(cx.listener(|this, _: &TogglePlayback, _, cx| this.toggle_playback(cx)))
             .on_action(
                 cx.listener(|this, _: &QuickLookScrollDown, _, cx| this.scroll_quick_look(1.0, cx)),
             )

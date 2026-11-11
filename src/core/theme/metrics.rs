@@ -228,3 +228,6 @@ pub const DIFF_NUMBER_WIDTH: f32 = 44.0;
 pub const DIFF_GUTTER: f32 = 1.0;
 pub const ADMIN_CHIP_PAD_X: f32 = 6.0;
 pub const ADMIN_CHIP_RADIUS: f32 = 4.0;
+pub const PLAY_BUTTON_SIZE: f32 = 64.0;
+pub const PLAY_ICON_SIZE: f32 = 28.0;
+pub const PLAY_ICON_NUDGE: f32 = 3.0;

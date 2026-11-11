@@ -51,6 +51,7 @@ impl BrowserView {
     }
 
     pub(super) fn close_quick_look(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.stop_playback(cx);
         self.quick_look.state = None;
         self.quick_look.task = None;
         window.focus(&self.active_pane().focus_handle(cx), cx);

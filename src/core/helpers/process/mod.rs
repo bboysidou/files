@@ -1,3 +1,4 @@
+pub mod audio_sockets;
 pub mod descendant_pids;
 pub mod find_program;
 pub mod mount_users;

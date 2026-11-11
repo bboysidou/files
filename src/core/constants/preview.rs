@@ -39,7 +39,7 @@ pub const MARKDOWN_TASK_DONE: &str = "[x]";
 pub const MARKDOWN_TASK_OPEN: &str = "[ ]";
 pub const MARKDOWN_CELL_SEPARATOR: &str = "  │  ";
 pub const ARCHIVE_BROWSE_DIR: &str = "files/archives";
-pub const PREVIEW_MEDIA_DIR: &str = "files/media";
+pub const PREVIEW_MEDIA_DIR: &str = "files/posters";
 pub const FFPROBE_COMMAND: &str = "ffprobe";
 pub const FFPROBE_ARGUMENTS: [&str; 6] = [
     "-v",
@@ -50,8 +50,26 @@ pub const FFPROBE_ARGUMENTS: [&str; 6] = [
     "json",
 ];
 pub const FFMPEG_COMMAND: &str = "ffmpeg";
-pub const FFMPEG_FRAME_SEEK: [&str; 4] = ["-v", "error", "-ss", "1"];
-pub const FFMPEG_FRAME_OUTPUT: [&str; 5] = ["-frames:v", "1", "-vf", "scale=1280:-2", "-y"];
+pub const FFMPEG_QUIET: [&str; 3] = ["-v", "error", "-nostdin"];
+pub const FFMPEG_FRAME_OUTPUT: [&str; 5] = [
+    "-frames:v",
+    "1",
+    "-vf",
+    "scale=1280:720:force_original_aspect_ratio=decrease:force_divisible_by=2",
+    "-y",
+];
+pub const FFMPEG_REALTIME: &str = "-re";
+pub const FFMPEG_SEEK_FLAG: &str = "-ss";
+pub const FFMPEG_INPUT_FLAG: &str = "-i";
+pub const FFMPEG_FILTER_FLAG: &str = "-vf";
+pub const FFMPEG_STREAM_OUTPUT: [&str; 7] =
+    ["-an", "-sn", "-pix_fmt", "bgra", "-f", "rawvideo", "pipe:1"];
+pub const FFPLAY_COMMAND: &str = "ffplay";
+pub const FFPLAY_ARGUMENTS: [&str; 4] = ["-nodisp", "-autoexit", "-loglevel", "quiet"];
+pub const AUDIO_SOCKETS: [&str; 2] = ["pipewire-0", "pulse/native"];
+pub const XDG_RUNTIME_DIR: &str = "XDG_RUNTIME_DIR";
+pub const BGRA_BYTES_PER_PIXEL: usize = 4;
+pub const PLAYBACK_FRAME_QUEUE: usize = 2;
 pub const MAGICK_COMMAND: &str = "magick";
 pub const FONT_SPECIMEN_TEXT: &str =
     "AaBbCc 0123456789\nThe quick brown fox\njumps over the lazy dog";

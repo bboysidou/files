@@ -16,6 +16,7 @@ use crate::features::operations::domain::repositories::run_inspector::RunInspect
 use crate::features::operations::domain::repositories::system_clipboard::SystemClipboard;
 use crate::features::operations::domain::repositories::trash_bin::TrashBin;
 use crate::features::places::domain::entities::place::{Place, PlaceTarget};
+use crate::features::preview::domain::repositories::media_player::MediaPlayer;
 use crate::features::preview::domain::repositories::preview_source::PreviewSource;
 use crate::features::properties::domain::repositories::properties_source::PropertiesSource;
 use crate::features::search::domain::repositories::content_searcher::ContentSearcher;
@@ -36,6 +37,7 @@ pub struct BrowserSetup {
     pub system_clipboard: Arc<dyn SystemClipboard>,
     pub trash_bin: Arc<dyn TrashBin>,
     pub preview: Arc<dyn PreviewSource>,
+    pub player: Arc<dyn MediaPlayer>,
     pub thumbnails: Arc<dyn ThumbnailStore>,
     pub indexer: Arc<dyn SearchIndexer>,
     pub content: Arc<dyn ContentSearcher>,

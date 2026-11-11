@@ -38,4 +38,5 @@ pub mod tab_strip;
 pub mod toolbar;
 pub mod toolbar_end;
 pub mod toolbar_field;
+pub mod video_stage;
 pub mod view_switcher;

@@ -36,6 +36,7 @@ pub mod pane_parts;
 pub mod pane_start;
 pub mod pending_tab;
 pub mod pins;
+pub mod player_state;
 pub mod preview_state;
 pub mod preview_surface;
 pub mod preview_ticket;

@@ -33,6 +33,7 @@ actions!(
         QuickLookPrevious,
         QuickLookScrollDown,
         QuickLookScrollUp,
+        TogglePlayback,
         PanLeft,
         PanRight,
         PanUp,

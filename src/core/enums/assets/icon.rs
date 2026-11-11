@@ -58,6 +58,7 @@ icons! {
     Panel => "panel",
     Phone => "phone",
     Pin => "pin",
+    Play => "play",
     Paste => "paste",
     Plus => "plus",
     Search => "search",

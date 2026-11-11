@@ -7,6 +7,7 @@ use crate::core::helpers::format::duration_text::duration_text;
 use crate::core::theme::colors::{FG, FG_MUTED};
 use crate::core::theme::metrics::{FOLDER_PREVIEW_GAP, FOLDER_PREVIEW_PAD_X, TOOLBAR_GAP};
 use crate::features::browser::presentation::components::preview_image::PreviewImage;
+use crate::features::browser::presentation::components::video_stage::VideoStage;
 use crate::features::preview::domain::entities::media_facts::MediaFacts;
 
 const KILO: f64 = 1000.0;
@@ -16,6 +17,7 @@ pub struct PreviewMedia {
     pub frame: Option<PathBuf>,
     pub facts: MediaFacts,
     pub zoom: f32,
+    pub video: Option<VideoStage>,
 }
 
 impl PreviewMedia {
@@ -54,12 +56,16 @@ impl RenderOnce for PreviewMedia {
                 .child(div().text_color(rgb(FG_MUTED)).child(label))
                 .child(div().text_color(rgb(FG)).child(value))
         });
+        let has_video = self.video.is_some();
         div()
             .flex()
             .flex_col()
             .size_full()
             .gap(px(TOOLBAR_GAP))
-            .when_some(self.frame, |stage, frame| {
+            .when_some(self.video, |stage, video| {
+                stage.child(div().flex_1().min_h_0().child(video))
+            })
+            .when_some(self.frame.filter(|_| !has_video), |stage, frame| {
                 stage.child(div().flex_1().min_h_0().child(PreviewImage {
                     path: frame,
                     zoom: self.zoom,

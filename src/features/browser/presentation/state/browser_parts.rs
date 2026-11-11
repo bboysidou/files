@@ -6,6 +6,7 @@ use gpui::{FocusHandle, Pixels, Point, Size, Task, UniformListScrollHandle};
 
 use crate::features::browser::presentation::state::job_state::JobState;
 use crate::features::browser::presentation::state::operation_intent::OperationIntent;
+use crate::features::browser::presentation::state::player_state::PlayerState;
 use crate::features::browser::presentation::state::preview_state::PreviewState;
 use crate::features::browser::presentation::state::toast_model::ToastModel;
 use crate::features::operations::domain::entities::file_operation::FileOperation;
@@ -35,6 +36,7 @@ pub struct QuickLookSlot {
     pub scroll: UniformListScrollHandle,
     pub pan_from: Option<Point<Pixels>>,
     pub stage: Rc<Cell<Size<Pixels>>>,
+    pub player: PlayerState,
 }
 
 impl QuickLookSlot {
@@ -47,6 +49,7 @@ impl QuickLookSlot {
             scroll: UniformListScrollHandle::new(),
             pan_from: None,
             stage: Rc::default(),
+            player: PlayerState::default(),
         }
     }
 }
