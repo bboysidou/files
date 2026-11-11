@@ -18,7 +18,7 @@ use crate::features::preview::domain::entities::playback_request::PlaybackReques
 use crate::features::preview::domain::entities::preview_content::PreviewContent;
 use crate::features::preview::domain::entities::video_frame::VideoFrame;
 use crate::features::preview::domain::repositories::media_player::MediaPlayer;
-use crate::global_components::handlers::ClickHandler;
+use crate::global_components::handlers::{AmountHandler, ClickHandler};
 
 impl BrowserView {
     pub(super) fn toggle_playback(&mut self, cx: &mut Context<Self>) {
@@ -44,13 +44,16 @@ impl BrowserView {
     ) -> Option<VideoStage> {
         facts.video.as_ref()?;
         let player = &self.quick_look.player;
-        let view = cx.entity().downgrade();
+        let (toggle, seek) = (cx.entity().downgrade(), cx.entity().downgrade());
         let on_toggle: ClickHandler = Rc::new(move |_, cx| {
-            let _ = view.update(cx, |this, cx| this.toggle_playback(cx));
+            let _ = toggle.update(cx, |this, cx| this.toggle_playback(cx));
+        });
+        let on_seek: AmountHandler = Rc::new(move |fraction, _, cx| {
+            let _ = seek.update(cx, |this, cx| this.seek_playback(fraction, cx));
         });
         let progress = facts
             .duration_ms
-            .filter(|duration| *duration > 0 && (player.playing() || player.offset_ms > 0))
+            .filter(|duration| *duration > 0)
             .map(|duration| player.position_ms() as f32 / duration as f32);
         Some(VideoStage {
             poster: poster.to_path_buf(),
@@ -58,7 +61,26 @@ impl BrowserView {
             playing: player.playing(),
             progress,
             on_toggle,
+            on_seek,
         })
+    }
+
+    fn seek_playback(&mut self, fraction: f32, cx: &mut Context<Self>) {
+        let Some(duration) = self.media_duration() else {
+            return;
+        };
+        let player = &mut self.quick_look.player;
+        player.offset_ms = (duration as f64 * f64::from(fraction)) as u64;
+        player.started = None;
+        player.task = None;
+        self.start_playback(cx);
+    }
+
+    fn media_duration(&self) -> Option<u64> {
+        match self.quick_look.state.as_ref()?.content.as_ref()? {
+            PreviewContent::Media { facts, .. } => facts.duration_ms,
+            _ => None,
+        }
     }
 
     fn start_playback(&mut self, cx: &mut Context<Self>) {

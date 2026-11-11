@@ -1,16 +1,16 @@
+use std::cell::Cell;
 use std::path::PathBuf;
+use std::rc::Rc;
 use std::sync::Arc;
 
 use gpui::{
-    App, ImageSource, IntoElement, ObjectFit, RenderImage, RenderOnce, Window, div, img,
-    prelude::*, px, rgba,
+    App, Bounds, ImageSource, IntoElement, MouseButton, ObjectFit, Pixels, RenderImage, RenderOnce,
+    Window, canvas, div, img, prelude::*, px,
 };
 
-use crate::core::enums::assets::icon::Icon;
-use crate::core::theme::colors::{FG, SCRIM};
-use crate::core::theme::metrics::{PLAY_BUTTON_SIZE, PLAY_ICON_NUDGE, PLAY_ICON_SIZE, TOOLBAR_GAP};
-use crate::global_components::handlers::ClickHandler;
-use crate::global_components::icon_glyph::IconGlyph;
+use crate::core::theme::metrics::{PLAY_BUTTON_SIZE, PLAY_ICON_SIZE, SEEK_HIT_PAD, TOOLBAR_GAP};
+use crate::global_components::handlers::{AmountHandler, ClickHandler};
+use crate::global_components::play_badge::PlayBadge;
 use crate::global_components::progress_bar::ProgressBar;
 
 #[derive(IntoElement)]
@@ -20,6 +20,7 @@ pub struct VideoStage {
     pub playing: bool,
     pub progress: Option<f32>,
     pub on_toggle: ClickHandler,
+    pub on_seek: AmountHandler,
 }
 
 impl RenderOnce for VideoStage {
@@ -32,24 +33,8 @@ impl RenderOnce for VideoStage {
             .object_fit(ObjectFit::Contain)
             .absolute()
             .size_full();
-        let play = div()
-            .absolute()
-            .size_full()
-            .flex()
-            .items_center()
-            .justify_center()
-            .child(
-                div()
-                    .size(px(PLAY_BUTTON_SIZE))
-                    .rounded_full()
-                    .flex()
-                    .items_center()
-                    .justify_center()
-                    .pl(px(PLAY_ICON_NUDGE))
-                    .bg(rgba(SCRIM))
-                    .child(IconGlyph::new(Icon::Play, FG).size(PLAY_ICON_SIZE)),
-            );
         let on_toggle = self.on_toggle;
+        let on_seek = self.on_seek;
         div()
             .flex()
             .flex_col()
@@ -66,12 +51,42 @@ impl RenderOnce for VideoStage {
                     .cursor_pointer()
                     .on_click(move |_, window, cx| on_toggle(window, cx))
                     .child(picture)
-                    .when(!self.playing, |stage| stage.child(play)),
+                    .when(!self.playing, |stage| {
+                        stage.child(PlayBadge {
+                            size: PLAY_BUTTON_SIZE,
+                            icon_size: PLAY_ICON_SIZE,
+                        })
+                    }),
             )
             .when_some(self.progress, |stage, fraction| {
-                stage.child(div().flex().child(ProgressBar {
-                    fraction: Some(fraction),
-                }))
+                stage.child(seek_bar(fraction, on_seek))
             })
     }
+}
+
+fn seek_bar(fraction: f32, on_seek: AmountHandler) -> impl IntoElement {
+    let bounds: Rc<Cell<Bounds<Pixels>>> = Rc::default();
+    let measured = bounds.clone();
+    div()
+        .id("video-seek")
+        .relative()
+        .flex()
+        .py(px(SEEK_HIT_PAD))
+        .cursor_pointer()
+        .child(
+            canvas(move |area, _, _| measured.set(area), |_, _, _, _| {})
+                .absolute()
+                .size_full(),
+        )
+        .child(ProgressBar {
+            fraction: Some(fraction),
+        })
+        .on_mouse_down(MouseButton::Left, move |event, window, cx| {
+            cx.stop_propagation();
+            let area = bounds.get();
+            if area.size.width > px(0.0) {
+                let offset = (event.position.x - area.origin.x) / area.size.width;
+                on_seek(offset.clamp(0.0, 1.0), window, cx);
+            }
+        })
 }

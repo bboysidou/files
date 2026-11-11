@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use gpui::Context;
 
 use crate::core::constants::thumbnails::DIRECT_IMAGE_EXTENSIONS;
+use crate::core::enums::files::file_kind::FileKind;
 use crate::core::helpers::files::is_image::is_image;
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::pane_view::PaneView;
@@ -18,7 +19,7 @@ impl PaneView {
         cx: &mut Context<Self>,
     ) -> Option<PathBuf> {
         let extension = entry.extension.as_deref();
-        if !is_image(extension) {
+        if !is_image(extension) && entry.kind != FileKind::Video {
             return None;
         }
         let direct = extension.is_some_and(|extension| {

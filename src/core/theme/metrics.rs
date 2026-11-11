@@ -230,4 +230,6 @@ pub const ADMIN_CHIP_PAD_X: f32 = 6.0;
 pub const ADMIN_CHIP_RADIUS: f32 = 4.0;
 pub const PLAY_BUTTON_SIZE: f32 = 64.0;
 pub const PLAY_ICON_SIZE: f32 = 28.0;
-pub const PLAY_ICON_NUDGE: f32 = 3.0;
+pub const TILE_PLAY_SIZE: f32 = 32.0;
+pub const TILE_PLAY_ICON: f32 = 14.0;
+pub const SEEK_HIT_PAD: f32 = 6.0;

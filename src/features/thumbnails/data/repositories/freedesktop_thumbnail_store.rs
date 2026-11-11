@@ -12,6 +12,7 @@ use crate::core::constants::thumbnails::{
     THUMBNAIL_LARGE_DIR, THUMBNAIL_ROOT, THUMBNAIL_SIZE, THUMBNAIL_TEMP_EXTENSION,
 };
 use crate::core::helpers::files::file_uri::file_uri;
+use crate::features::thumbnails::data::datasources::video_still::video_still;
 use crate::features::thumbnails::domain::entities::thumbnail::Thumbnail;
 use crate::features::thumbnails::domain::repositories::thumbnail_store::ThumbnailStore;
 
@@ -90,12 +91,7 @@ impl FreedesktopThumbnailStore {
     }
 
     fn generate(source: &Path, destination: &Path, stamp: &Stamp) -> Option<()> {
-        let image = image::ImageReader::open(source)
-            .ok()?
-            .with_guessed_format()
-            .ok()?
-            .decode()
-            .ok()?;
+        let image = Self::decode(source).or_else(|| video_still(source))?;
         let thumbnail = image.thumbnail(THUMBNAIL_SIZE, THUMBNAIL_SIZE).to_rgba8();
         Self::write_png(
             destination,
@@ -103,6 +99,15 @@ impl FreedesktopThumbnailStore {
             thumbnail.as_raw(),
             stamp,
         )
+    }
+
+    fn decode(source: &Path) -> Option<image::DynamicImage> {
+        image::ImageReader::open(source)
+            .ok()?
+            .with_guessed_format()
+            .ok()?
+            .decode()
+            .ok()
     }
 
     fn mark_failed(destination: &Path, stamp: &Stamp) {

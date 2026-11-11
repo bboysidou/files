@@ -6,19 +6,21 @@ use gpui::{
 };
 
 use crate::core::enums::assets::icon::Icon;
+use crate::core::enums::files::file_kind::FileKind;
 use crate::core::theme::colors::{
     ACCENT, CARD, FG, FG_MUTED, ROW_HOVER, SELECTION_ALPHA, TRANSPARENT,
 };
 use crate::core::theme::metrics::ENTRY_TAG_GAP;
 use crate::core::theme::metrics::{
     CARD_RADIUS, CUT_OPACITY, TEXT_STATUS, TILE_FOLDER_ICON, TILE_INNER_GAP, TILE_NAME_HEIGHT,
-    TILE_PAD, TILE_THUMB_RADIUS,
+    TILE_PAD, TILE_PLAY_ICON, TILE_PLAY_SIZE, TILE_THUMB_RADIUS,
 };
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::presentation::components::entry_icon::EntryIcon;
 use crate::global_components::drag::drag_slot::DragSlot;
 use crate::global_components::handlers::{IndexClickHandler, IndexPointHandler};
 use crate::global_components::icon_glyph::IconGlyph;
+use crate::global_components::play_badge::PlayBadge;
 use crate::global_components::tag_dots::TagDots;
 
 #[derive(IntoElement)]
@@ -74,7 +76,9 @@ impl FileTile {
 
 impl FileTile {
     fn thumb(&self) -> gpui::Div {
+        let video = self.thumbnail.is_some() && self.entry.kind == FileKind::Video;
         div()
+            .relative()
             .flex()
             .items_center()
             .justify_center()
@@ -84,6 +88,12 @@ impl FileTile {
             .rounded(px(TILE_THUMB_RADIUS))
             .bg(rgb(CARD))
             .child(Self::thumb_content(&self.entry, self.thumbnail.clone()))
+            .when(video, |thumb| {
+                thumb.child(PlayBadge {
+                    size: TILE_PLAY_SIZE,
+                    icon_size: TILE_PLAY_ICON,
+                })
+            })
     }
 }
 

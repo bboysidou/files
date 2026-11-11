@@ -12,3 +12,14 @@ pub const THUMB_SOFTWARE: &str = "files";
 pub const PRIVATE_DIR_MODE: u32 = 0o700;
 pub const PRIVATE_FILE_MODE: u32 = 0o600;
 pub const DIRECT_IMAGE_EXTENSIONS: [&str; 1] = ["svg"];
+pub const VIDEO_STILL_OUTPUT: [&str; 8] = [
+    "-frames:v",
+    "1",
+    "-vf",
+    "scale=256:256:force_original_aspect_ratio=decrease",
+    "-c:v",
+    "png",
+    "-f",
+    "image2pipe",
+];
+pub const VIDEO_STILL_TARGET: &str = "pipe:1";

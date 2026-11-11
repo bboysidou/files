@@ -9,6 +9,7 @@ pub mod icon_glyph;
 pub mod kbd_hint;
 pub mod menu;
 pub mod modal_scrim;
+pub mod play_badge;
 pub mod progress_bar;
 pub mod protocol_badge;
 pub mod tag_dots;
