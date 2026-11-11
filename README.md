@@ -11,6 +11,7 @@
 
 <p align="center">
   <a href="https://github.com/bboysidou/files/releases/latest"><img src="https://img.shields.io/github/v/release/bboysidou/files" alt="latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/bboysidou/files" alt="licence"></a>
 </p>
 
 Inspired by [Flea](https://github.com/thisisgm/flea). `files` is a from-scratch rewrite that
