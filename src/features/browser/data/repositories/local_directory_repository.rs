@@ -4,7 +4,9 @@ use std::path::{Path, PathBuf};
 
 use crate::core::constants::files::{HIDDEN_PREFIX, TRASH_FILES_DIR};
 use crate::core::enums::files::file_kind::FileKind;
+use crate::core::enums::files::filesystem_kind::FilesystemKind;
 use crate::core::enums::tags::tag_color::TagColor;
+use crate::core::helpers::files::filesystem_kind_of::filesystem_kind_of;
 use crate::core::helpers::files::xdg_tags::xdg_tags;
 use crate::features::browser::domain::entities::file_entry::FileEntry;
 use crate::features::browser::domain::entities::list_error::ListError;
@@ -14,11 +16,11 @@ use crate::features::places::domain::entities::place::PlaceTarget;
 pub struct LocalDirectoryRepository;
 
 impl LocalDirectoryRepository {
-    fn entry(item: DirEntry) -> FileEntry {
-        Self::entry_at(item.path())
+    fn is_remote(path: &Path) -> bool {
+        matches!(filesystem_kind_of(path), FilesystemKind::Network)
     }
 
-    fn entry_at(path: PathBuf) -> FileEntry {
+    fn entry_at(path: PathBuf, remote: bool) -> FileEntry {
         let name = path
             .file_name()
             .map(|name| name.to_string_lossy().into_owned())
@@ -34,11 +36,17 @@ impl LocalDirectoryRepository {
             })
             .flatten();
         FileEntry {
-            tags: TagColor::from_names(&xdg_tags(&path)),
+            tags: if remote {
+                Vec::new()
+            } else {
+                TagColor::from_names(&xdg_tags(&path))
+            },
             kind: FileKind::classify(extension.as_deref(), is_dir),
             hidden: name.starts_with(HIDDEN_PREFIX),
             size: metadata.as_ref().filter(|_| !is_dir).map(Metadata::len),
-            child_count: is_dir.then(|| Self::count_children(&path)).flatten(),
+            child_count: (is_dir && !remote)
+                .then(|| Self::count_children(&path))
+                .flatten(),
             modified: metadata
                 .as_ref()
                 .and_then(|metadata| metadata.modified().ok()),
@@ -68,12 +76,16 @@ impl LocalDirectoryRepository {
 impl DirectoryRepository for LocalDirectoryRepository {
     fn list(&self, directory: &Path) -> Result<Vec<FileEntry>, ListError> {
         let items = fs::read_dir(directory).map_err(|error| Self::error_of(error.kind()))?;
-        Ok(items.filter_map(Result::ok).map(Self::entry).collect())
+        let remote = Self::is_remote(directory);
+        Ok(items
+            .filter_map(Result::ok)
+            .map(|item: DirEntry| Self::entry_at(item.path(), remote))
+            .collect())
     }
 
     fn entry(&self, path: &Path) -> Option<FileEntry> {
         fs::symlink_metadata(path).ok()?;
-        Some(Self::entry_at(path.to_path_buf()))
+        Some(Self::entry_at(path.to_path_buf(), Self::is_remote(path)))
     }
 
     fn resolve(&self, target: &PlaceTarget) -> Option<PathBuf> {
