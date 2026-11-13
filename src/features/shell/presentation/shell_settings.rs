@@ -104,7 +104,7 @@ impl ShellView {
         }
     }
 
-    fn session_settings(&self, me: EntityId, cx: &App) -> Settings {
+    fn session_settings(&self, me: EntityId, keep_self: bool, cx: &App) -> Settings {
         let mut settings = self.current_settings(cx);
         let mut windows: Vec<SavedWindow> = cx
             .try_global::<OpenShells>()
@@ -113,7 +113,9 @@ impl ShellView {
                     .0
                     .iter()
                     .filter_map(|shell| match shell.view.upgrade() {
-                        Some(view) if view.entity_id() == me => Some(self.saved_window(cx)),
+                        Some(view) if view.entity_id() == me => {
+                            keep_self.then(|| self.saved_window(cx))
+                        }
                         Some(view) => Some(view.read(cx).saved_window(cx)),
                         None => None,
                     })
@@ -153,7 +155,7 @@ impl ShellView {
     }
 
     pub(super) fn persist(&mut self, cx: &mut Context<Self>) {
-        let settings = self.session_settings(cx.entity_id(), cx);
+        let settings = self.session_settings(cx.entity_id(), true, cx);
         if settings == self.saved {
             return;
         }
@@ -166,9 +168,9 @@ impl ShellView {
             cx.background_executor()
                 .timer(Duration::from_millis(SETTINGS_SAVE_DEBOUNCE_MS))
                 .await;
-            let Ok(settings) =
-                this.update(cx, |this, cx| this.session_settings(cx.entity_id(), cx))
-            else {
+            let Ok(settings) = this.update(cx, |this, cx| {
+                this.session_settings(cx.entity_id(), true, cx)
+            }) else {
                 return;
             };
             cx.background_executor()
@@ -189,8 +191,16 @@ impl ShellView {
 
     pub(super) fn flush(&mut self, cx: &mut Context<Self>) {
         self.save_task = None;
-        let settings = self.session_settings(cx.entity_id(), cx);
+        let settings = self.session_settings(cx.entity_id(), true, cx);
         self.settings_repository.save(&settings);
         self.saved = settings;
+    }
+
+    pub(super) fn flush_closing(&mut self, cx: &mut Context<Self>) {
+        self.save_task = None;
+        let settings = self.session_settings(cx.entity_id(), false, cx);
+        if settings != self.saved {
+            self.settings_repository.save(&settings);
+        }
     }
 }

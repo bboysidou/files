@@ -247,7 +247,7 @@ three places:
 ### File chooser
 
 `files` can stand in for the GTK or KDE dialog when apps ask the desktop portal for a file. Run
-`files --picker`: it writes the D-Bus service file for your user and prints the two steps that need
+`files --picker`: it writes the D-Bus service files for your user and prints the two steps that need
 you (copying `files.portal` into `/usr/share/xdg-desktop-portal/portals/` with sudo, and naming
 `files` as the `FileChooser` in `~/.config/xdg-desktop-portal/portals.conf`). If a
 `<desktop>-portals.conf` exists for your session (for example `hyprland-portals.conf` under
@@ -259,8 +259,13 @@ org.freedesktop.impl.portal.FileChooser=files
 ```
 
 Then restart `xdg-desktop-portal.service`. Open, save, multiple
-selection and folder picking are supported. `Enter` picks, `Esc` cancels. The backend exits when its
-last dialog closes; D-Bus starts it again on the next request.
+selection and folder picking are supported. `Enter` picks, `Esc` cancels.
+
+The backend also keeps `files` resident. `files --picker` registers the app's own D-Bus name too, so
+the first launch starts `files --portal` and every later window opens inside that process instead of
+starting a new one. Fonts, the GPU context and the shaders are already loaded, so a window maps in
+about 30 ms instead of 250 ms to 1 s. The process stays after its last window closes; quitting it
+with `pkill -f "files --portal"` is safe, D-Bus starts it again on the next launch.
 
 ### Window class
 
@@ -414,7 +419,7 @@ files --select PATH    # open the folder and put the cursor on PATH
 files --default        # make files the default file manager (inode/directory)
 files --default off    # give the default back to the previous file manager
 files --picker         # register files as the file chooser portal backend
-files --portal         # run the file chooser backend (started by D-Bus)
+files --portal         # run the resident backend: file chooser and windows (started by D-Bus)
 ```
 
 Only one instance runs: launching `files` again opens the path as a new tab in the focused

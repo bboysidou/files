@@ -4,7 +4,7 @@ mod core;
 mod features;
 mod global_components;
 
-use gpui::App;
+use gpui::{App, QuitMode};
 
 use crate::core::assets::embedded_assets::EmbeddedAssets;
 use crate::core::assets::embedded_fonts::embedded_fonts;
@@ -71,7 +71,9 @@ fn main() {
         .run(move |cx: &mut App| {
             bind_keys(cx);
             if launch == LaunchRequest::Portal {
+                cx.set_quit_mode(QuitMode::Explicit);
                 serve_portal(cx);
+                serve_launches(cx);
             } else {
                 serve_launches(cx);
                 open_shell_window(

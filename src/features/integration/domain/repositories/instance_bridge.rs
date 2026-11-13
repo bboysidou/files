@@ -10,5 +10,5 @@ pub trait InstanceBridge: Send + Sync {
         &self,
         sender: UnboundedSender<LaunchRequest>,
         claim_file_manager: bool,
-    ) -> Option<Box<dyn Any>>;
+    ) -> Option<Box<dyn Any + Send>>;
 }

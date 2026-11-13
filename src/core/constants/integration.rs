@@ -26,5 +26,6 @@ pub const PORTAL_OPTION_ACCEPT: &str = "accept_label";
 pub const PORTAL_RESULT_URIS: &str = "uris";
 pub const DBUS_SERVICES_DIR: &str = "dbus-1/services";
 pub const PORTAL_SERVICE_FILE: &str = "org.freedesktop.impl.portal.desktop.files.service";
+pub const APP_SERVICE_FILE: &str = "io.github.bboysidou.Files.service";
 pub const PORTAL_FILE_NAME: &str = "files.portal";
 pub const SYSTEM_PORTALS_DIR: &str = "/usr/share/xdg-desktop-portal/portals";

@@ -92,7 +92,7 @@ impl ShellView {
             this.flush(cx);
             async {}
         });
-        cx.on_release(|_, cx| forget_shell(cx)).detach();
+        Self::track_lifetime(window, cx);
         let mut shell = Self {
             places,
             browser,
@@ -123,6 +123,15 @@ impl ShellView {
         };
         shell.start((start.launch, start.tabs.is_some()), window, cx);
         shell
+    }
+
+    fn track_lifetime(window: &mut Window, cx: &mut Context<Self>) {
+        cx.on_release(|_, cx| forget_shell(cx)).detach();
+        let closing = cx.entity().downgrade();
+        window.on_window_should_close(cx, move |_, cx| {
+            let _ = closing.update(cx, |this, cx| this.flush_closing(cx));
+            true
+        });
     }
 
     fn seed_pins(saved: &Settings, cx: &mut Context<Self>) {

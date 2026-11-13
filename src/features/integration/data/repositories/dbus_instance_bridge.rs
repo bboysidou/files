@@ -87,7 +87,7 @@ impl InstanceBridge for DbusInstanceBridge {
         &self,
         sender: UnboundedSender<LaunchRequest>,
         claim_file_manager: bool,
-    ) -> Option<Box<dyn Any>> {
+    ) -> Option<Box<dyn Any + Send>> {
         let app = connection::Builder::session()
             .ok()?
             .name(APP_BUS_NAME)

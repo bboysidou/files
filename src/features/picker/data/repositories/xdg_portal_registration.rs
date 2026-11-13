@@ -3,8 +3,8 @@ use std::fs;
 use std::path::Path;
 
 use crate::core::constants::integration::{
-    ARG_PORTAL, DBUS_SERVICES_DIR, PORTAL_BUS_NAME, PORTAL_FILE_NAME, PORTAL_SERVICE_FILE,
-    SYSTEM_PORTALS_DIR,
+    APP_BUS_NAME, APP_SERVICE_FILE, ARG_PORTAL, DBUS_SERVICES_DIR, PORTAL_BUS_NAME,
+    PORTAL_FILE_NAME, PORTAL_SERVICE_FILE, SYSTEM_PORTALS_DIR,
 };
 use crate::core::constants::settings::SETTINGS_DIR;
 use crate::features::picker::domain::repositories::portal_registration::PortalRegistration;
@@ -22,10 +22,10 @@ impl XdgPortalRegistration {
         fs::write(path, contents).map_err(|error| error.to_string())
     }
 
-    fn service_entry() -> Result<String, String> {
+    fn service_entry(name: &str) -> Result<String, String> {
         let executable = env::current_exe().map_err(|error| error.to_string())?;
         Ok(format!(
-            "[D-BUS Service]\nName={PORTAL_BUS_NAME}\nExec={} {ARG_PORTAL}\n",
+            "[D-BUS Service]\nName={name}\nExec={} {ARG_PORTAL}\n",
             executable.display()
         ))
     }
@@ -45,9 +45,14 @@ impl XdgPortalRegistration {
 impl PortalRegistration for XdgPortalRegistration {
     fn register(&self) -> Result<String, String> {
         let data = dirs::data_dir().ok_or("no data directory")?;
+        let services = data.join(DBUS_SERVICES_DIR);
         Self::write(
-            &data.join(DBUS_SERVICES_DIR).join(PORTAL_SERVICE_FILE),
-            &Self::service_entry()?,
+            &services.join(PORTAL_SERVICE_FILE),
+            &Self::service_entry(PORTAL_BUS_NAME)?,
+        )?;
+        Self::write(
+            &services.join(APP_SERVICE_FILE),
+            &Self::service_entry(APP_BUS_NAME)?,
         )?;
         let portal = data.join(SETTINGS_DIR).join(PORTAL_FILE_NAME);
         Self::write(&portal, &Self::portal_entry())?;

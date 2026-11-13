@@ -18,17 +18,17 @@ use crate::features::shell::presentation::state::shell_start::{ShellStart, Windo
 
 pub fn serve_launches(cx: &mut App) {
     let (sender, mut requests) = mpsc::unbounded();
-    let claim = default_handler().is_default();
-    let bus = instance_bridge().serve(sender, claim);
+    let bus = cx.background_executor().spawn(async move {
+        let claim = default_handler().is_default();
+        instance_bridge().serve(sender, claim)
+    });
     let task = cx.spawn(async move |cx| {
+        let _bus = bus.await;
         while let Some(request) = requests.next().await {
             cx.update(|cx| route_launch(request, cx));
         }
     });
-    cx.set_global(LaunchService {
-        _bus: bus,
-        _task: task,
-    });
+    cx.set_global(LaunchService { _task: task });
     cx.background_executor()
         .spawn(async { prune_caches() })
         .detach();
@@ -38,7 +38,7 @@ fn route_launch(request: LaunchRequest, cx: &mut App) {
     let Some((view, window)) = launch_target(cx) else {
         let start = ShellStart {
             launch: request,
-            role: WindowRole::Extra,
+            role: WindowRole::Primary,
             tabs: None,
         };
         return open_shell_window(start, cx);
@@ -51,7 +51,9 @@ fn route_launch(request: LaunchRequest, cx: &mut App) {
 
 fn launch_target(cx: &App) -> Option<(WeakEntity<ShellView>, AnyWindowHandle)> {
     let shells = &cx.try_global::<OpenShells>()?.0;
-    let live = |shell: &&OpenShell| shell.view.upgrade().is_some();
+    let windows = cx.windows();
+    let live =
+        |shell: &&OpenShell| shell.view.upgrade().is_some() && windows.contains(&shell.window);
     let active = cx.active_window();
     shells
         .iter()
